@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.e_2_e_encrypted_chat_app">
    <application
         android:label="e_2_e_encrypted_chat_app"
         android:name="${applicationName}"
