@@ -1,10 +1,15 @@
+import 'package:e_2_e_encrypted_chat_app/serverFunctions/add_new_user.dart';
 import 'package:e_2_e_encrypted_chat_app/serverFunctions/get_messages.dart';
+import 'package:e_2_e_encrypted_chat_app/signInPage/email_and_password_auth.dart/email_and_password_page.dart';
+import 'package:e_2_e_encrypted_chat_app/signInPage/sign_in_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  final user = await AddNewUser().signedInUser;
+  print(user?.email);
   runApp(const MyApp());
 
   GetMessages().addUser();
@@ -42,7 +47,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: greenAndroid,
       ),
-      home: const MyHomePage(title: 'Android Demo Home Page'),
+      home: EmailAndPasswordAuthentication(),
     );
   }
 }
