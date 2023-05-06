@@ -46,8 +46,11 @@ class MyApp extends StatelessWidget {
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
         primarySwatch: greenAndroid,
+        buttonTheme: const ButtonThemeData(
+          buttonColor: Color(0xff0cf3e1),
+        ),
       ),
-      home: EmailAndPasswordAuthentication(),
+      home: SignInPage(),
     );
   }
 }

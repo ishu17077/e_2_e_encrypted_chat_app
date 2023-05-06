@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AddNewUser {
-  Future<User?> get signedInUser async {
+  Future get signedInUser async {
     //! Nullable getter
     final user = FirebaseAuth.instance.authStateChanges().listen((User? user) {
       if (user != null) {
@@ -10,7 +10,13 @@ class AddNewUser {
         // print(user.email);
       }
     });
+    user.onData((data) {
+      print(data?.uid);
+      print("Display Name: ${data?.displayName}");
+      print("Email: ${data?.email}");
+    });
     return FirebaseAuth.instance.currentUser;
+    // return FirebaseAuth.instance.currentUser;
     // return await user.asFuture().asStream().first;
     // final userCredential = await FirebaseAuth.instance.signInWithCredential(const AuthCredential(providerId: 'google.com', signInMethod: 'password'));
     // final user = userCredential.user;
@@ -33,7 +39,7 @@ class AddNewUser {
     return await FirebaseAuth.instance.signInWithCredential(credential);
   }
 
-  void userWithEmalandPassword(String email, String password) {
+  static void userWithEmailandPassword(String email, String password) {
     FirebaseAuth.instance
         .createUserWithEmailAndPassword(email: email, password: password);
   }
