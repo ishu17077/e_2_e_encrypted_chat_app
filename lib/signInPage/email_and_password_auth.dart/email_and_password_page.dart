@@ -21,7 +21,8 @@ class _EmailAndPasswordAuthenticationState
   String _password = "";
   String _confPassword = "";
   String _error = "";
-  bool? passCheck;
+  bool passCheck1 = false;
+  bool passCheck2 = false;
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -110,20 +111,51 @@ class _EmailAndPasswordAuthenticationState
               }),
               onChanged: (value) => _email = value,
             ),
-            formField(
-              context,
-              infoBox: 'PASSWORD',
-              formField: 3,
-              icon: Icons.password_rounded,
-              onPressed: () => setState(() {
-                formFieldSelector = 3;
-              }),
-              onChanged: (value) => _password = value,
-            ),
+            formField(context,
+                infoBox: 'PASSWORD',
+                formField: 3,
+                icon: Icons.password_rounded,
+                onPressed: () => setState(() {
+                      formFieldSelector = 3;
+                    }),
+                suffixIcon: passCheck1
+                    ? _password == ""
+                        ? null
+                        : const Icon(
+                            Icons.check_circle_outline_outlined,
+                            color: Colors.greenAccent,
+                          )
+                    : const Icon(
+                        Icons.close,
+                        color: Colors.redAccent,
+                      ),
+                onChanged: (value) => _password = value,
+                validator: (value) {
+                  if (_password.length <= 8) {
+                    passCheck1 = false;
+                    return "Password is smaller than 8 letters";
+                  } else if (_password.isEmpty) {
+                    passCheck1 = false;
+                    return "Enter a password";
+                  } else {
+                    passCheck1 = true;
+                  }
+                }),
             formField(context,
                 infoBox: 'CONFIRM PASSWORD',
                 formField: 4,
                 icon: Icons.password_rounded,
+                suffixIcon: passCheck2
+                    ? _password == ""
+                        ? null
+                        : const Icon(
+                            Icons.check_circle_outline_outlined,
+                            color: Colors.greenAccent,
+                          )
+                    : const Icon(
+                        Icons.close,
+                        color: Colors.redAccent,
+                      ),
                 onPressed: () {
                   setState(() {
                     formFieldSelector = 4;
@@ -131,7 +163,11 @@ class _EmailAndPasswordAuthenticationState
                 },
                 onChanged: (value) => _confPassword = value,
                 validator: (value) {
-                  if (value != null && _password != _confPassword) {}
+                  if (value != null && _password == _confPassword) {
+                    passCheck2 = true;
+                  } else {
+                    passCheck2 = false;
+                  }
 
                   return null;
                 }),
