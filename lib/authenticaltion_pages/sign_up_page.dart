@@ -1,11 +1,11 @@
-import 'package:e_2_e_encrypted_chat_app/colors.dart';
+import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:e_2_e_encrypted_chat_app/serverFunctions/add_new_user.dart';
-import 'package:e_2_e_encrypted_chat_app/signInPage/email_and_password_auth.dart/email_and_password_page.dart';
+import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/email_and_password_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class SignInPage extends StatelessWidget {
-  SignInPage({super.key});
+class SignUpPage extends StatelessWidget {
+  SignUpPage({super.key});
   final _addNewUser = AddNewUser();
   @override
   Widget build(BuildContext context) {
