@@ -3,9 +3,7 @@ import 'package:e_2_e_encrypted_chat_app/models/user.dart';
 import 'package:e_2_e_encrypted_chat_app/serverFunctions/get_messages.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:e_2_e_encrypted_chat_app/serverFunctions/add_new_user.dart';
-import 'package:firebase_database/ui/firebase_list.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'reusable_widgets/app_back_button.dart';
 
@@ -117,6 +115,7 @@ class _EmailAndPasswordAuthenticationState
                       } else {
                         _shouldName = true;
                       }
+                      return null;
                     },
                     icon: Icons.person_2_outlined,
                     onPressed: () {
@@ -154,6 +153,7 @@ class _EmailAndPasswordAuthenticationState
                         _shouldParse = false;
                         return "Enter your correct number";
                       }
+                      return null;
                     },
                     suffixIcon: _shouldParse
                         ? greenCheckMark
@@ -181,6 +181,7 @@ class _EmailAndPasswordAuthenticationState
                         _emailValidate = false;
                         return "Invalid E -mail";
                       }
+                      return null;
                     },
                     suffixIcon: _emailValidate
                         ? greenCheckMark
@@ -213,6 +214,7 @@ class _EmailAndPasswordAuthenticationState
                         } else {
                           _passCheck1 = true;
                         }
+                        return null;
                       }),
                   formField(context,
                       infoBox: 'CONFIRM PASSWORD',
@@ -316,12 +318,13 @@ class _EmailAndPasswordAuthenticationState
       TextEditingController? controller,
       String? Function(String?)? validator}) {
     bool isClicked = formFieldSelector == formField;
+    
     return Center(
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20.0),
           color: isClicked
-              ? const Color.fromRGBO(133, 130, 141, 0.45)
+              ? kTextFieldColor
               : Colors.transparent,
         ),
         padding: const EdgeInsets.only(top: 0, bottom: 0, left: 12),

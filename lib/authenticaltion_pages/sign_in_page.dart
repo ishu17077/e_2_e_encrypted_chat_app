@@ -96,6 +96,7 @@ class _SignInPageState extends State<SignInPage> {
                     _emailValidate = false;
                     return "Invalid E -mail";
                   }
+                  return "Invalid E -mail";
                 },
                 suffixIcon: _emailValidate
                     ? greenCheckMark
@@ -131,6 +132,7 @@ class _SignInPageState extends State<SignInPage> {
                     } else {
                       _passCheck = true;
                     }
+                    return null;
                   }),
               SizedBox(
                   height: MediaQuery.of(context).size.height * 0.030956266),
@@ -188,9 +190,7 @@ class _SignInPageState extends State<SignInPage> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20.0),
-          color: isClicked
-              ? const Color.fromRGBO(133, 130, 141, 0.45)
-              : Colors.transparent,
+          color: isClicked ? kTextFieldColor : Colors.transparent,
         ),
         padding: const EdgeInsets.only(top: 0, bottom: 0, left: 12),
         height: MediaQuery.of(context).size.height * 0.075,

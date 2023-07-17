@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 const Color kBackgroundColor = Color(0xff201a30);
+const kTextFieldColor = Color.fromRGBO(133, 130, 141, 0.45);
 const Icon greenCheckMark = Icon(
   Icons.check_circle_outline_outlined,
   color: Colors.greenAccent,

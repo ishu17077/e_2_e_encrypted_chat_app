@@ -1,6 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.e_2_e_encrypted_chat_app">
-   <application
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application
         android:label="e_2_e_encrypted_chat_app"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
@@ -32,4 +31,3 @@
             android:value="2" />
     </application>
 </manifest>
-<!-- Changed by Mr X -->

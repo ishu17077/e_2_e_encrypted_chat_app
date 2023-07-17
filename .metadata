@@ -4,8 +4,8 @@
 # This file should be version controlled.
 
 version:
-  revision: 2c34a88eb89628e6a80caa50dd03797f9b6aa5e5
-  channel: master
+  revision: 9cd3d0d9ff05768afa249e036acc66e8abe93bff
+  channel: stable
 
 project_type: app
 
@@ -13,26 +13,26 @@ project_type: app
 migration:
   platforms:
     - platform: root
-      create_revision: 2c34a88eb89628e6a80caa50dd03797f9b6aa5e5
-      base_revision: 2c34a88eb89628e6a80caa50dd03797f9b6aa5e5
+      create_revision: 9cd3d0d9ff05768afa249e036acc66e8abe93bff
+      base_revision: 9cd3d0d9ff05768afa249e036acc66e8abe93bff
     - platform: android
-      create_revision: 2c34a88eb89628e6a80caa50dd03797f9b6aa5e5
-      base_revision: 2c34a88eb89628e6a80caa50dd03797f9b6aa5e5
+      create_revision: 9cd3d0d9ff05768afa249e036acc66e8abe93bff
+      base_revision: 9cd3d0d9ff05768afa249e036acc66e8abe93bff
     - platform: ios
-      create_revision: 2c34a88eb89628e6a80caa50dd03797f9b6aa5e5
-      base_revision: 2c34a88eb89628e6a80caa50dd03797f9b6aa5e5
+      create_revision: 9cd3d0d9ff05768afa249e036acc66e8abe93bff
+      base_revision: 9cd3d0d9ff05768afa249e036acc66e8abe93bff
     - platform: linux
-      create_revision: 2c34a88eb89628e6a80caa50dd03797f9b6aa5e5
-      base_revision: 2c34a88eb89628e6a80caa50dd03797f9b6aa5e5
+      create_revision: 9cd3d0d9ff05768afa249e036acc66e8abe93bff
+      base_revision: 9cd3d0d9ff05768afa249e036acc66e8abe93bff
     - platform: macos
-      create_revision: 2c34a88eb89628e6a80caa50dd03797f9b6aa5e5
-      base_revision: 2c34a88eb89628e6a80caa50dd03797f9b6aa5e5
+      create_revision: 9cd3d0d9ff05768afa249e036acc66e8abe93bff
+      base_revision: 9cd3d0d9ff05768afa249e036acc66e8abe93bff
     - platform: web
-      create_revision: 2c34a88eb89628e6a80caa50dd03797f9b6aa5e5
-      base_revision: 2c34a88eb89628e6a80caa50dd03797f9b6aa5e5
+      create_revision: 9cd3d0d9ff05768afa249e036acc66e8abe93bff
+      base_revision: 9cd3d0d9ff05768afa249e036acc66e8abe93bff
     - platform: windows
-      create_revision: 2c34a88eb89628e6a80caa50dd03797f9b6aa5e5
-      base_revision: 2c34a88eb89628e6a80caa50dd03797f9b6aa5e5
+      create_revision: 9cd3d0d9ff05768afa249e036acc66e8abe93bff
+      base_revision: 9cd3d0d9ff05768afa249e036acc66e8abe93bff
 
   # User provided section
 

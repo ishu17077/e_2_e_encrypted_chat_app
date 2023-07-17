@@ -5,6 +5,7 @@ class User {
   String emailAddress;
   String? _id;
   bool active;
+  List<String>? talksWithEmails;
   DateTime lastseen;
 
   User({
@@ -13,6 +14,7 @@ class User {
     required this.photoUrl,
     required this.active,
     required this.lastseen,
+    this.talksWithEmails,
   });
   toJson() => {
         'email_address': emailAddress,
@@ -20,6 +22,7 @@ class User {
         'photo_url': photoUrl,
         'active': active,
         'last_seen': lastseen,
+        'talks_with_emails': talksWithEmails ?? ['Nobody'],
       };
   factory User.fromJson(Map<String, dynamic> json) {
     final User user = User(
@@ -28,6 +31,7 @@ class User {
       photoUrl: json['photo_url'],
       active: json['active'],
       lastseen: json['last_seen'],
+      talksWithEmails: json['talks_with_emails'],
     );
     return user;
   }

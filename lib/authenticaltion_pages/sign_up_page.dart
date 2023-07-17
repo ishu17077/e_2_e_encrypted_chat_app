@@ -85,7 +85,7 @@ class SignUpPage extends StatelessWidget {
               heightImage: 31.7,
               widthImage: 31.7,
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => EmailAndPasswordAuthentication(),
+                builder: (context) => const EmailAndPasswordAuthentication(),
               )),
             ),
             Align(

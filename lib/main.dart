@@ -1,10 +1,8 @@
-import 'package:e_2_e_encrypted_chat_app/chatPage/chat_page.dart';
 import 'package:e_2_e_encrypted_chat_app/serverFunctions/add_new_user.dart';
-import 'package:e_2_e_encrypted_chat_app/serverFunctions/get_messages.dart';
-import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/email_and_password_page.dart';
-import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/sign_up_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+
+import 'package:e_2_e_encrypted_chat_app/chatPage/chat_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,6 +31,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         // This is the theme of your application.
@@ -45,11 +44,12 @@ class MyApp extends StatelessWidget {
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
         primarySwatch: greenAndroid,
+
         buttonTheme: const ButtonThemeData(
           buttonColor: Color(0xff0cf3e1),
         ),
       ),
-      home: SignUpPage(),
+      home: const ChatPage(),
     );
   }
 }
