@@ -30,7 +30,7 @@ class _ChatPageState extends State<ChatPage> {
     super.dispose();
   }
 
-  List<Message> messages = [];
+  // List<Message> messages = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -129,8 +129,8 @@ class _ChatPageState extends State<ChatPage> {
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: _firestore
-                      .collection('chats')
-                      .orderBy('time', descending: true)
+                      .collection("chats")
+                      // .orderBy('time', descending: true)
                       .snapshots(),
                   builder: (BuildContext context,
                       AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -155,11 +155,11 @@ class _ChatPageState extends State<ChatPage> {
                           ),
 
                           title: Text(
-                            data['sender'] ?? '',
+                            data['chat_with'] ?? '',
                             style: const TextStyle(color: Colors.white),
                           ), //! We can't put sender here as cause is we send a message to that person sender will be shown as us
                           subtitle: Text(
-                            data['contents'] ?? '**No Text**',
+                            data['last_message'] ?? '**No Text**',
                             style: const TextStyle(color: Colors.white70),
                           ),
                           onTap: () {},

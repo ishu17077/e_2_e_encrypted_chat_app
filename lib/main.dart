@@ -1,3 +1,4 @@
+import 'package:e_2_e_encrypted_chat_app/chatPage/add_new_chat_page.dart';
 import 'package:e_2_e_encrypted_chat_app/serverFunctions/add_new_user.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';

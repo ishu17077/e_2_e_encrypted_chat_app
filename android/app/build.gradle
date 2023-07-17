@@ -1,3 +1,4 @@
+
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
@@ -21,15 +22,14 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
-
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
-apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android'  
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    namespace "com.example.e_2_e_encrypted_chat_app"
-    compileSdkVersion flutter.compileSdkVersion
+    namespace 'com.example.e_2_e_encrypted_chat_app'
+    compileSdkVersion 33
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -50,7 +50,7 @@ android {
         applicationId "com.example.e_2_e_encrypted_chat_app"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion 21
+        minSdkVersion flutter.minSdkVersion
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -71,5 +71,17 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation platform('com.google.firebase:firebase-bom:32.0.0')
+        // ...
+
+        // Import the Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:32.2.0"))
+
+        // When using the BoM, you don't specify versions in Firebase library dependencies
+
+        // TODO: Add the dependencies for Firebase products you want to use
+        // See https://firebase.google.com/docs/android/setup#available-libraries
+        // For example, add the dependencies for Firebase Authentication and Cloud Firestore
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+
 }

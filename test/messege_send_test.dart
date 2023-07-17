@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() async {
   await Firebase.initializeApp();
   Message message = Message(
+      chatId: '',
       recepient: 'Lololol',
       contents: 'Lambda',
       time: DateTime.now(),

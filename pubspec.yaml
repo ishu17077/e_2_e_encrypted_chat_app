@@ -31,13 +31,13 @@ dependencies:
   cloud_firestore: ^4.8.0
   cupertino_icons: ^1.0.2
   firebase_auth: ^4.2.5
-  firebase_core: ^2.4.1
+  firebase_core: ^2.15.0
   firebase_database: ^10.0.9
   flutter:
     sdk: flutter
-  flutter_facebook_auth: ^5.0.7
+  flutter_facebook_auth: ^6.0.0
   google_sign_in: ^6.1.0
-  http: ^0.13.5
+  http: ^1.1.0
 
 dev_dependencies:
   flutter_lints: ^2.0.0
