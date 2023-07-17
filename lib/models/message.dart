@@ -2,6 +2,7 @@ class Message {
   String? get id => _id;
   String recepient;
   String? _id;
+  String chatId;
   DateTime time;
   String sender;
   String contents;
@@ -9,6 +10,7 @@ class Message {
   Message({
     required this.recepient,
     required this.time,
+    required this.chatId,
     required this.sender,
     required this.contents,
     required this.isSeen,
@@ -19,14 +21,17 @@ class Message {
         'is_seen': isSeen,
         'contents': contents,
         'time': time,
+        'chat_id': chatId,
       };
   factory Message.fromJson(Map<String, dynamic> json) {
     final Message message = Message(
-        sender: json['sender'],
-        recepient: json['receipient'],
-        time: json['time'],
-        contents: json['contents'],
-        isSeen: json['is_seen']);
+      sender: json['sender'],
+      recepient: json['receipient'],
+      time: json['time'],
+      contents: json['contents'],
+      isSeen: json['is_seen'],
+      chatId: json['chat_id'],
+    );
     return message;
   }
 }

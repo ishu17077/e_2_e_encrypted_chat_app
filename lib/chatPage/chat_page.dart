@@ -129,7 +129,7 @@ class _ChatPageState extends State<ChatPage> {
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: _firestore
-                      .collection('messages')
+                      .collection('chats')
                       .orderBy('time', descending: true)
                       .snapshots(),
                   builder: (BuildContext context,
@@ -155,7 +155,7 @@ class _ChatPageState extends State<ChatPage> {
                           ),
 
                           title: Text(
-                            data['sender']??'',
+                            data['sender'] ?? '',
                             style: const TextStyle(color: Colors.white),
                           ), //! We can't put sender here as cause is we send a message to that person sender will be shown as us
                           subtitle: Text(

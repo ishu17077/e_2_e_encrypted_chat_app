@@ -9,6 +9,7 @@ class ChatSend extends StatelessWidget {
   String sender = '';
   String recepient = '';
   Message message = Message(
+      chatId: '', //! ChatId should be unique
       recepient: 'Lololol',
       time: DateTime.now(),
       contents: '',
