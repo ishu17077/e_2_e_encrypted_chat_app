@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AddNewUser {
-  Future get signedInUser async {
+  static Future<User?> get signedInUser async {
     //! Nullable getter
     final user = FirebaseAuth.instance.authStateChanges().listen((User? user) {
       if (user != null) {

@@ -1,8 +1,8 @@
 import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/sign_in_page.dart';
 import 'package:e_2_e_encrypted_chat_app/models/user.dart';
-import 'package:e_2_e_encrypted_chat_app/serverFunctions/get_messages.dart';
+import 'package:e_2_e_encrypted_chat_app/server_functions/get_messages.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
-import 'package:e_2_e_encrypted_chat_app/serverFunctions/add_new_user.dart';
+import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:flutter/material.dart';
 
 import 'reusable_widgets/app_back_button.dart';

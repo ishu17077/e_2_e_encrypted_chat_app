@@ -1,6 +1,9 @@
 // ignore_for_file: must_be_immutable
 
-import 'package:e_2_e_encrypted_chat_app/serverFunctions/add_new_chat.dart';
+import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_chat.dart';
+import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import '../models/chat.dart';
@@ -13,6 +16,7 @@ class Chat_Add extends StatelessWidget {
   DateTime lastTime = DateTime.now();
   Chat chat = Chat(
     chatWith: '',
+    chatId: '',
     lastTime: DateTime.now(),
     lastMessage: '',
     unreadMessages: 69,
@@ -46,6 +50,8 @@ class Chat_Add extends StatelessWidget {
               chat.unreadMessages = unreadMessages;
               chat.lastMessage = lastMessage;
               chat.lastTime = lastTime;
+              chat.chatId =
+                  "${FirebaseAuth.instance.currentUser?.email}+ $chatWith";
               AddChat().addNewChat(chat);
             },
             child: const Text('Send Text'),

@@ -1,4 +1,4 @@
-import 'package:e_2_e_encrypted_chat_app/serverFunctions/get_messages.dart';
+import 'package:e_2_e_encrypted_chat_app/server_functions/get_messages.dart';
 import 'package:flutter/material.dart';
 
 import 'package:e_2_e_encrypted_chat_app/models/message.dart';

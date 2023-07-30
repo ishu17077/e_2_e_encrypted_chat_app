@@ -157,7 +157,7 @@ class _ChatPageState extends State<ChatPage> {
                           title: Text(
                             data['chat_with'] ?? '',
                             style: const TextStyle(color: Colors.white),
-                          ), //! We can't put sender here as cause is we send a message to that person sender will be shown as us
+                          ), //! We can't put sender here as cause if we send a message to that person sender will be shown as us
                           subtitle: Text(
                             data['last_message'] ?? '**No Text**',
                             style: const TextStyle(color: Colors.white70),

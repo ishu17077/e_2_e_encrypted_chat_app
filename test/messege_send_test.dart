@@ -1,5 +1,5 @@
 import 'package:e_2_e_encrypted_chat_app/models/message.dart';
-import 'package:e_2_e_encrypted_chat_app/serverFunctions/get_messages.dart';
+import 'package:e_2_e_encrypted_chat_app/server_functions/get_messages.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 
