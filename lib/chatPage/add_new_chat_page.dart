@@ -15,8 +15,11 @@ class Chat_Add extends StatelessWidget {
   String lastMessage = 'Good Luck Mate';
   DateTime lastTime = DateTime.now();
   Chat chat = Chat(
+    photoUrl: 'https://marmelab.com/images/blog/ascii-art-converter/homer.png',
     chatWith: '',
     chatId: '',
+    belongsToEmail: FirebaseAuth.instance.currentUser?.email,
+    chatName: 'Homer',
     lastTime: DateTime.now(),
     lastMessage: '',
     unreadMessages: 69,

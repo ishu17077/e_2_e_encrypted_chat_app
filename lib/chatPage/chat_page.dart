@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/chat_with_page.dart';
+import 'package:e_2_e_encrypted_chat_app/models/chat.dart';
 import 'package:e_2_e_encrypted_chat_app/models/message.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -126,50 +129,63 @@ class _ChatPageState extends State<ChatPage> {
                   cursorColor: Colors.teal,
                 ),
               ),
-              Expanded(
-                child: StreamBuilder<QuerySnapshot>(
-                  stream: _firestore
-                      .collection("chats")
-                      // .orderBy('time', descending: true)
-                      .snapshots(),
-                  builder: (BuildContext context,
-                      AsyncSnapshot<QuerySnapshot> snapshot) {
-                    if (snapshot.hasError) {
-                      return const Text('Something Went wrong');
-                    } else if (snapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    }
-
-                    return ListView(
+              StreamBuilder<QuerySnapshot>(
+                stream: _firestore
+                    .collection("chats")
+                    .where('belongs_to_email',
+                        //! Hope you see the problem
+                        isEqualTo: FirebaseAuth.instance.currentUser?.email ??
+                            'randomleloemail@gmail.com')
+                    // .orderBy('time', descending: true)
+                    .snapshots(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.hasError) {
+                    return const Text('Something Went wrong');
+                  } else if (snapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  }
+                  // ignore: avoid_print
+                  print(
+                      "Signed in as email${FirebaseAuth.instance.currentUser?.email ?? 'randomleloemail@gmail.com'} ");
+                  //! Hope you see the problem
+                  return Expanded(
+                    child: ListView(
                       physics: const BouncingScrollPhysics(),
                       children:
                           snapshot.data!.docs.map((DocumentSnapshot document) {
                         Map<String, dynamic> data =
                             document.data()! as Map<String, dynamic>;
+                        Chat chat = Chat.fromJson(data);
                         return ListTile(
                           tileColor: kBackgroundColor,
-                          leading: const CircleAvatar(
-                            backgroundImage: NetworkImage(
-                                'https://marmelab.com/images/blog/ascii-art-converter/homer.png'),
+                          leading: CircleAvatar(
+                            backgroundImage: NetworkImage(chat.photoUrl.isEmpty
+                                ? 'https://marmelab.com/images/blog/ascii-art-converter/homer.png'
+                                : chat.photoUrl),
                           ),
-
                           title: Text(
-                            data['chat_with'] ?? '',
+                            chat.chatName ?? '',
                             style: const TextStyle(color: Colors.white),
-                          ), //! We can't put sender here as cause if we send a message to that person sender will be shown as us
+                          ),
                           subtitle: Text(
-                            data['last_message'] ?? '**No Text**',
+                            chat.lastMessage ?? '**No Text**',
                             style: const TextStyle(color: Colors.white70),
                           ),
-                          onTap: () {},
+                          onTap: () =>
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => ChatWithPage(
+                                        chatName: chat.chatName,
+                                        chatId: chat.chatId,
+                                      ))),
                           enabled: true,
                           enableFeedback: true,
                         );
                       }).toList(),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
             ],
           ),

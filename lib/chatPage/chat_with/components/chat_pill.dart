@@ -5,16 +5,23 @@ class ChatPill extends StatelessWidget {
   String? text;
   bool isSeen;
   bool? isMe;
+  bool? isLastMessageFromUs;
 
-  ChatPill({super.key, this.text, this.isSeen = false, this.isMe});
+  ChatPill(
+      {super.key,
+      required this.text,
+      this.isSeen = false,
+      required this.isMe,
+      this.isLastMessageFromUs = false});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 8.5),
+      margin: const EdgeInsets.symmetric(vertical: 1.0, horizontal: 6.5),
       child: Column(children: [
         Align(
-          alignment: Alignment.bottomRight,
+          alignment:
+              isMe ?? false ? Alignment.bottomRight : Alignment.bottomLeft,
           child: Container(
             constraints: BoxConstraints(
                 minWidth: 0,
@@ -41,26 +48,29 @@ class ChatPill extends StatelessWidget {
           ),
         ),
         isMe ?? false
-            ? isSeen
-                ? const Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        "Seen  ",
-                        style: TextStyle(color: Colors.white70, fontSize: 12),
-                      ),
-                      Icon(
-                        Icons.done_all,
-                        color: Colors.blue,
-                        size: 12,
-                      ),
-                    ],
-                  )
-                : const Icon(
-                    Icons.done,
-                    color: Colors.grey,
-                    size: 17,
-                  )
+            ? isLastMessageFromUs ?? false
+                ? isMe ?? false
+                    ? const Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            "Seen  ",
+                            style:
+                                TextStyle(color: Colors.white70, fontSize: 12),
+                          ),
+                          Icon(
+                            Icons.done_all,
+                            color: Colors.blue,
+                            size: 12,
+                          ),
+                        ],
+                      )
+                    : const Icon(
+                        Icons.done,
+                        color: Colors.grey,
+                        size: 17,
+                      )
+                : Container()
             : Container(),
       ]),
     );

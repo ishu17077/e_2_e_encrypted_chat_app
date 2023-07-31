@@ -3,7 +3,13 @@ import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:flutter/material.dart';
 
 class ChatWithPage extends StatefulWidget {
-  const ChatWithPage({super.key});
+  String? chatName;
+  String? chatId;
+  ChatWithPage({
+    super.key,
+    this.chatName = '',
+    required this.chatId,
+  });
 
   @override
   State<ChatWithPage> createState() => _ChatWithPageState();
@@ -32,27 +38,46 @@ class _ChatWithPageState extends State<ChatWithPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             // ignore: prefer_const_constructors
-            const CircleAvatar(
-              backgroundImage: NetworkImage(
+            CircleAvatar(
+              backgroundImage: const NetworkImage(
                   'https://marmelab.com/images/blog/ascii-art-converter/homer.png'),
             ),
             SizedBox(width: MediaQuery.of(context).size.width * 0.05),
-            const Text(
-              'Arun Mc',
-              style: TextStyle(color: Colors.white70),
+            Text(
+              widget.chatName ?? '',
+              style: const TextStyle(color: Colors.white70),
             ),
           ],
         ),
       ),
-      body: Column(
-        children: [
-          ChatPill(
-            text:
-                'tapar tapar tapar tapar tapar tapar tapar tapar tapar tapar tapar tapar',
-            isMe: true,
-            isSeen: true,
-          )
-        ],
+      body: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10.0),
+        child: Column(
+          children: [
+            ChatPill(
+              text:
+                  'tapar tapar tapar tapar tapar tapar tapar tapar tapar tapar tapar tapar',
+              isMe: false,
+              isSeen: true,
+            ),
+            ChatPill(
+              text: 'Chup be bkl',
+              isMe: true,
+              isSeen: true,
+            ),
+            ChatPill(
+              text: 'Bahut Bolta ha',
+              isMe: true,
+              isSeen: true,
+              isLastMessageFromUs: true,
+            ),
+            ChatPill(
+              text: 'Ok',
+              isMe: false,
+              isSeen: true,
+            ),
+          ],
+        ),
       ),
     );
   }
