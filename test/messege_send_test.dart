@@ -7,10 +7,10 @@ void main() async {
   await Firebase.initializeApp();
   Message message = Message(
       chatId: '',
-      recepient: 'Lololol',
+      recepientEmail: 'Lololol',
       contents: 'Lambda',
       time: DateTime.now(),
-      sender: 'Legends of Sex',
+      senderEmail: 'Legends of Sex',
       isSeen: false);
   GetMessages getMessages = GetMessages();
   test('should send a message to Lololol sender', () async {

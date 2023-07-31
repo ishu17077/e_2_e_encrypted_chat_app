@@ -5,19 +5,25 @@ class ChatPill extends StatelessWidget {
   String? text;
   bool isSeen;
   bool? isMe;
-  bool? isLastMessageFromUs;
+  bool noMaginRequired = false;
 
-  ChatPill(
-      {super.key,
-      required this.text,
-      this.isSeen = false,
-      required this.isMe,
-      this.isLastMessageFromUs = false});
+  ChatPill({
+    super.key,
+    required this.text,
+    this.isSeen = false,
+    this.noMaginRequired = false,
+    required this.isMe,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 1.0, horizontal: 6.5),
+      margin: EdgeInsets.only(
+        left: 6.5,
+        right: 6.5,
+        top: noMaginRequired ? 1.0 : 10,
+        bottom: 1.0,
+      ),
       child: Column(children: [
         Align(
           alignment:
@@ -36,42 +42,42 @@ class ChatPill extends StatelessWidget {
                   borderRadius: BorderRadius.circular(15),
                   side: BorderSide.none),
             ),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              widthFactor: 1,
-              heightFactor: 1,
-              child: Text(
-                text ?? '',
-                style: const TextStyle(color: Colors.white, fontSize: 17),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        text ?? '',
+                        maxLines: 10,
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 17),
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: isMe ?? false
+                        ? isSeen
+                            ? const Icon(
+                                Icons.done_all,
+                                color: Colors.blue,
+                                size: 12,
+                              )
+                            : const Icon(
+                                Icons.done,
+                                color: Colors.grey,
+                                size: 17,
+                              )
+                        : const SizedBox(),
+                  )
+                ],
               ),
             ),
           ),
         ),
-        isMe ?? false
-            ? isLastMessageFromUs ?? false
-                ? isMe ?? false
-                    ? const Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(
-                            "Seen  ",
-                            style:
-                                TextStyle(color: Colors.white70, fontSize: 12),
-                          ),
-                          Icon(
-                            Icons.done_all,
-                            color: Colors.blue,
-                            size: 12,
-                          ),
-                        ],
-                      )
-                    : const Icon(
-                        Icons.done,
-                        color: Colors.grey,
-                        size: 17,
-                      )
-                : Container()
-            : Container(),
       ]),
     );
   }

@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/chat_with_page.dart';
 import 'package:e_2_e_encrypted_chat_app/models/chat.dart';
-import 'package:e_2_e_encrypted_chat_app/models/message.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -158,6 +157,7 @@ class _ChatPageState extends State<ChatPage> {
                         Map<String, dynamic> data =
                             document.data()! as Map<String, dynamic>;
                         Chat chat = Chat.fromJson(data);
+                        print("Chat id: ${chat.chatId}");
                         return ListTile(
                           tileColor: kBackgroundColor,
                           leading: CircleAvatar(

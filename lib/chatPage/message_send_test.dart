@@ -10,10 +10,10 @@ class ChatSend extends StatelessWidget {
   String recepient = '';
   Message message = Message(
       chatId: '', //! ChatId should be unique
-      recepient: 'Lololol',
+      recepientEmail: 'Lololol',
       time: DateTime.now(),
       contents: '',
-      sender: 'Legends of Sex',
+      senderEmail: 'Legends of Sex',
       isSeen: false);
   @override
   Widget build(BuildContext context) {
@@ -47,8 +47,8 @@ class ChatSend extends StatelessWidget {
           TextButton(
             onPressed: () {
               message.contents = contents;
-              message.sender = sender;
-              message.recepient = recepient;
+              message.senderEmail = sender;
+              message.recepientEmail = recepient;
 
               GetMessages().sendMessage(message);
             },

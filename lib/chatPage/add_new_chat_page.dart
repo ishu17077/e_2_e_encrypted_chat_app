@@ -16,11 +16,12 @@ class Chat_Add extends StatelessWidget {
   DateTime lastTime = DateTime.now();
   Chat chat = Chat(
     photoUrl: 'https://marmelab.com/images/blog/ascii-art-converter/homer.png',
-    chatWith: '',
+    chatWithEmail: '',
     chatId: '',
-    belongsToEmail: FirebaseAuth.instance.currentUser?.email,
+    belongsToEmail:
+        FirebaseAuth.instance.currentUser!.email ?? 'randomleloemail@gmail.com',
     chatName: 'Homer',
-    lastTime: DateTime.now(),
+    lastOnline: DateTime.now(),
     lastMessage: '',
     unreadMessages: 69,
   );
@@ -49,12 +50,13 @@ class Chat_Add extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              chat.chatWith = chatWith;
+              chat.chatWithEmail = chatWith;
               chat.unreadMessages = unreadMessages;
               chat.lastMessage = lastMessage;
-              chat.lastTime = lastTime;
+              chat.lastOnline = lastTime;
               chat.chatId =
                   "${FirebaseAuth.instance.currentUser?.email}+ $chatWith";
+              //! This methd + random letters or numbers at end will be generated
               AddChat().addNewChat(chat);
             },
             child: const Text('Send Text'),

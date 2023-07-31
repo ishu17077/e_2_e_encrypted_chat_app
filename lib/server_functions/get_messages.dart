@@ -34,7 +34,7 @@ class GetMessages {
         if (j > i) {
           break;
         }
-        if (messages[i].sender == messages[j].sender) {
+        if (messages[i].senderEmail == messages[j].senderEmail) {
           messages.remove(messages[i]);
         }
       }

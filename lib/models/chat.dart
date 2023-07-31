@@ -3,18 +3,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Chat {
   String? get id => _id;
   String? _id;
-  String chatWith;
+  String chatWithEmail;
   String? belongsToEmail;
   int unreadMessages;
-  DateTime lastTime;
+  DateTime lastOnline;
   String photoUrl;
   String? chatId;
   String? lastMessage;
   String? chatName;
   Chat({
-    required this.chatWith,
+    required this.chatWithEmail,
     required this.unreadMessages,
-    required this.lastTime,
+    required this.lastOnline,
     required this.photoUrl,
     required this.belongsToEmail,
     required this.chatId,
@@ -22,10 +22,10 @@ class Chat {
     this.lastMessage = '',
   });
   toJson() => {
-        'chat_with': chatWith,
+        'chat_with_email': chatWithEmail,
         'belongs_to_email': belongsToEmail,
         'unread_messages': unreadMessages,
-        'last_time': lastTime,
+        'last_time': lastOnline,
         'chat_name': chatName,
         'photo_url': photoUrl,
         'last_message': lastMessage,
@@ -33,9 +33,9 @@ class Chat {
       };
   factory Chat.fromJson(Map<String, dynamic> json) {
     final Chat chat = Chat(
-      chatWith: json['chat_with'],
+      chatWithEmail: json['chat_with_email'],
       photoUrl: json['photo_url'] ?? '',
-      lastTime: (json['last_time'] as Timestamp).toDate(),
+      lastOnline: (json['last_time'] as Timestamp).toDate(),
       belongsToEmail: json['belongs_to_email'],
       chatName: json['chat_name'],
       chatId: json['chat_id'],

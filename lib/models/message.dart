@@ -1,23 +1,24 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Message {
-  String? get id => _id;
-  String recepient;
-  String? _id;
+  String? id;
+  String recepientEmail;
   String chatId;
   DateTime time;
-  String sender;
+  String senderEmail;
   String contents;
   bool isSeen;
   Message({
-    required this.recepient,
+    required this.recepientEmail,
     required this.time,
     required this.chatId,
-    required this.sender,
+    required this.senderEmail,
     required this.contents,
     required this.isSeen,
   });
   toJson() => {
-        'sender': sender,
-        'recepient': recepient,
+        'sender_email': senderEmail,
+        'recipient_email': recepientEmail,
         'is_seen': isSeen,
         'contents': contents,
         'time': time,
@@ -25,12 +26,14 @@ class Message {
       };
   factory Message.fromJson(Map<String, dynamic> json) {
     final Message message = Message(
-      sender: json['sender'],
-      recepient: json['receipient'],
-      time: json['time'],
-      contents: json['contents'],
-      isSeen: json['is_seen'],
-      chatId: json['chat_id'],
+      senderEmail: json['sender_email'] ?? 'randomleloemail@gmail.com',
+      recepientEmail: json['recipient_email'] ?? 'jangiskhanlolu@gmail.com',
+      // ignore: unnecessary_cast
+      time: (json['time'] ?? Timestamp.now() as Timestamp).toDate(),
+      contents: json['contents'] ?? '',
+      isSeen: json['is_seen'] ?? false,
+      chatId: json['chat_id'] ??
+          'randomleloemail@gmail.comjangiskhanlolu@gmail.com',
     );
     return message;
   }

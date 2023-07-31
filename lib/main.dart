@@ -9,7 +9,7 @@ import 'package:e_2_e_encrypted_chat_app/chatPage/chat_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  final user = await AddNewUser.signedInUser;
+  final user = AddNewUser.signedInUser;
   print(user?.email);
   runApp(const MyApp());
 }
