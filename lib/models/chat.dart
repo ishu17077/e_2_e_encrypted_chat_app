@@ -25,7 +25,7 @@ class Chat {
         'chat_with_email': chatWithEmail,
         'belongs_to_email': belongsToEmail,
         'unread_messages': unreadMessages,
-        'last_time': lastOnline,
+        'last_online': lastOnline,
         'chat_name': chatName,
         'photo_url': photoUrl,
         'last_message': lastMessage,
@@ -35,7 +35,9 @@ class Chat {
     final Chat chat = Chat(
       chatWithEmail: json['chat_with_email'],
       photoUrl: json['photo_url'] ?? '',
-      lastOnline: (json['last_time'] as Timestamp).toDate(),
+      lastOnline:
+          // ignore: unnecessary_cast
+          (json['last_online'] ?? Timestamp.now() as Timestamp).toDate(),
       belongsToEmail: json['belongs_to_email'],
       chatName: json['chat_name'],
       chatId: json['chat_id'],

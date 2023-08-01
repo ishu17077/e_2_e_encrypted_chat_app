@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/chat_with_page.dart';
 import 'package:e_2_e_encrypted_chat_app/models/chat.dart';
+import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -18,12 +19,18 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   // final ScrollController _scrollController = ScrollController();
   bool shouldHideTextField = false;
-
+  Stream<QuerySnapshot<Map<String, dynamic>>>? _snapshotChats;
   @override
   void initState() {
+    _snapshotChats = _firestore
+        .collection("chats")
+        .where('belongs_to_email',
+            //! Hope you see the problem
+            isEqualTo: FirebaseAuth.instance.currentUser?.email ??
+                'randomleloemail@gmail.com')
+        // .orderBy('time', descending: true)
+        .snapshots();
     super.initState();
-    //   }
-    // });
   }
 
   @override
@@ -129,14 +136,7 @@ class _ChatPageState extends State<ChatPage> {
                 ),
               ),
               StreamBuilder<QuerySnapshot>(
-                stream: _firestore
-                    .collection("chats")
-                    .where('belongs_to_email',
-                        //! Hope you see the problem
-                        isEqualTo: FirebaseAuth.instance.currentUser?.email ??
-                            'randomleloemail@gmail.com')
-                    // .orderBy('time', descending: true)
-                    .snapshots(),
+                stream: _snapshotChats,
                 builder: (BuildContext context,
                     AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (snapshot.hasError) {
@@ -177,7 +177,11 @@ class _ChatPageState extends State<ChatPage> {
                               Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => ChatWithPage(
                                         chatName: chat.chatName,
-                                        chatId: chat.chatId,
+                                        chatId: chat.chatId ?? 'No Chat Id',
+                                        recepientEmail: chat.chatWithEmail,
+                                        senderEmail:
+                                            AddNewUser.signedInUser?.email ??
+                                                'randomleloemail@gmail.com',
                                       ))),
                           enabled: true,
                           enableFeedback: true,

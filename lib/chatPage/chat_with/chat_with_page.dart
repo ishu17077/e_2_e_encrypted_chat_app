@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/components/chat_pill.dart';
+import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/components/chat_text_field.dart';
 import 'package:e_2_e_encrypted_chat_app/models/message.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
@@ -10,12 +11,18 @@ final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
 class ChatWithPage extends StatefulWidget {
   String? chatName;
-  String? chatId;
+  String senderEmail;
+  String recepientEmail;
+  DateTime? lastOnline = DateTime.tryParse('19700101');
+  String chatId;
 
   ChatWithPage({
     super.key,
     this.chatName = '',
+    required this.senderEmail,
+    required this.recepientEmail,
     required this.chatId,
+    this.lastOnline,
   });
 
   @override
@@ -25,10 +32,16 @@ class ChatWithPage extends StatefulWidget {
 class _ChatWithPageState extends State<ChatWithPage> {
   late User? signedInUser;
   Message? previousMessage;
+  Stream<QuerySnapshot<Map<String, dynamic>>>? _mystream;
   @override
   void initState() {
     signedInUser = AddNewUser.signedInUser;
-
+    _mystream = _firestore
+        .collection('messages')
+        .where('chat_id', isEqualTo: widget.chatId)
+        .orderBy('time')
+        .snapshots();
+    //! _mystream was seperately assigned as it was changing with everytime something happens like a keyboard pop up lol
     super.initState();
   }
 
@@ -69,10 +82,7 @@ class _ChatWithPageState extends State<ChatWithPage> {
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 10.0),
         child: StreamBuilder<QuerySnapshot>(
-          stream: _firestore
-              .collection('messages')
-              .where('chat_id', isEqualTo: widget.chatId)
-              .snapshots(),
+          stream: _mystream,
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.hasError) {
@@ -82,29 +92,51 @@ class _ChatWithPageState extends State<ChatWithPage> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
-            return ListView(
-              physics: const BouncingScrollPhysics(),
-              children:
-                  snapshot.data!.docs.reversed.map((DocumentSnapshot document) {
-                Map<String, dynamic> messageMap =
-                    document.data() as Map<String, dynamic>;
+            return Column(
+              children: [
+                Flexible(
+                  flex: 1,
+                  child: ListView(
+                    physics: const BouncingScrollPhysics(),
+                    children:
+                        snapshot.data!.docs.map((DocumentSnapshot document) {
+                      Map<String, dynamic> messageMap =
+                          document.data() as Map<String, dynamic>;
 
-                Message message = Message.fromJson(messageMap);
-                message.id = document.id;
-                bool noMarginRequired =
-                    message.senderEmail == previousMessage?.senderEmail;
-            
-                previousMessage = message;
-                return ChatPill(
-                  text: message.contents,
-                  isSeen: message.isSeen,
-                  isMe: _isMe(
-                    message.senderEmail,
-                    signedInUser?.email ?? 'randomleloemail@gmail.com',
+                      Message message = Message.fromJson(messageMap);
+                      message.id = document.id;
+                      bool noMarginRequired =
+                          message.senderEmail == previousMessage?.senderEmail;
+
+                      previousMessage = message;
+                      return ChatPill(
+                        text: message.contents,
+                        isSeen: message.isSeen,
+                        isMe: _isMe(
+                          message.senderEmail,
+                          signedInUser?.email ?? 'randomleloemail@gmail.com',
+                        ),
+                        noMaginRequired: noMarginRequired,
+                      );
+                    }).toList(),
                   ),
-                  noMaginRequired: noMarginRequired,
-                );
-              }).toList(),
+                ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: ChatTextField(
+                    onSendButtonPressed: (String contents) {
+                      Message message = Message(
+                          recepientEmail: widget.recepientEmail,
+                          time: DateTime.now(),
+                          chatId: widget.chatId,
+                          senderEmail: widget.senderEmail,
+                          contents: contents,
+                          isSeen: false);
+                      _firestore.collection('messages').add(message.toJson());
+                    },
+                  ),
+                )
+              ],
             );
           },
         ),

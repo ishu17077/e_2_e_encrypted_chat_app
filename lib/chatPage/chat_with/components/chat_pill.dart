@@ -2,12 +2,12 @@ import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:flutter/material.dart';
 
 class ChatPill extends StatelessWidget {
-  String? text;
-  bool isSeen;
-  bool? isMe;
-  bool noMaginRequired = false;
+  final String? text;
+  final bool isSeen;
+  final bool? isMe;
+  final bool noMaginRequired;
 
-  ChatPill({
+  const ChatPill({
     super.key,
     required this.text,
     this.isSeen = false,
@@ -42,39 +42,38 @@ class ChatPill extends StatelessWidget {
                   borderRadius: BorderRadius.circular(15),
                   side: BorderSide.none),
             ),
-            child: IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        text ?? '',
-                        maxLines: 10,
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 17),
-                      ),
-                    ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    text ?? '',
+                    maxLines: 10,
+                    textAlign: TextAlign.start,
+                    style: const TextStyle(color: Colors.white, fontSize: 17),
+                    softWrap: true,
                   ),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: isMe ?? false
-                        ? isSeen
-                            ? const Icon(
-                                Icons.done_all,
-                                color: Colors.blue,
-                                size: 12,
-                              )
-                            : const Icon(
-                                Icons.done,
-                                color: Colors.grey,
-                                size: 17,
-                              )
-                        : const SizedBox(),
-                  )
-                ],
-              ),
+                ),
+                const SizedBox(width: 5),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: isMe ?? false
+                      ? isSeen
+                          ? const Icon(
+                              Icons.done_all,
+                              color: Colors.blue,
+                              size: 12,
+                            )
+                          : const Icon(
+                              Icons.done,
+                              color: Colors.grey,
+                              size: 17,
+                            )
+                      : const SizedBox(),
+                )
+              ],
             ),
           ),
         ),
