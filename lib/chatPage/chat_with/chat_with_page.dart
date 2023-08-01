@@ -140,32 +140,6 @@ class _ChatWithPageState extends State<ChatWithPage> {
             );
           },
         ),
-        // child: Column(
-        //   children: [
-        //     ChatPill(
-        //       text:
-        //           'tapar tapar tapar tapar tapar tapar tapar tapar tapar tapar tapar tapar',
-        //       isMe: false,
-        //       isSeen: true,
-        //     ),
-        //     ChatPill(
-        //       text: 'Chup be bkl',
-        //       isMe: true,
-        //       isSeen: true,
-        //     ),
-        //     ChatPill(
-        //       text: 'Bahut Bolta ha',
-        //       isMe: true,
-        //       isSeen: true,
-        //       isLastMessageFromUs: true,
-        //     ),
-        //     ChatPill(
-        //       text: 'Ok',
-        //       isMe: false,
-        //       isSeen: true,
-        //     ),
-        //   ],
-        // ),
       ),
     );
   }
