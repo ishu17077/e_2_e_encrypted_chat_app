@@ -258,7 +258,6 @@ class _EmailAndPasswordAuthenticationState
                             emailAddress: _email,
                             username: _name,
                             photoUrl: '',
-                            active: true,
                             lastseen: DateTime.now(),
                           );
                           GetMessages.addUser(user);
@@ -318,14 +317,12 @@ class _EmailAndPasswordAuthenticationState
       TextEditingController? controller,
       String? Function(String?)? validator}) {
     bool isClicked = formFieldSelector == formField;
-    
+
     return Center(
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20.0),
-          color: isClicked
-              ? kTextFieldColor
-              : Colors.transparent,
+          color: isClicked ? kTextFieldColor : Colors.transparent,
         ),
         padding: const EdgeInsets.only(top: 0, bottom: 0, left: 12),
         height: MediaQuery.of(context).size.height * 0.075,

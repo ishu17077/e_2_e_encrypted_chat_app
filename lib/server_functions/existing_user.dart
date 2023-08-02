@@ -19,7 +19,6 @@ class ExistingUser {
       emailAddress: credential?.user?.email ?? '',
       username: credential?.user?.displayName ?? '',
       photoUrl: '',
-      active: false,
       lastseen: DateTime.now(),
     );
   }

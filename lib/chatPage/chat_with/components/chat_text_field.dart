@@ -1,10 +1,12 @@
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class ChatTextField extends StatelessWidget {
   final Function onSendButtonPressed;
   ChatTextField({super.key, required this.onSendButtonPressed});
-  late String contents;
+  final TextEditingController _textEditingController = TextEditingController();
+  String? contents;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -22,6 +24,7 @@ class ChatTextField extends StatelessWidget {
           this.contents = contents;
         },
         style: TextStyle(color: Colors.white.withOpacity(0.9)),
+        controller: _textEditingController,
         decoration: InputDecoration(
             contentPadding: const EdgeInsets.only(
                 left: 1.0, right: 1.0, top: 10.0, bottom: 10.0),
@@ -37,7 +40,10 @@ class ChatTextField extends StatelessWidget {
                 Icons.send_rounded,
                 color: kSexyTealColor,
               ),
-              onPressed: () => onSendButtonPressed(contents),
+              onPressed: () {
+                _textEditingController.clear();
+                onSendButtonPressed(contents?.trimRight() ?? '');
+              },
             )),
       ),
     );

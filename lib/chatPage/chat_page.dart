@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_2_e_encrypted_chat_app/chatPage/add_new_chat_page.dart';
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/chat_with_page.dart';
 import 'package:e_2_e_encrypted_chat_app/models/chat.dart';
+import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_chat.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -24,10 +26,10 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     _snapshotChats = _firestore
         .collection("chats")
-        .where('belongs_to_email',
+        .where('belongs_to_emails',
             //! Hope you see the problem
-            isEqualTo: FirebaseAuth.instance.currentUser?.email ??
-                'randomleloemail@gmail.com')
+            arrayContains:
+                AddNewUser.signedInUser?.email ?? 'randomleloemail@gmail.com')
         // .orderBy('time', descending: true)
         .snapshots();
     super.initState();
@@ -82,7 +84,6 @@ class _ChatPageState extends State<ChatPage> {
                               borderRadius: BorderRadius.circular(20.0),
                               borderSide: BorderSide.none,
                             ),
-                            onPressed: () {},
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -98,6 +99,10 @@ class _ChatPageState extends State<ChatPage> {
                                 ),
                               ],
                             ),
+                            onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ChatAdd())),
                           ),
                         ],
                       ),
@@ -158,34 +163,7 @@ class _ChatPageState extends State<ChatPage> {
                             document.data()! as Map<String, dynamic>;
                         Chat chat = Chat.fromJson(data);
                         print("Chat id: ${chat.chatId}");
-                        return ListTile(
-                          tileColor: kBackgroundColor,
-                          leading: CircleAvatar(
-                            backgroundImage: NetworkImage(chat.photoUrl.isEmpty
-                                ? 'https://marmelab.com/images/blog/ascii-art-converter/homer.png'
-                                : chat.photoUrl),
-                          ),
-                          title: Text(
-                            chat.chatName ?? '',
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          subtitle: Text(
-                            chat.lastMessage ?? '**No Text**',
-                            style: const TextStyle(color: Colors.white70),
-                          ),
-                          onTap: () =>
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => ChatWithPage(
-                                        chatName: chat.chatName,
-                                        chatId: chat.chatId ?? 'No Chat Id',
-                                        recepientEmail: chat.chatWithEmail,
-                                        senderEmail:
-                                            AddNewUser.signedInUser?.email ??
-                                                'randomleloemail@gmail.com',
-                                      ))),
-                          enabled: true,
-                          enableFeedback: true,
-                        );
+                        return chatTile(chat, context);
                       }).toList(),
                     ),
                   );
@@ -196,5 +174,36 @@ class _ChatPageState extends State<ChatPage> {
         ),
       ),
     );
+  }
+
+  ListTile chatTile(Chat chat, BuildContext context) {
+    return ListTile(
+                        tileColor: kBackgroundColor,
+                        leading: CircleAvatar(
+                          backgroundImage: NetworkImage(chat.photoUrl.isEmpty
+                              ? 'https://marmelab.com/images/blog/ascii-art-converter/homer.png'
+                              : chat.photoUrl),
+                        ),
+                        title: Text(
+                          chat.chatName ?? '',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                        subtitle: Text(
+                          chat.lastMessage ?? '**No Text**',
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                        onTap: () =>
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => ChatWithPage(
+                                      chatName: chat.chatName,
+                                      chatId: chat.chatId ?? 'No Chat Id',
+                                      recepientEmail: chat.chatWithEmail,
+                                      senderEmail:
+                                          AddNewUser.signedInUser?.email ??
+                                              'randomleloemail@gmail.com',
+                                    ))),
+                        enabled: true,
+                        enableFeedback: true,
+                      );
   }
 }

@@ -4,11 +4,11 @@ class Chat {
   String? get id => _id;
   String? _id;
   String chatWithEmail;
-  String? belongsToEmail;
+  List<String?> belongsToEmails;
   int unreadMessages;
   DateTime lastOnline;
   String photoUrl;
-  String? chatId;
+  String chatId;
   String? lastMessage;
   String? chatName;
   Chat({
@@ -16,14 +16,14 @@ class Chat {
     required this.unreadMessages,
     required this.lastOnline,
     required this.photoUrl,
-    required this.belongsToEmail,
+    required this.belongsToEmails,
     required this.chatId,
     required this.chatName,
     this.lastMessage = '',
   });
   toJson() => {
         'chat_with_email': chatWithEmail,
-        'belongs_to_email': belongsToEmail,
+        'belongs_to_emails': belongsToEmails,
         'unread_messages': unreadMessages,
         'last_online': lastOnline,
         'chat_name': chatName,
@@ -38,7 +38,7 @@ class Chat {
       lastOnline:
           // ignore: unnecessary_cast
           (json['last_online'] ?? Timestamp.now() as Timestamp).toDate(),
-      belongsToEmail: json['belongs_to_email'],
+      belongsToEmails: List.castFrom(json['belongs_to_emails'] as List),
       chatName: json['chat_name'],
       chatId: json['chat_id'],
       unreadMessages: json['unread_messages'],

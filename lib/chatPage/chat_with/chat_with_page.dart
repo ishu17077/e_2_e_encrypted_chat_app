@@ -97,11 +97,12 @@ class _ChatWithPageState extends State<ChatWithPage> {
                 Flexible(
                   flex: 1,
                   child: ListView(
+                    reverse: true,
                     physics: const BouncingScrollPhysics(),
-                    children:
-                        snapshot.data!.docs.map((DocumentSnapshot document) {
+                    children: snapshot.data!.docs.reversed
+                        .map((DocumentSnapshot document) {
                       Map<String, dynamic> messageMap =
-                          document.data() as Map<String, dynamic>;
+                          document.data()! as Map<String, dynamic>;
 
                       Message message = Message.fromJson(messageMap);
                       message.id = document.id;
@@ -125,14 +126,16 @@ class _ChatWithPageState extends State<ChatWithPage> {
                   alignment: Alignment.bottomCenter,
                   child: ChatTextField(
                     onSendButtonPressed: (String contents) {
-                      Message message = Message(
-                          recepientEmail: widget.recepientEmail,
-                          time: DateTime.now(),
-                          chatId: widget.chatId,
-                          senderEmail: widget.senderEmail,
-                          contents: contents,
-                          isSeen: false);
-                      _firestore.collection('messages').add(message.toJson());
+                      if (contents.isNotEmpty) {
+                        Message message = Message(
+                            recepientEmail: widget.recepientEmail,
+                            time: DateTime.now(),
+                            chatId: widget.chatId,
+                            senderEmail: widget.senderEmail,
+                            contents: contents!,
+                            isSeen: false);
+                        _firestore.collection('messages').add(message.toJson());
+                      }
                     },
                   ),
                 )
