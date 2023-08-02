@@ -1,4 +1,4 @@
-import 'package:e_2_e_encrypted_chat_app/chatPage/add_new_chat_page.dart';
+import 'package:e_2_e_encrypted_chat_app/chatPage/add_new_chat/add_new_chat_page.dart';
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/chat_with_page.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:firebase_core/firebase_core.dart';

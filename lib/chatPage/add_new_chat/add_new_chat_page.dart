@@ -12,7 +12,7 @@ import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:e_2_e_encrypted_chat_app/models/user.dart';
 import 'package:flutter/material.dart';
 
-import '../models/chat.dart';
+import '../../models/chat.dart';
 
 // ignore: camel_case_types
 class ChatAdd extends StatelessWidget {
