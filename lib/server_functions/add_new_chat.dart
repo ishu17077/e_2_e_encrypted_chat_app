@@ -9,7 +9,7 @@ class AddNewChat {
         .collection('chats')
         .add(chat.toJson())
         .then((DocumentReference doc) {
-      print('Lolskdjkdj DocumentSnapshot added  with ID: ${doc.id}, ${doc.path}');
+      print('DocumentSnapshot added  with ID: ${doc.id}, ${doc.path}');
       return db.collection('chats').get();
     });
   }

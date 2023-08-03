@@ -28,6 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  animated_text_kit: ^4.2.2
   cloud_firestore: ^4.8.0
   cupertino_icons: ^1.0.2
   firebase_auth: ^4.2.5
@@ -55,10 +56,10 @@ flutter:
   uses-material-design: true
   # To add assets to your application, add an assets section, like this:
   assets:
-   - assets/sign_in_logo.png
-   - assets/google_icon.png
-   - assets/facebook_icon.png
-   - assets/email_icon.png
+    - assets/sign_in_logo.png
+    - assets/google_icon.png
+    - assets/facebook_icon.png
+    - assets/email_icon.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
   # For details regarding adding assets from package dependencies, see

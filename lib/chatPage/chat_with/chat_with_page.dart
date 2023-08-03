@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/components/chat_pill.dart';
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/components/chat_text_field.dart';
+import 'package:e_2_e_encrypted_chat_app/models/chat.dart';
 import 'package:e_2_e_encrypted_chat_app/models/message.dart';
+import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_chat.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,16 +13,20 @@ final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
 class ChatWithPage extends StatefulWidget {
   String? chatName;
+  Chat chat;
   String senderEmail;
   String recepientEmail;
   DateTime? lastOnline = DateTime.tryParse('19700101');
   String chatId;
+  bool chatExists;
 
   ChatWithPage({
     super.key,
     this.chatName = '',
     required this.senderEmail,
     required this.recepientEmail,
+    required this.chat,
+    this.chatExists = true,
     required this.chatId,
     this.lastOnline,
   });
@@ -32,6 +38,7 @@ class ChatWithPage extends StatefulWidget {
 class _ChatWithPageState extends State<ChatWithPage> {
   late User? signedInUser;
   Message? previousMessage;
+  final AddNewChat _addNewChat = AddNewChat();
   Stream<QuerySnapshot<Map<String, dynamic>>>? _mystream;
   @override
   void initState() {
@@ -68,8 +75,12 @@ class _ChatWithPageState extends State<ChatWithPage> {
           children: [
             // ignore: prefer_const_constructors
             CircleAvatar(
-              backgroundImage: const NetworkImage(
-                  'https://marmelab.com/images/blog/ascii-art-converter/homer.png'),
+              backgroundImage: NetworkImage(
+                      widget.chat.belongsToEmails.first != AddNewUser.signedInUser!.email
+                  ? widget.chat.photoUrls.first ??
+                      'https://marmelab.com/images/blog/ascii-art-converter/homer.png'
+                  : widget.chat.photoUrls.last ??
+                      'https://marmelab.com/images/blog/ascii-art-converter/homer.png'),
             ),
             SizedBox(width: MediaQuery.of(context).size.width * 0.05),
             Text(
@@ -132,8 +143,11 @@ class _ChatWithPageState extends State<ChatWithPage> {
                             time: DateTime.now(),
                             chatId: widget.chatId,
                             senderEmail: widget.senderEmail,
-                            contents: contents!,
+                            contents: contents,
                             isSeen: false);
+                        if (widget.chatExists == false) {
+                          _addNewChat.addNewChat(widget.chat);
+                        }
                         _firestore.collection('messages').add(message.toJson());
                       }
                     },

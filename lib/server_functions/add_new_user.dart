@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:e_2_e_encrypted_chat_app/models/user.dart' as myuser;
 
 class AddNewUser {
   static User? get signedInUser {
@@ -23,6 +25,28 @@ class AddNewUser {
     // print(user?.uid);
   }
 
+  static Future<String?> addUserToDatabase(myuser.User user) async {
+    String _error = '';
+    final _firestore = FirebaseFirestore.instance;
+    final QuerySnapshot checkExists = await _firestore
+        .collection('users')
+        .where('email_address', isEqualTo: signedInUser?.email)
+        .get();
+    final List<DocumentSnapshot> exists = checkExists.docs;
+    if (exists.length == 0) {
+      await _firestore
+          .collection('users')
+          .add(user.toJson())
+          .onError((error, stackTrace) {
+        print(error.toString());
+        _error = error.toString();
+        throw Exception();
+      });
+    }
+
+    return _error;
+  }
+
   Future<UserCredential> get signInWithGoogle async {
     //! Trigger the authentication flow
     final GoogleSignInAccount? googleSignInAccount =
@@ -35,19 +59,35 @@ class AddNewUser {
       accessToken: googleSignInAuthentication?.accessToken,
       idToken: googleSignInAuthentication?.idToken,
     );
+
     //! Once signed in returning the UserCredential
-    return await FirebaseAuth.instance.signInWithCredential(credential);
+    final UserCredential user =
+        await FirebaseAuth.instance.signInWithCredential(credential);
+    myuser.User userDatabase = myuser.User(
+        emailAddress: user.user!.email,
+        username: user.user!.displayName,
+        photoUrl: user.user?.photoURL ??
+            'https://marmelab.com/images/blog/ascii-art-converter/homer.png',
+        lastseen: DateTime.now());
+    addUserToDatabase(userDatabase);
+    return user;
   }
 
   static Future<String?> createUserWithEmailandPassword(
-      String email, String password) async {
+      String name, String email, String password) async {
     final UserCredential credential;
     try {
       credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-
+      myuser.User userDatabase = myuser.User(
+          emailAddress: credential.user!.email,
+          username: credential.user!.displayName,
+          photoUrl: credential.user?.photoURL ??
+              'https://marmelab.com/images/blog/ascii-art-converter/homer.png',
+          lastseen: DateTime.now());
+      addUserToDatabase(userDatabase);
       return credential.user?.uid;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -61,4 +101,8 @@ class AddNewUser {
     }
     return null;
   }
+}
+
+logOut() async {
+  await FirebaseAuth.instance.signOut();
 }

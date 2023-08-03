@@ -1,3 +1,6 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:e_2_e_encrypted_chat_app/chatPage/chat_page.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/email_and_password_page.dart';
@@ -52,10 +55,22 @@ class SignUpPage extends StatelessWidget {
                 final user = FirebaseAuth.instance.currentUser;
                 if (user == null) {
                   UserCredential userCredential =
-                      await _addNewUser.signInWithGoogle;
+                      await _addNewUser.signInWithGoogle.then((value) {
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ChatPage(),
+                        ));
+                    return value;
+                  });
                   print(userCredential.user?.displayName);
                   print(FirebaseAuth.instance.currentUser?.displayName);
                 } else {
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ChatPage(),
+                      ));
                   print("You are already logged in asshole!!");
                   print(user.displayName);
                   print(user.email);

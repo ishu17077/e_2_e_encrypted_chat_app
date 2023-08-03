@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/reusable_widgets/app_back_button.dart';
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/chat_with_page.dart';
 
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_chat.dart';
@@ -12,7 +13,7 @@ import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:e_2_e_encrypted_chat_app/models/user.dart';
 import 'package:flutter/material.dart';
 
-import '../../models/chat.dart';
+import 'package:e_2_e_encrypted_chat_app/models/chat.dart';
 
 // ignore: camel_case_types
 class ChatAdd extends StatelessWidget {
@@ -30,7 +31,7 @@ class ChatAdd extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: kBackgroundColor,
-          leading: const BackButton(color: Colors.white70),
+          leading: const AppBackButton(),
           elevation: 0,
           title: const Text(
             "Conversations",
@@ -43,7 +44,11 @@ class ChatAdd extends StatelessWidget {
         ),
         backgroundColor: kBackgroundColor,
         body: StreamBuilder<QuerySnapshot>(
-          stream: _firebaseFirestore.collection('users').snapshots(),
+          stream: _firebaseFirestore
+              .collection('users')
+              .where('email_address',
+                  isNotEqualTo: AddNewUser.signedInUser?.email)
+              .snapshots(),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return const Center(
@@ -74,32 +79,43 @@ class ChatAdd extends StatelessWidget {
                     style: const TextStyle(color: Colors.white70),
                   ),
                   onTap: () async {
+                    bool chatExists;
+                    var signedInUser = AddNewUser.signedInUser;
                     Chat chat = Chat(
                         chatWithEmail: user.emailAddress ?? 'test@testmail.com',
                         unreadMessages: 0,
                         lastOnline: DateTime.now(),
-                        photoUrl: user.photoUrl ??
-                            'https://marmelab.com/images/blog/ascii-art-converter/homer.png',
+                        photoUrls: [
+                          signedInUser?.photoURL ??
+                              'https://marmelab.com/images/blog/ascii-art-converter/homer.png',
+                          user.photoUrl ??
+                              'https://marmelab.com/images/blog/ascii-art-converter/homer.png'
+                        ],
                         belongsToEmails: [
-                          AddNewUser.signedInUser?.email ??
-                              'randomleloemail@gmail.com',
+                          signedInUser?.email ?? 'randomleloemail@gmail.com',
                           user.emailAddress
                         ],
                         chatId:
                             '${AddNewUser.signedInUser?.email ?? 'randomleloemail@gmail.com'}${user.emailAddress}',
-                        chatName: user.username ?? '***No Name***');
+                        chatNames: [
+                          AddNewUser.signedInUser?.email,
+                          user.emailAddress
+                        ]);
                     if (await chatIdExists(
-                            '${AddNewUser.signedInUser?.email ?? 'randomleloemail@gmail.com'}${user.emailAddress}') ||
+                            '${signedInUser?.email ?? 'randomleloemail@gmail.com'}${user.emailAddress}') ||
                         await chatIdExists(
                             '${user.emailAddress}${AddNewUser.signedInUser?.email ?? 'randomleloemail@gmail.com'}')) {
+                      chatExists = true;
                     } else {
-                      _addChat.addNewChat(chat);
+                      chatExists = false;
                     }
                     // ignore: use_build_context_synchronously
                     Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => ChatWithPage(
+                                chat: chat,
+                                chatExists: chatExists,
                                 chatName: user.username,
                                 senderEmail: AddNewUser.signedInUser?.email ??
                                     'randomleloemail@gmail.com',

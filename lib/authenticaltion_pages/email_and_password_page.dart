@@ -45,7 +45,7 @@ class _EmailAndPasswordAuthenticationState
     _name = '';
     _phone = 0;
     _password = '';
-    _formKey.currentState!.reset();
+    _formKey.currentState?.reset();
     _confPassword = '';
     // TODO: implement dispose
     super.dispose();
@@ -253,7 +253,7 @@ class _EmailAndPasswordAuthenticationState
                         _formKey.currentState?.save();
                         if (_formKey.currentState!.validate()) {
                           AddNewUser.createUserWithEmailandPassword(
-                              _email, _password);
+                              _name, _email, _password);
                           User user = User(
                             emailAddress: _email,
                             username: _name,

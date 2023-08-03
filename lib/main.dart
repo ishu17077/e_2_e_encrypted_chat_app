@@ -1,3 +1,4 @@
+import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/sign_up_page.dart';
 import 'package:e_2_e_encrypted_chat_app/chatPage/add_new_chat/add_new_chat_page.dart';
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/chat_with_page.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
@@ -36,22 +37,13 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Ishu\'s Chat App',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: greenAndroid,
 
         buttonTheme: const ButtonThemeData(
           buttonColor: Color(0xff0cf3e1),
         ),
       ),
-      home: const ChatPage(),
+      home: AddNewUser.signedInUser != null ? const ChatPage() : SignUpPage(),
     );
   }
 }

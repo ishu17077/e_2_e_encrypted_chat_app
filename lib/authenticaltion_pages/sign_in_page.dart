@@ -1,4 +1,5 @@
 import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/reusable_widgets/app_back_button.dart';
+import 'package:e_2_e_encrypted_chat_app/chatPage/chat_page.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/existing_user.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:flutter/material.dart';
@@ -142,6 +143,10 @@ class _SignInPageState extends State<SignInPage> {
                 if (_formKey.currentState!.validate()) {
                   ExistingUser.signInExistingUserWithEmailandPassword(
                       _email, _password);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ChatPage()));
                 }
               })),
             ],

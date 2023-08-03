@@ -7,18 +7,18 @@ class Chat {
   List<String?> belongsToEmails;
   int unreadMessages;
   DateTime lastOnline;
-  String photoUrl;
+  List<String?> photoUrls;
   String chatId;
   String? lastMessage;
-  String? chatName;
+  List<String?> chatNames;
   Chat({
     required this.chatWithEmail,
     required this.unreadMessages,
     required this.lastOnline,
-    required this.photoUrl,
+    required this.photoUrls,
     required this.belongsToEmails,
     required this.chatId,
-    required this.chatName,
+    required this.chatNames,
     this.lastMessage = '',
   });
   toJson() => {
@@ -26,20 +26,20 @@ class Chat {
         'belongs_to_emails': belongsToEmails,
         'unread_messages': unreadMessages,
         'last_online': lastOnline,
-        'chat_name': chatName,
-        'photo_url': photoUrl,
+        'chat_names': chatNames,
+        'photo_urls': photoUrls,
         'last_message': lastMessage,
         'chat_id': chatId,
       };
   factory Chat.fromJson(Map<String, dynamic> json) {
     final Chat chat = Chat(
       chatWithEmail: json['chat_with_email'],
-      photoUrl: json['photo_url'] ?? '',
+      photoUrls: List.castFrom(json['photo_urls'] as List),
       lastOnline:
           // ignore: unnecessary_cast
           (json['last_online'] ?? Timestamp.now() as Timestamp).toDate(),
       belongsToEmails: List.castFrom(json['belongs_to_emails'] as List),
-      chatName: json['chat_name'],
+      chatNames: List.castFrom(json['chat_names'] as List) ?? [''],
       chatId: json['chat_id'],
       unreadMessages: json['unread_messages'],
       lastMessage: json['last_message'],
