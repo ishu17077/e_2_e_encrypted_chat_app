@@ -12,9 +12,10 @@ class ChatTextField extends StatelessWidget {
     return Container(
       padding:
           const EdgeInsets.only(left: 7.0, right: 7.0, top: 0.0, bottom: 0.0),
+      margin: const EdgeInsets.symmetric(horizontal: 5.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25),
-        color: kTextFieldColor,
+        color: const Color.fromRGBO(76, 72, 90, 1),
       ),
       child: TextField(
         keyboardType: TextInputType.multiline,
@@ -26,12 +27,13 @@ class ChatTextField extends StatelessWidget {
         style: TextStyle(color: Colors.white.withOpacity(0.9)),
         controller: _textEditingController,
         decoration: InputDecoration(
+            isDense: true,
             contentPadding: const EdgeInsets.only(
                 left: 1.0, right: 1.0, top: 10.0, bottom: 10.0),
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(20),
                 borderSide: BorderSide.none),
-            icon: const Icon(
+            prefixIcon: const Icon(
               Icons.text_fields_outlined,
               color: kSexyTealColor,
             ),

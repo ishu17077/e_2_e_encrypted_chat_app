@@ -7,11 +7,10 @@ import 'package:flutter/material.dart';
 
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_page.dart';
 
+final user = AddNewUser.signedInUser;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  final user = AddNewUser.signedInUser;
-  print(user?.email);
   runApp(const MyApp());
 }
 
@@ -38,12 +37,11 @@ class MyApp extends StatelessWidget {
       title: 'Ishu\'s Chat App',
       theme: ThemeData(
         primarySwatch: greenAndroid,
-
         buttonTheme: const ButtonThemeData(
           buttonColor: Color(0xff0cf3e1),
         ),
       ),
-      home: AddNewUser.signedInUser != null ? const ChatPage() : SignUpPage(),
+      home: user != null ? const ChatPage() : SignUpPage(),
     );
   }
 }

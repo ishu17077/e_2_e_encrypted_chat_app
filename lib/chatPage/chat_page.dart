@@ -4,12 +4,10 @@ import 'package:e_2_e_encrypted_chat_app/chatPage/add_new_chat/add_new_chat_page
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/chat_with_page.dart';
 import 'package:e_2_e_encrypted_chat_app/models/chat.dart';
 import 'package:e_2_e_encrypted_chat_app/models/message.dart';
-import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_chat.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 final _firestore = FirebaseFirestore.instance;
 
@@ -22,6 +20,8 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   // final ScrollController _scrollController = ScrollController();
+  CollectionReference<Map<String, dynamic>>? _collectionLastMessages;
+  Chat? chat;
   bool shouldHideTextField = false;
   final signedInUser = AddNewUser.signedInUser;
   Stream<QuerySnapshot<Map<String, dynamic>>>? _snapshotChats;
@@ -31,10 +31,12 @@ class _ChatPageState extends State<ChatPage> {
         .collection("chats")
         .where('belongs_to_emails',
             //! Hope you see the problem
-            arrayContains:
-                AddNewUser.signedInUser?.email ?? 'randomleloemail@gmail.com')
+            arrayContains: signedInUser!.email)
         // .orderBy('time', descending: true)
         .snapshots();
+
+    _collectionLastMessages = FirebaseFirestore.instance.collection('messages');
+
     super.initState();
   }
 
@@ -120,6 +122,7 @@ class _ChatPageState extends State<ChatPage> {
             )
           ],
           body: Column(
+            mainAxisSize: MainAxisSize.max,
             children: [
               Padding(
                 padding: const EdgeInsets.only(
@@ -151,11 +154,12 @@ class _ChatPageState extends State<ChatPage> {
                     return const Text('Something Went wrong');
                   } else if (snapshot.connectionState ==
                       ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
+                    return const Expanded(
+                        child: Center(child: CircularProgressIndicator()));
                   }
                   // ignore: avoid_print
                   print(
-                      "Signed in as email${FirebaseAuth.instance.currentUser?.email ?? 'randomleloemail@gmail.com'} ");
+                      "Signed in as email${FirebaseAuth.instance.currentUser?.email!} ");
                   //! Hope you see the problem
                   return Expanded(
                     child: ListView(
@@ -180,6 +184,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   ListTile chatTile(Chat chat, BuildContext context) {
+    this.chat = chat;
     return ListTile(
       tileColor: kBackgroundColor,
       leading: CircleAvatar(
@@ -197,12 +202,9 @@ class _ChatPageState extends State<ChatPage> {
         style: const TextStyle(color: Colors.white),
       ),
       subtitle: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('messages')
+        stream: _collectionLastMessages!
+            .where('chat_id', isEqualTo: chat.chatId)
             .orderBy('time')
-            .where('chat_id',
-                //! Hope you see the problem
-                isEqualTo: chat.chatId)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
@@ -225,7 +227,9 @@ class _ChatPageState extends State<ChatPage> {
               snapshot.data!.docs.last.data() as Map<String, dynamic>;
           Message message = Message.fromJson(lastMessageMap);
           return Text(
-            message?.contents ?? " ",
+            message.contents,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(color: Colors.white70),
           );
         },
@@ -234,13 +238,13 @@ class _ChatPageState extends State<ChatPage> {
           Navigator.of(context).push(MaterialPageRoute(builder: (context) {
         return ChatWithPage(
           chat: chat,
-          chatName: chat.chatNames.first != signedInUser?.displayName
-           //! WHat if display name is same, we need to do it with email rather
+          chatName: chat.belongsToEmails.first != signedInUser?.email
+              //! WHat if display name is same, we need to do it with email rather
               ? chat.chatNames.first ?? ''
               : chat.chatNames.last ?? '',
           chatId: chat.chatId,
           recepientEmail: chat.chatWithEmail,
-          senderEmail: signedInUser?.email ?? 'randomleloemail@gmail.com',
+          senderEmail: signedInUser!.email!,
         );
       })),
       enabled: true,

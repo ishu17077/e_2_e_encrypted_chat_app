@@ -1,18 +1,12 @@
 // ignore_for_file: must_be_immutable
-
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/reusable_widgets/app_back_button.dart';
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/chat_with_page.dart';
-
-import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_chat.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
-
 import 'package:e_2_e_encrypted_chat_app/models/user.dart';
 import 'package:flutter/material.dart';
-
 import 'package:e_2_e_encrypted_chat_app/models/chat.dart';
 
 // ignore: camel_case_types
@@ -22,8 +16,7 @@ class ChatAdd extends StatelessWidget {
   int unreadMessages = 69;
   String lastMessage = 'Good Luck Mate';
   DateTime lastTime = DateTime.now();
-
-  final AddNewChat _addChat = AddNewChat();
+  final signedInUser = AddNewUser.signedInUser;
 
   ChatAdd({super.key});
   @override
@@ -34,9 +27,9 @@ class ChatAdd extends StatelessWidget {
           leading: const AppBackButton(),
           elevation: 0,
           title: const Text(
-            "Conversations",
+            "People you can talk to",
             style: TextStyle(
-              fontSize: 30,
+              fontSize: 25,
               color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
@@ -46,8 +39,7 @@ class ChatAdd extends StatelessWidget {
         body: StreamBuilder<QuerySnapshot>(
           stream: _firebaseFirestore
               .collection('users')
-              .where('email_address',
-                  isNotEqualTo: AddNewUser.signedInUser?.email)
+              .where('email_address', isNotEqualTo: signedInUser?.email)
               .snapshots(),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
@@ -80,7 +72,7 @@ class ChatAdd extends StatelessWidget {
                   ),
                   onTap: () async {
                     bool chatExists;
-                    var signedInUser = AddNewUser.signedInUser;
+
                     Chat chat = Chat(
                         chatWithEmail: user.emailAddress ?? 'test@testmail.com',
                         unreadMessages: 0,
@@ -92,20 +84,20 @@ class ChatAdd extends StatelessWidget {
                               'https://marmelab.com/images/blog/ascii-art-converter/homer.png'
                         ],
                         belongsToEmails: [
-                          signedInUser?.email ?? 'randomleloemail@gmail.com',
+                          signedInUser!.email!,
                           user.emailAddress
                         ],
-                        chatId:
-                            '${AddNewUser.signedInUser?.email ?? 'randomleloemail@gmail.com'}${user.emailAddress}',
-                        chatNames: [
-                          AddNewUser.signedInUser?.email,
-                          user.emailAddress
-                        ]);
-                    if (await chatIdExists(
-                            '${signedInUser?.email ?? 'randomleloemail@gmail.com'}${user.emailAddress}') ||
-                        await chatIdExists(
-                            '${user.emailAddress}${AddNewUser.signedInUser?.email ?? 'randomleloemail@gmail.com'}')) {
+                        chatId: '${signedInUser?.email!}${user.emailAddress}',
+                        chatNames: [signedInUser?.displayName, user.username]);
+
+                    if (await chatIdExists(chat.chatId)) {
                       chatExists = true;
+                    } else if (await chatIdExists(
+                        '${user.emailAddress}${signedInUser?.email!}')) {
+                      chatExists = true;
+                      chat.chatId =
+                          '${user.emailAddress}${signedInUser?.email!}';
+                      //? All i did was i checked whether the chat id is opposite if it is please don't create a new chat with previous hardcoded chat.chatId id use the fucking old one
                     } else {
                       chatExists = false;
                     }
@@ -117,10 +109,8 @@ class ChatAdd extends StatelessWidget {
                                 chat: chat,
                                 chatExists: chatExists,
                                 chatName: user.username,
-                                senderEmail: AddNewUser.signedInUser?.email ??
-                                    'randomleloemail@gmail.com',
-                                recepientEmail: user.emailAddress ??
-                                    'jangiskhanlolu@gmail.com',
+                                senderEmail: signedInUser!.email!,
+                                recepientEmail: user.emailAddress!,
                                 chatId: chat.chatId)));
                   },
                   enabled: true,

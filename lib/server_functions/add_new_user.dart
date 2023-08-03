@@ -33,7 +33,7 @@ class AddNewUser {
         .where('email_address', isEqualTo: signedInUser?.email)
         .get();
     final List<DocumentSnapshot> exists = checkExists.docs;
-    if (exists.length == 0) {
+    if (exists.isEmpty) {
       await _firestore
           .collection('users')
           .add(user.toJson())

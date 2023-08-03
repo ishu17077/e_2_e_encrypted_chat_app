@@ -26,14 +26,13 @@ class Message {
       };
   factory Message.fromJson(Map<String, dynamic> json) {
     final Message message = Message(
-      senderEmail: json['sender_email'] ?? 'randomleloemail@gmail.com',
-      recepientEmail: json['recipient_email'] ?? 'jangiskhanlolu@gmail.com',
+      senderEmail: json['sender_email'],
+      recepientEmail: json['recipient_email'],
       // ignore: unnecessary_cast
       time: (json['time'] ?? Timestamp.now() as Timestamp).toDate(),
       contents: json['contents'] ?? '',
       isSeen: json['is_seen'] ?? false,
-      chatId: json['chat_id'] ??
-          'randomleloemail@gmail.comjangiskhanlolu@gmail.com',
+      chatId: json['chat_id'],
     );
     return message;
   }

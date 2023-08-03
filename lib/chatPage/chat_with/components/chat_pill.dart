@@ -5,6 +5,8 @@ class ChatPill extends StatelessWidget {
   final String? text;
   final bool isSeen;
   final bool? isMe;
+  final bool isLastMessage;
+  // final GlobalKey contextKey;
   final bool noMaginRequired;
 
   const ChatPill({
@@ -12,6 +14,8 @@ class ChatPill extends StatelessWidget {
     required this.text,
     this.isSeen = false,
     this.noMaginRequired = false,
+    this.isLastMessage = false,
+    // required this.contextKey,
     required this.isMe,
   });
 
@@ -21,13 +25,14 @@ class ChatPill extends StatelessWidget {
       margin: EdgeInsets.only(
         left: 6.5,
         right: 6.5,
-        top: noMaginRequired ? 1.0 : 10,
-        bottom: 1.0,
+        bottom: noMaginRequired ? 1.0 : 6.0,
+        top: 1.0,
       ),
       child: Column(children: [
         Align(
           alignment:
               isMe ?? false ? Alignment.bottomRight : Alignment.bottomLeft,
+          heightFactor: 1,
           child: Container(
             constraints: BoxConstraints(
                 minWidth: 0,
@@ -44,7 +49,7 @@ class ChatPill extends StatelessWidget {
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Flexible(
@@ -77,6 +82,9 @@ class ChatPill extends StatelessWidget {
             ),
           ),
         ),
+        isLastMessage
+            ? SizedBox(height: MediaQuery.of(context).size.height * 0.06)
+            : const SizedBox(),
       ]),
     );
   }

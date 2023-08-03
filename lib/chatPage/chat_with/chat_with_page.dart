@@ -8,6 +8,7 @@ import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -39,7 +40,9 @@ class _ChatWithPageState extends State<ChatWithPage> {
   late User? signedInUser;
   Message? previousMessage;
   final AddNewChat _addNewChat = AddNewChat();
+  OverlayEntry? sticky;
   Stream<QuerySnapshot<Map<String, dynamic>>>? _mystream;
+  // final GlobalKey stickeyKey = GlobalKey();
   @override
   void initState() {
     signedInUser = AddNewUser.signedInUser;
@@ -49,7 +52,27 @@ class _ChatWithPageState extends State<ChatWithPage> {
         .orderBy('time')
         .snapshots();
     //! _mystream was seperately assigned as it was changing with everytime something happens like a keyboard pop up lol
+    // if (sticky != null) {
+    //   sticky?.remove();
+    // }
+    // sticky = OverlayEntry(
+    //   builder: (context) => stickyBuilder(),
+    // );
+
+    // SchedulerBinding.instance.addPostFrameCallback((_) {
+    //   Overlay.of(context).insert(sticky!);
+    // });
+
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    // sticky?.remove();
+
+    // stickeyKey.currentState?.dispose();
+    super.dispose();
   }
 
   @override
@@ -71,12 +94,13 @@ class _ChatWithPageState extends State<ChatWithPage> {
         backgroundColor: kBackgroundColor,
         title: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             // ignore: prefer_const_constructors
             CircleAvatar(
-              backgroundImage: NetworkImage(
-                      widget.chat.belongsToEmails.first != AddNewUser.signedInUser!.email
+              backgroundImage: NetworkImage(widget.chat.belongsToEmails.first !=
+                      signedInUser!.email
                   ? widget.chat.photoUrls.first ??
                       'https://marmelab.com/images/blog/ascii-art-converter/homer.png'
                   : widget.chat.photoUrls.last ??
@@ -103,35 +127,46 @@ class _ChatWithPageState extends State<ChatWithPage> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
-            return Column(
+            return Stack(
+              // fit: StackFit.expand,
+              alignment: AlignmentDirectional.bottomEnd,
+              clipBehavior: Clip.antiAlias,
               children: [
-                Flexible(
-                  flex: 1,
-                  child: ListView(
-                    reverse: true,
-                    physics: const BouncingScrollPhysics(),
-                    children: snapshot.data!.docs.reversed
-                        .map((DocumentSnapshot document) {
-                      Map<String, dynamic> messageMap =
-                          document.data()! as Map<String, dynamic>;
+                ListView(
+                  reverse: true,
+                  physics: const BouncingScrollPhysics(),
+                  children: snapshot.data!.docs.reversed
+                      .map((DocumentSnapshot document) {
+                    Map<String, dynamic> messageMap =
+                        document.data()! as Map<String, dynamic>;
 
-                      Message message = Message.fromJson(messageMap);
-                      message.id = document.id;
-                      bool noMarginRequired =
-                          message.senderEmail == previousMessage?.senderEmail;
+                    Message message = Message.fromJson(messageMap);
+                    message.id = document.id;
+                    if (message.senderEmail != signedInUser!.email &&
+                        message.isSeen == false) {
+                      _firestore
+                          .collection('messages')
+                          .doc(message.id)
+                          .update({"is_seen": true});
+                    }
+                    bool noMarginRequired =
+                        message.senderEmail == previousMessage?.senderEmail;
+                    previousMessage = message;
 
-                      previousMessage = message;
-                      return ChatPill(
-                        text: message.contents,
-                        isSeen: message.isSeen,
-                        isMe: _isMe(
-                          message.senderEmail,
-                          signedInUser?.email ?? 'randomleloemail@gmail.com',
-                        ),
-                        noMaginRequired: noMarginRequired,
-                      );
-                    }).toList(),
-                  ),
+                    return ChatPill(
+                      text: message.contents,
+                      isLastMessage: snapshot.data!.docs.last.id == document.id
+                          ? true
+                          : false,
+                      // contextKey: stickeyKey,
+                      isSeen: message.isSeen,
+                      isMe: _isMe(
+                        message.senderEmail,
+                        signedInUser!.email!,
+                      ),
+                      noMaginRequired: noMarginRequired,
+                    );
+                  }).toList(),
                 ),
                 Align(
                   alignment: Alignment.bottomCenter,
@@ -152,7 +187,7 @@ class _ChatWithPageState extends State<ChatWithPage> {
                       }
                     },
                   ),
-                )
+                ),
               ],
             );
           },
@@ -160,6 +195,17 @@ class _ChatWithPageState extends State<ChatWithPage> {
       ),
     );
   }
+
+  // Widget stickyBuilder() {
+  //   return Builder(
+  //     builder: (context) {
+  //       final keyContext = stickeyKey.currentContext;
+  //       if(keyContext != null){
+  //         final b
+  //       }
+  //     },
+  //   );
+  // }
 
   bool _isMe(String sender, String signedInUserEmail) {
     bool isMe = sender == signedInUserEmail ? true : false;
