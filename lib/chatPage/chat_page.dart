@@ -242,7 +242,6 @@ class _ChatPageState extends State<ChatPage> {
               //! WHat if display name is same, we need to do it with email rather
               ? chat.chatNames.first ?? ''
               : chat.chatNames.last ?? '',
-          chatId: chat.chatId,
           recepientEmail: chat.chatWithEmail,
           senderEmail: signedInUser!.email!,
         );

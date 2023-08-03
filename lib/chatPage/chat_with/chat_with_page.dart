@@ -15,20 +15,18 @@ final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 class ChatWithPage extends StatefulWidget {
   String? chatName;
   Chat chat;
+  bool chatExists;
   String senderEmail;
   String recepientEmail;
   DateTime? lastOnline = DateTime.tryParse('19700101');
-  String chatId;
-  bool chatExists;
 
   ChatWithPage({
     super.key,
     this.chatName = '',
     required this.senderEmail,
     required this.recepientEmail,
-    required this.chat,
     this.chatExists = true,
-    required this.chatId,
+    required this.chat,
     this.lastOnline,
   });
 
@@ -48,7 +46,7 @@ class _ChatWithPageState extends State<ChatWithPage> {
     signedInUser = AddNewUser.signedInUser;
     _mystream = _firestore
         .collection('messages')
-        .where('chat_id', isEqualTo: widget.chatId)
+        .where('chat_id', isEqualTo: widget.chat.chatId)
         .orderBy('time')
         .snapshots();
     //! _mystream was seperately assigned as it was changing with everytime something happens like a keyboard pop up lol
@@ -176,7 +174,7 @@ class _ChatWithPageState extends State<ChatWithPage> {
                         Message message = Message(
                             recepientEmail: widget.recepientEmail,
                             time: DateTime.now(),
-                            chatId: widget.chatId,
+                            chatId: widget.chat.chatId,
                             senderEmail: widget.senderEmail,
                             contents: contents,
                             isSeen: false);
