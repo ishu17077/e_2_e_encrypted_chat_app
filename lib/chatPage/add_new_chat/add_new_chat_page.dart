@@ -11,7 +11,7 @@ import 'package:e_2_e_encrypted_chat_app/models/chat.dart';
 
 // ignore: camel_case_types
 class ChatAdd extends StatefulWidget {
-  ChatAdd({super.key});
+  const ChatAdd({super.key});
 
   @override
   State<ChatAdd> createState() => _ChatAddState();
@@ -25,8 +25,10 @@ class _ChatAddState extends State<ChatAdd> {
   int unreadMessages = 69;
 
   bool? chatExists;
+  bool hasData = false;
 
   String lastMessage = 'Good Luck Mate';
+  Stream<QuerySnapshot>? _snapshots;
 
   DateTime lastTime = DateTime.now();
 
@@ -36,6 +38,11 @@ class _ChatAddState extends State<ChatAdd> {
   void initState() {
     // TODO: implement initState
     collectionReference = _firebaseFirestore.collection('chats');
+
+    _snapshots = _firebaseFirestore
+        .collection('users')
+        .where('email_address', isNotEqualTo: signedInUser?.email)
+        .snapshots();
 
     super.initState();
   }
@@ -58,64 +65,64 @@ class _ChatAddState extends State<ChatAdd> {
         ),
         backgroundColor: kBackgroundColor,
         body: StreamBuilder<QuerySnapshot>(
-          stream: _firebaseFirestore
-              .collection('users')
-              .where('email_address', isNotEqualTo: signedInUser?.email)
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
+          stream: _snapshots,
+          builder: (context, snapshots) {
+            if (snapshots.hasError) {
               return const Center(
                   child: Text('Server error or no internet connection'));
-            } else if (snapshot.connectionState == ConnectionState.waiting) {
+            } else if (snapshots.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
+            Future<void> future = Future(() => null);
+            List<Widget> widgets =
+                snapshots.data!.docs.map((DocumentSnapshot documentSnapshot) {
+              Map<String, dynamic> userMap =
+                  documentSnapshot.data()! as Map<String, dynamic>;
+              User user = User.fromJson(userMap);
 
-            return ListView(
-              children:
-                  snapshot.data!.docs.map((DocumentSnapshot documentSnapshot) {
-                Map<String, dynamic> userMap =
-                    documentSnapshot.data()! as Map<String, dynamic>;
-                User user = User.fromJson(userMap);
-                Chat chat = Chat(
-                    chatWithEmail: user.emailAddress ?? 'test@testmail.com',
-                    unreadMessages: 0,
-                    lastOnline: DateTime.now(),
-                    photoUrls: [
-                      signedInUser?.photoURL ??
-                          'https://marmelab.com/images/blog/ascii-art-converter/homer.png',
-                      user.photoUrl ??
-                          'https://marmelab.com/images/blog/ascii-art-converter/homer.png'
-                    ],
-                    belongsToEmails: [signedInUser!.email!, user.emailAddress],
-                    chatId: '${signedInUser?.email!}${user.emailAddress}',
-                    chatNames: [signedInUser?.displayName, user.username]);
+              Chat chat = Chat(
+                  chatWithEmail: user.emailAddress ?? 'test@testmail.com',
+                  unreadMessages: 0,
+                  lastOnline: DateTime.now(),
+                  photoUrls: [
+                    signedInUser?.photoURL ??
+                        'https://marmelab.com/images/blog/ascii-art-converter/homer.png',
+                    user.photoUrl ??
+                        'https://marmelab.com/images/blog/ascii-art-converter/homer.png'
+                  ],
+                  belongsToEmails: [signedInUser!.email!, user.emailAddress],
+                  chatId: '${signedInUser?.email!}${user.emailAddress}',
+                  chatNames: [signedInUser?.displayName, user.username]);
+              future = chatIdExists(
+                      '${signedInUser?.email!}${user.emailAddress}',
+                      "${user.emailAddress}${signedInUser?.email!}")
+                  .then((value) {
+                if (value.isNotEmpty) {
+                  chat.chatId = value;
+                  chatExists = true;
+                } else {
+                  chatExists = false;
+                }
+              });
 
-                chatIdExists('${signedInUser?.email!}${user.emailAddress}',
-                        "${user.emailAddress}${signedInUser?.email!}")
-                    .then((value) {
-                  if (value.isNotEmpty) {
-                    chat.chatId = value;
-                    chatExists = true;
-                  } else {
-                    chatExists = false;
-                  }
-                });
-                return ListTile(
-                  tileColor: kBackgroundColor,
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage(user.photoUrl ??
-                        'https://marmelab.com/images/blog/ascii-art-converter/homer.png'),
-                  ),
-                  title: Text(
-                    user.username ?? '',
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  subtitle: Text(
-                    user.emailAddress ?? '**No Email**',
-                    style: const TextStyle(color: Colors.white70),
-                  ),
-                  onTap: () {
-                    // ignore: use_build_context_synchronously
+              return ListTile(
+                tileColor: kBackgroundColor,
+                leading: CircleAvatar(
+                  backgroundColor: kSexyTealColor,
+                  backgroundImage: NetworkImage(user.photoUrl ??
+                      'https://marmelab.com/images/blog/ascii-art-converter/homer.png'),
+                ),
+                title: Text(
+                  user.username ?? '',
+                  style: const TextStyle(color: Colors.white),
+                ),
+                subtitle: Text(
+                  user.emailAddress ?? '**No Email**',
+                  style: const TextStyle(color: Colors.white70),
+                ),
+                onTap: () {
+                  // ignore: use_build_context_synchronously
+                  if (chatExists != null) {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -126,12 +133,26 @@ class _ChatAddState extends State<ChatAdd> {
                                   senderEmail: signedInUser!.email!,
                                   recepientEmail: user.emailAddress!,
                                 )));
-                  },
-                  enabled: true,
-                  enableFeedback: true,
-                );
-              }).toList(),
-            );
+                  }
+                },
+                enabled: true,
+                enableFeedback: true,
+              );
+            }).toList();
+            return FutureBuilder(
+                future: future,
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return const Text(
+                        "Error connecting to server...check your internet connection");
+                  } else if (snapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  return ListView(
+                    children: widgets,
+                  );
+                });
           },
         ));
   }

@@ -83,7 +83,7 @@ class ChatPill extends StatelessWidget {
           ),
         ),
         isLastMessage
-            ? SizedBox(height: MediaQuery.of(context).size.height * 0.06)
+            ? SizedBox(height: MediaQuery.of(context).size.height * 0.01)
             : const SizedBox(),
       ]),
     );

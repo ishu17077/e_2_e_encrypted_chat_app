@@ -10,9 +10,10 @@ class ChatTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      
       padding:
           const EdgeInsets.only(left: 7.0, right: 7.0, top: 0.0, bottom: 0.0),
-      margin: const EdgeInsets.symmetric(horizontal: 5.0),
+      margin: const EdgeInsets.only(left: 5.0, right: 5.0, top: 4.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25),
         color: const Color.fromRGBO(76, 72, 90, 1),
