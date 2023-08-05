@@ -1,11 +1,18 @@
+import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/reusable_widgets/my_form_field.dart';
 import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/sign_in_page.dart';
-import 'package:e_2_e_encrypted_chat_app/models/user.dart';
+import 'package:e_2_e_encrypted_chat_app/chatPage/chat_page.dart';
+import 'package:e_2_e_encrypted_chat_app/models/user.dart' as myUser;
 import 'package:e_2_e_encrypted_chat_app/server_functions/get_messages.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'reusable_widgets/app_back_button.dart';
+
+int formFieldSelector = 69;
 
 // ignore: must_be_immutable
 class EmailAndPasswordAuthentication extends StatefulWidget {
@@ -18,37 +25,68 @@ class EmailAndPasswordAuthentication extends StatefulWidget {
 
 class _EmailAndPasswordAuthenticationState
     extends State<EmailAndPasswordAuthentication> {
-  int formFieldSelector = 69;
-  String _name = "";
-  int _phone = 69;
-  String _email = "";
-  String _password = "";
-  String _confPassword = "";
-  bool _shouldParse = false;
-  bool _shouldName = false;
-  final numericRegex = RegExp(r'^-?(([0-9]*)|(([0-9]*)\.([0-9]*)))$');
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confPasswordController = TextEditingController();
+  bool _isPhoneValid = false;
+  bool _isNameValid = false;
+
 //? regex expressin for containing only numbers
-  bool _passCheck1 = false;
-  bool _passCheck2 = false;
-  bool _emailValidate = false;
+  bool _isPass1Valid = false;
+  FocusNode _focus = FocusNode();
+  bool _isConfPassValid = false;
+  bool _isEmailValid = false;
   late final GlobalKey<FormState> _formKey;
   @override
   void initState() {
     // TODO: implement initState
     _formKey = GlobalKey<FormState>();
+
+    FirebaseAuth.instance.signOut();
+    _focus.addListener(_onFocusChange);
+    lactivateListeners();
     super.initState();
   }
 
   @override
   void dispose() {
-    _email = '';
-    _name = '';
-    _phone = 0;
-    _password = '';
-    _formKey.currentState?.reset();
-    _confPassword = '';
+    disposeControllers();
     // TODO: implement dispose
     super.dispose();
+  }
+
+  void _onFocusChange() {
+    _focus.canRequestFocus;
+  }
+
+  void lactivateListeners() {
+    _nameController.addListener(() {
+      _validateName(_nameController.text);
+    });
+    _phoneController.addListener(() {
+      _validatePhone(_phoneController.text);
+    });
+    _emailController.addListener(() {
+      _validateEmail(_emailController.text);
+    });
+    _passwordController.addListener(() {
+      _validatePassword1(_passwordController.text);
+    });
+
+    _confPasswordController.addListener(() {
+      _validateConfPassword(_confPasswordController.text);
+    });
+  }
+
+  void disposeControllers() {
+    _formKey.currentState?.dispose();
+    _emailController.dispose();
+    _nameController.dispose();
+    _phoneController.dispose();
+    _passwordController.dispose();
+    _confPasswordController.dispose();
   }
 
   @override
@@ -66,165 +104,145 @@ class _EmailAndPasswordAuthenticationState
             width: MediaQuery.of(context).size.width,
             child: Form(
               key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(
-                        top: MediaQuery.of(context).size.height * 0.002568493),
-                    child: const AppBackButton(),
-                  ),
+              child: SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    const AppBackButton(),
 
-                  Padding(
-                    padding: EdgeInsets.only(
-                      left: MediaQuery.of(context).size.width * 0.030,
-                    ),
-                    child: const Text(
-                      "Create Account",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                        fontSize: 38,
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: MediaQuery.of(context).size.width * 0.030,
+                      ),
+                      child: const Text(
+                        "Create Account",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                          fontSize: 38,
+                        ),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(
-                      left: MediaQuery.of(context).size.width * 0.035,
-                    ),
-                    child: const Text(
-                      "Please fill the inputs below here",
-                      style: TextStyle(
-                        color: kSubHeadingColor,
-                        fontSize: 15.0,
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: MediaQuery.of(context).size.width * 0.035,
+                      ),
+                      child: const Text(
+                        "Please fill the inputs below here",
+                        style: TextStyle(
+                          color: kSubHeadingColor,
+                          fontSize: 15.0,
+                        ),
                       ),
                     ),
-                  ),
-                  // SizedBox(height: MediaQuery.of(context).size.height * 0.0),
-                  formField(
-                    context,
-                    keyBoardType: TextInputType.name,
-                    infoBox: 'FULL NAME',
-                    formField: 0,
-                    validator: (value) {
-                      if (value == null || value.length <= 3) {
-                        _shouldName = false;
-                        return "Enter your correct name";
-                      } else {
-                        _shouldName = true;
-                      }
-                      return null;
-                    },
-                    icon: Icons.person_2_outlined,
-                    onPressed: () {
-                      setState(() {
-                        formFieldSelector = 0;
-                      });
-                    },
-                    onChanged: (value) => _name = value,
-                    suffixIcon: _shouldName
-                        ? greenCheckMark
-                        : _name.isEmpty
-                            ? null
-                            : redCross,
-                  ),
-                  formField(
-                    context,
-                    infoBox: 'PHONE',
-                    keyBoardType: TextInputType.number,
-                    formField: 1,
-                    icon: Icons.phone_android_rounded,
-                    onPressed: () => setState(() {
-                      formFieldSelector = 1;
-                    }),
-                    onChanged: (value) => _shouldParse && value.isNotEmpty
-                        ? _phone = int.tryParse(value) ?? 0
-                        : _phone = 0,
-                    validator: (value) {
-                      if (numericRegex.hasMatch(value ?? '') &&
-                          value != null &&
-                          value.isNotEmpty &&
-                          value.length == 10) {
-                        print(value);
-                        _shouldParse = true;
-                      } else {
-                        _shouldParse = false;
-                        return "Enter your correct number";
-                      }
-                      return null;
-                    },
-                    suffixIcon: _shouldParse
-                        ? greenCheckMark
-                        : _phone == 69
-                            ? null
-                            : redCross,
-                  ),
-
-                  formField(
-                    context,
-                    infoBox: 'EMAIL',
-                    keyBoardType: TextInputType.emailAddress,
-                    formField: 2,
-                    icon: Icons.mail_outline,
-                    onPressed: () => setState(() {
-                      formFieldSelector = 2;
-                    }),
-                    onChanged: (value) => _email = value,
-                    validator: (value) {
-                      if (value != null &&
-                          value.contains('.') &&
-                          value.contains('@')) {
-                        _emailValidate = true;
-                      } else {
-                        _emailValidate = false;
-                        return "Invalid E -mail";
-                      }
-                      return null;
-                    },
-                    suffixIcon: _emailValidate
-                        ? greenCheckMark
-                        : _email.isEmpty
-                            ? null
-                            : redCross,
-                  ),
-                  formField(context,
-                      infoBox: 'PASSWORD',
-                      keyBoardType: TextInputType.visiblePassword,
-                      formField: 3,
-                      obscureText: true,
-                      icon: Icons.password_rounded,
-                      onPressed: () => setState(() {
-                            formFieldSelector = 3;
-                          }),
-                      suffixIcon: _passCheck1
+                    // SizedBox(height: MediaQuery.of(context).size.height * 0.0),
+                    MyFormField(
+                      keyBoardType: TextInputType.name,
+                      onFocusChanged: (value) {
+                        if (value) {
+                          setState(() {
+                            formFieldSelector = 0;
+                          });
+                        }
+                      },
+                      infoBox: 'FULL NAME',
+                      formField: 0,
+                      validator: (value) =>
+                          _isNameValid ? null : "Fuck you biyach",
+                      prefixIcon: Icons.person_2_outlined,
+                      onPressed: () {
+                        setState(() {
+                          formFieldSelector = 0;
+                        });
+                      },
+                      textEditingController: _nameController,
+                      suffixIcon: _isNameValid
                           ? greenCheckMark
-                          : _password.isEmpty
+                          : _nameController.text.isEmpty
                               ? null
                               : redCross,
-                      onChanged: (value) => _password = value,
-                      validator: (value) {
-                        if (_password.length <= 8) {
-                          _passCheck1 = false;
-                          return "Your password sucks :o";
-                        } else if (_password.isEmpty) {
-                          _passCheck1 = false;
-                          return "Please enter a goddamn password!!";
-                        } else {
-                          _passCheck1 = true;
-                        }
-                        return null;
+                    ),
+                    MyFormField(
+                      infoBox: 'PHONE',
+                      keyBoardType: TextInputType.number,
+                      onFocusChanged: (value) => value
+                          ? formFieldSelector = 1
+                          : print(value.toString()),
+                      formField: 1,
+                      prefixIcon: Icons.phone_android_rounded,
+                      onPressed: () => setState(() {
+                        formFieldSelector = 1;
                       }),
-                  formField(context,
+                      validator: (value) =>
+                          _isPhoneValid ? null : "Fuck you biyach",
+                      textEditingController: _phoneController,
+                      suffixIcon: _isPhoneValid
+                          ? greenCheckMark
+                          : int.tryParse(_phoneController.text.isEmpty
+                                      ? '69'
+                                      : _passwordController.text) ==
+                                  69
+                              ? null
+                              : redCross,
+                    ),
+
+                    MyFormField(
+                      infoBox: 'EMAIL',
+                      keyBoardType: TextInputType.emailAddress,
+                      onFocusChanged: (value) => value
+                          ? formFieldSelector = 2
+                          : print(value.toString()),
+                      formField: 2,
+                      prefixIcon: Icons.mail_outline,
+                      onPressed: () => setState(() {
+                        formFieldSelector = 2;
+                      }),
+                      validator: (value) =>
+                          _isEmailValid ? null : "Fuck you biyach",
+                      textEditingController: _emailController,
+                      suffixIcon: _isEmailValid
+                          ? greenCheckMark
+                          : _emailController.text.isEmpty
+                              ? null
+                              : redCross,
+                    ),
+                    MyFormField(
+                      infoBox: 'PASSWORD',
+                      keyBoardType: TextInputType.visiblePassword,
+                      onFocusChanged: (value) => value
+                          ? formFieldSelector = 3
+                          : print(value.toString()),
+                      formField: 3,
+                      obscureText: true,
+                      prefixIcon: Icons.password_rounded,
+                      onPressed: () => setState(() {
+                        formFieldSelector = 3;
+                      }),
+                      validator: (value) =>
+                          _isPass1Valid ? null : "Fuck you biyach",
+                      suffixIcon: _isPass1Valid
+                          ? greenCheckMark
+                          : _passwordController.text.isEmpty
+                              ? null
+                              : redCross,
+                      textEditingController: _passwordController,
+                    ),
+                    MyFormField(
                       infoBox: 'CONFIRM PASSWORD',
                       formField: 4,
                       keyBoardType: TextInputType.visiblePassword,
+                      onFocusChanged: (value) => value
+                          ? formFieldSelector = 1
+                          : print(value.toString()),
                       obscureText: true,
-                      icon: Icons.password_rounded,
-                      suffixIcon: _passCheck2
+                      prefixIcon: Icons.password_rounded,
+                      validator: (value) =>
+                          _isConfPassValid ? null : "Fuck you biyach",
+                      suffixIcon: _isConfPassValid
                           ? greenCheckMark
-                          : _confPassword == ""
+                          : _confPasswordController.text == ""
                               ? null
                               : redCross,
                       onPressed: () {
@@ -232,138 +250,76 @@ class _EmailAndPasswordAuthenticationState
                           formFieldSelector = 4;
                         });
                       },
-                      onChanged: (value) => _confPassword = value,
-                      validator: (value) {
-                        if (value != null &&
-                            _password == _confPassword &&
-                            _confPassword.isNotEmpty) {
-                          _passCheck2 = true;
-                        } else {
-                          _passCheck2 = false;
-                          return "Passwords do not match";
-                        }
-
-                        return null;
-                      }),
-
-                  Center(
-                    child: sexyTealButton(
-                      context,
-                      onPressed: () {
-                        _formKey.currentState?.save();
-                        if (_formKey.currentState!.validate()) {
-                          AddNewUser.createUserWithEmailandPassword(
-                              _name, _email, _password);
-                          User user = User(
-                            emailAddress: _email,
-                            username: _name,
-                            photoUrl: '',
-                            lastseen: DateTime.now(),
-                          );
-                          GetMessages.addUser(user);
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content:
-                                      Text("Ganda Aadmi galtiyan karta ha!!")));
-                        }
-                      },
+                      textEditingController: _confPasswordController,
                     ),
-                  ),
-                  Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            "Already have an account?",
-                            style: TextStyle(color: Colors.white70),
-                          ),
-                          TextButton(
-                              style: const ButtonStyle(
-                                overlayColor: MaterialStatePropertyAll(
-                                    Colors.transparent),
-                              ),
-                              child: const Text(
-                                "Sign in!",
-                                style: TextStyle(color: Color(0xff0cf3e1)),
-                              ),
-                              onPressed: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const SignInPage())))
-                        ],
-                      ))
-                ],
+
+                    Center(
+                      child: sexyTealButton(
+                        context,
+                        onPressed: () {
+                          _formKey.currentState?.save();
+                          if (_formKey.currentState!.validate()) {
+                            AddNewUser.createUserWithEmailandPassword(
+                                _nameController.text,
+                                _emailController.text,
+                                _passwordController.text);
+                            myUser.User user = myUser.User(
+                              emailAddress: _emailController.text,
+                              username:
+                                  _nameController.text.trimRight().trimLeft(),
+                              photoUrl: '',
+                              lastseen: DateTime.now(),
+                            );
+                            GetMessages.addUser(user)
+                                .then((value) => Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const ChatPage())))
+                                .onError((error, stackTrace) => ScaffoldMessenger
+                                        .of(context)
+                                    .showSnackBar(const SnackBar(
+                                        content: Text(
+                                            "Dekho email kahin already registered toh nhi ya toh net off kiye ho!!"))));
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text(
+                                        "Ganda Aadmi galtiyan karta ha!!")));
+                          }
+                        },
+                      ),
+                    ),
+                    Align(
+                        alignment: Alignment.bottomLeft,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              "Already have an account?",
+                              style: TextStyle(color: Colors.white70),
+                            ),
+                            TextButton(
+                                style: const ButtonStyle(
+                                  overlayColor: MaterialStatePropertyAll(
+                                      Colors.transparent),
+                                ),
+                                child: const Text(
+                                  "Sign in!",
+                                  style: TextStyle(color: Color(0xff0cf3e1)),
+                                ),
+                                onPressed: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const SignInPage())))
+                          ],
+                        ))
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget formField(BuildContext context,
-      {String? infoBox,
-      TextInputType keyBoardType = TextInputType.text,
-      Key? key,
-      VoidCallback? onPressed,
-      IconData? icon,
-      Icon? suffixIcon,
-      int? formField,
-      bool obscureText = false,
-      Function(String)? onChanged,
-      TextEditingController? controller,
-      String? Function(String?)? validator}) {
-    bool isClicked = formFieldSelector == formField;
-
-    return Center(
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20.0),
-          color: isClicked ? kTextFieldColor : Colors.transparent,
-        ),
-        padding: const EdgeInsets.only(top: 0, bottom: 0, left: 12),
-        height: MediaQuery.of(context).size.height * 0.075,
-        width: MediaQuery.of(context).size.width * 0.85,
-        child: TextFormField(
-          style: const TextStyle(color: Colors.white),
-          key: key,
-          autovalidateMode: AutovalidateMode.always,
-          controller: controller,
-          decoration: InputDecoration(
-            labelText: infoBox,
-
-            labelStyle: const TextStyle(
-              color: Colors.white54,
-            ),
-            prefixIcon: Icon(
-              icon,
-              color: Colors.white54,
-            ),
-            suffixIcon: suffixIcon,
-
-            border: InputBorder.none,
-            focusedBorder: const UnderlineInputBorder(
-              // borderRadius: BorderRadius.circular(25.0),
-              borderSide: BorderSide.none,
-            ),
-            // errorBorder: OutlineInputBorder(
-            //     borderRadius: BorderRadius.circular(25.0),
-            //     borderSide: const BorderSide(
-            //         strokeAlign: -100, color: Colors.redAccent, width: 0)),
-            errorStyle: const TextStyle(
-              fontSize: 0,
-            ),
-          ),
-          textInputAction:
-              formField == 4 ? TextInputAction.done : TextInputAction.next,
-          onTap: onPressed,
-          keyboardType: keyBoardType,
-          obscureText: obscureText,
-          onChanged: onChanged,
-          validator: validator,
         ),
       ),
     );
@@ -389,5 +345,65 @@ class _EmailAndPasswordAuthenticationState
         ),
       ),
     );
+  }
+
+  void _validateEmail(String? email) {
+    if ((email?.length ?? 0) != 0 && emailRegExp.hasMatch(email ?? '')) {
+      setState(() {
+        _isEmailValid = true;
+      });
+    } else {
+      setState(() {
+        _isEmailValid = false;
+      });
+    }
+  }
+
+  void _validateName(String? name) {
+    if ((name?.length ?? 0) > 3 && nameRegExp.hasMatch(name ?? '')) {
+      setState(() {
+        _isNameValid = true;
+      });
+    } else {
+      setState(() {
+        _isNameValid = false;
+      });
+    }
+  }
+
+  void _validatePhone(String? phone) {
+    if (phone?.length == 10 && phoneRegExp.hasMatch(phone ?? '69')) {
+      setState(() {
+        _isPhoneValid = true;
+      });
+    } else {
+      setState(() {
+        _isPhoneValid = false;
+      });
+    }
+  }
+
+  void _validatePassword1(String? password) {
+    if ((password?.length ?? 0) >= 6) {
+      setState(() {
+        _isPass1Valid = true;
+      });
+    } else {
+      setState(() {
+        _isPass1Valid = false;
+      });
+    }
+  }
+
+  void _validateConfPassword(String? password) {
+    if ((password?.length ?? 0) >= 6 && password == _passwordController.text) {
+      setState(() {
+        _isConfPassValid = true;
+      });
+    } else {
+      setState(() {
+        _isConfPassValid = false;
+      });
+    }
   }
 }

@@ -11,7 +11,7 @@ class GetMessages {
     "born": 1815
   };
 
-  static void addUser(User user) async {
+  static Future<void> addUser(User user) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
     await db.collection("users").add(user.toJson()).then(
         (DocumentReference doc) =>

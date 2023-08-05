@@ -62,6 +62,10 @@ class SignUpPage extends StatelessWidget {
                           builder: (context) => const ChatPage(),
                         ));
                     return value;
+                  }).onError((error, stackTrace) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('Ya toh net kharab ha ya toh dimag')));
+                    throw Exception();
                   });
                   print(userCredential.user?.displayName);
                   print(FirebaseAuth.instance.currentUser?.displayName);
@@ -88,7 +92,9 @@ class SignUpPage extends StatelessWidget {
               imagePath: 'assets/facebook_icon.png',
               heightImage: 32.0,
               widthImage: 32.0,
-              onPressed: () {},
+              onPressed: () {
+                FirebaseAuth.instance.signOut();
+              },
             ),
             SizedBox(height: MediaQuery.of(context).size.height * 0.03),
             signInButton(

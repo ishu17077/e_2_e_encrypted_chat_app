@@ -1,4 +1,5 @@
 import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/reusable_widgets/app_back_button.dart';
+import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/reusable_widgets/my_form_field.dart';
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_page.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/existing_user.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
@@ -14,18 +15,32 @@ class SignInPage extends StatefulWidget {
 class _SignInPageState extends State<SignInPage> {
   int formFieldSelector = 69;
 
-  String _email = "";
+  final TextEditingController _emailController = TextEditingController();
 
-  String _password = "";
+  final TextEditingController _passwordController = TextEditingController();
 
-  bool _emailValidate = false;
-
-  final numericRegex = RegExp(r'^-?(([0-9]*)|(([0-9]*)\.([0-9]*)))$');
+  bool _isEmailValid = false;
 
 //? regex expressin for containing only numbers
   bool _passCheck = false;
 
   late final GlobalKey<FormState> _formKey = GlobalKey();
+  @override
+  void initState() {
+    // TODO: implement initState
+    _emailController.addListener(() {
+      _validateEmail(_emailController.text);
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,125 +50,143 @@ class _SignInPageState extends State<SignInPage> {
         padding: const EdgeInsets.all(17.0),
         child: Form(
           key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.016106397),
-              Padding(
-                padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height * 0.0069),
-                child: const AppBackButton(),
-              ),
-              SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.030956266),
-              Padding(
-                padding: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.width * 0.030,
-                ),
-                child: const Text(
-                  "Sign In",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                    fontSize: 38,
-                  ),
-                ),
-              ),
-              SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.030956266),
-              Padding(
-                padding: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.width * 0.035,
-                ),
-                child: const Text(
-                  "Please fill the inputs below here",
-                  style: TextStyle(
-                    color: kSubHeadingColor,
-                    fontSize: 15.0,
-                  ),
-                ),
-              ),
-              SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.030956266),
-              formField(
-                context,
-                infoBox: 'EMAIL',
-                keyBoardType: TextInputType.emailAddress,
-                formField: 2,
-                icon: Icons.mail_outline,
-                onPressed: () => setState(() {
-                  formFieldSelector = 2;
-                }),
-                onChanged: (value) => _email = value,
-                validator: (value) {
-                  if (value != null &&
-                      value.contains('.') &&
-                      value.contains('@')) {
-                    _emailValidate = true;
-                  } else {
-                    _emailValidate = false;
-                    return "Invalid E -mail";
-                  }
-                  return "Invalid E -mail";
-                },
-                suffixIcon: _emailValidate
-                    ? greenCheckMark
-                    : _email.isEmpty
-                        ? null
-                        : redCross,
-              ),
-              SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.030956266),
-              formField(context,
-                  infoBox: 'PASSWORD',
-                  keyBoardType: TextInputType.visiblePassword,
-                  formField: 3,
-                  obscureText: true,
-                  icon: Icons.password_rounded,
-                  onPressed: () => setState(() {
+          child: ScrollConfiguration(
+            behavior: const ScrollBehavior().copyWith(overscroll: false),
+            child: SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              child: SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    SizedBox(
+                        height:
+                            MediaQuery.of(context).size.height * 0.016106397),
+                    Padding(
+                      padding: EdgeInsets.only(
+                          top: MediaQuery.of(context).size.height * 0.0069),
+                      child: const AppBackButton(),
+                    ),
+                    SizedBox(
+                        height:
+                            MediaQuery.of(context).size.height * 0.030956266),
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: MediaQuery.of(context).size.width * 0.030,
+                      ),
+                      child: const Text(
+                        "Sign In",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                          fontSize: 38,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                        height:
+                            MediaQuery.of(context).size.height * 0.030956266),
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: MediaQuery.of(context).size.width * 0.035,
+                      ),
+                      child: const Text(
+                        "Please fill the inputs below here",
+                        style: TextStyle(
+                          color: kSubHeadingColor,
+                          fontSize: 15.0,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                        height:
+                            MediaQuery.of(context).size.height * 0.030956266),
+                    MyFormField(
+                      infoBox: 'EMAIL',
+                      keyBoardType: TextInputType.emailAddress,
+                      formField: 3,
+                      onFocusChanged: (value) {
+                        if (value) {
+                          setState(() {
+                            formFieldSelector = 3;
+                          });
+                        }
+                      },
+                      prefixIcon: Icons.mail_outline,
+                      onPressed: () => setState(() {
                         formFieldSelector = 3;
                       }),
-                  suffixIcon: _passCheck
-                      ? greenCheckMark
-                      : _password.isEmpty
-                          ? null
-                          : redCross,
-                  onChanged: (value) => _password = value,
-                  validator: (value) {
-                    if (_password.length <= 8) {
-                      _passCheck = false;
-                      print(MediaQuery.of(context).size.height);
-                      return "Your password sucks :o";
-                    } else if (_password.isEmpty) {
-                      _passCheck = false;
-                      return "Please enter a goddamn password!!";
-                    } else {
-                      _passCheck = true;
-                    }
-                    return null;
-                  }),
-              SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.030956266),
-              Center(
-                  child: sexyTealButton(context, onPressed: () {
-                _formKey.currentState?.save();
-                if (_formKey.currentState!.validate()) {
-                  ExistingUser.signInExistingUserWithEmailandPassword(
-                      _email, _password);
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const ChatPage()));
-                }
-              })),
-            ],
+                      textEditingController: _emailController,
+                      validator: (value) =>
+                          _isEmailValid ? null : 'Fuck you biyach',
+                      suffixIcon: _isEmailValid
+                          ? greenCheckMark
+                          : _emailController.text.isEmpty
+                              ? null
+                              : redCross,
+                    ),
+                    SizedBox(
+                        height:
+                            MediaQuery.of(context).size.height * 0.030956266),
+                    MyFormField(
+                        infoBox: 'PASSWORD',
+                        textEditingController: _passwordController,
+                        keyBoardType: TextInputType.visiblePassword,
+                        formField: 4,
+                        obscureText: true,
+                        prefixIcon: Icons.password_rounded,
+                        onPressed: () => setState(() {
+                              formFieldSelector = 3;
+                            }),
+                        suffixIcon: _passCheck
+                            ? greenCheckMark
+                            : _passwordController.text.isEmpty
+                                ? null
+                                : redCross,
+                        onFocusChanged: (value) {
+                          if (value) {
+                            setState(() {
+                              formFieldSelector = 4;
+                            });
+                          }
+                        },
+                        validator: (value) => null),
+                    SizedBox(
+                        height:
+                            MediaQuery.of(context).size.height * 0.030956266),
+                    Center(
+                        child: sexyTealButton(context, onPressed: () {
+                      _formKey.currentState?.save();
+                      if (_formKey.currentState!.validate()) {
+                        ExistingUser.signInExistingUserWithEmailandPassword(
+                            _emailController.text, _passwordController.text);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const ChatPage()));
+                      }
+                    })),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),
     );
+  }
+
+  void _validateEmail(String? email) {
+    if ((email?.length ?? 0) != 0 && emailRegExp.hasMatch(email ?? '')) {
+      setState(() {
+        _isEmailValid = true;
+      });
+    } else {
+      setState(() {
+        _isEmailValid = false;
+      });
+    }
   }
 
   Widget sexyTealButton(context, {required VoidCallback? onPressed}) {
@@ -173,70 +206,6 @@ class _SignInPageState extends State<SignInPage> {
         style: TextStyle(
           color: kBackgroundColor,
           fontSize: 15,
-        ),
-      ),
-    );
-  }
-
-  Widget formField(BuildContext context,
-      {String? infoBox,
-      TextInputType keyBoardType = TextInputType.text,
-      Key? key,
-      VoidCallback? onPressed,
-      IconData? icon,
-      Icon? suffixIcon,
-      int? formField,
-      bool obscureText = false,
-      Function(String)? onChanged,
-      TextEditingController? controller,
-      String? Function(String?)? validator}) {
-    bool isClicked = formFieldSelector == formField;
-    return Center(
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20.0),
-          color: isClicked ? kTextFieldColor : Colors.transparent,
-        ),
-        padding: const EdgeInsets.only(top: 0, bottom: 0, left: 12),
-        height: MediaQuery.of(context).size.height * 0.075,
-        width: MediaQuery.of(context).size.width * 0.85,
-        child: TextFormField(
-          style: const TextStyle(color: Colors.white),
-          key: key,
-          autovalidateMode: AutovalidateMode.always,
-          controller: controller,
-          decoration: InputDecoration(
-            labelText: infoBox,
-
-            labelStyle: const TextStyle(
-              color: Colors.white54,
-            ),
-            prefixIcon: Icon(
-              icon,
-              color: Colors.white54,
-            ),
-            suffixIcon: suffixIcon,
-
-            border: InputBorder.none,
-            focusedBorder: const UnderlineInputBorder(
-              // borderRadius: BorderRadius.circular(25.0),
-              borderSide: BorderSide.none,
-            ),
-            // errorBorder: OutlineInputBorder(
-            //     borderRadius: BorderRadius.circular(25.0),
-            //     borderSide: const BorderSide(
-            //         strokeAlign: -100, color: Colors.redAccent, width: 0)),
-            errorStyle: const TextStyle(
-              fontSize: 0,
-            ),
-          ),
-          textInputAction:
-              formField == 4 ? TextInputAction.done : TextInputAction.next,
-          onTap: onPressed,
-          keyboardType: keyBoardType,
-          obscureText: obscureText,
-          onChanged: onChanged,
-          validator: validator,
         ),
       ),
     );

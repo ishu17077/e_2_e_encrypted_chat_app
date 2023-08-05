@@ -114,7 +114,7 @@ class _ChatWithPageState extends State<ChatWithPage> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.only(top: 10.0, bottom: 7.0),
+        padding: const EdgeInsets.only(top: 0.0, bottom: 7.0),
         child: StreamBuilder<QuerySnapshot>(
           stream: _mystream,
           builder:
@@ -126,64 +126,63 @@ class _ChatWithPageState extends State<ChatWithPage> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
-            return Column(
+            return Stack(
               children: [
-                Flexible(
-                  flex: 1,
-                  child: ListView(
-                    reverse: true,
-                    physics: const BouncingScrollPhysics(),
-                    children: snapshot.data!.docs.reversed
-                        .map((DocumentSnapshot document) {
-                      Map<String, dynamic> messageMap =
-                          document.data()! as Map<String, dynamic>;
+                ListView(
+                  reverse: true,
+                  physics: const BouncingScrollPhysics(),
+                  children: snapshot.data!.docs.reversed
+                      .map((DocumentSnapshot document) {
+                    Map<String, dynamic> messageMap =
+                        document.data()! as Map<String, dynamic>;
 
-                      Message message = Message.fromJson(messageMap);
-                      message.id = document.id;
-                      if (message.senderEmail != signedInUser!.email &&
-                          message.isSeen == false) {
-                        _firestore
-                            .collection('messages')
-                            .doc(message.id)
-                            .update({"is_seen": true});
-                      }
-                      bool noMarginRequired =
-                          message.senderEmail == previousMessage?.senderEmail;
-                      previousMessage = message;
-
-                      return ChatPill(
-                        text: message.contents,
-                        isLastMessage:
-                            snapshot.data!.docs.last.id == document.id
-                                ? true
-                                : false,
-                        // contextKey: stickeyKey,
-                        isSeen: message.isSeen,
-                        isMe: _isMe(
-                          message.senderEmail,
-                          signedInUser!.email!,
-                        ),
-                        noMaginRequired: noMarginRequired,
-                      );
-                    }).toList(),
-                  ),
-                ),
-                ChatTextField(
-                  onSendButtonPressed: (String contents) {
-                    if (contents.isNotEmpty) {
-                      Message message = Message(
-                          recepientEmail: widget.recepientEmail,
-                          time: DateTime.now(),
-                          chatId: widget.chat.chatId,
-                          senderEmail: widget.senderEmail,
-                          contents: contents,
-                          isSeen: false);
-                      if (widget.chatExists == false) {
-                        _addNewChat.addNewChat(widget.chat);
-                      }
-                      _firestore.collection('messages').add(message.toJson());
+                    Message message = Message.fromJson(messageMap);
+                    message.id = document.id;
+                    if (message.senderEmail != signedInUser!.email &&
+                        message.isSeen == false) {
+                      _firestore
+                          .collection('messages')
+                          .doc(message.id)
+                          .update({"is_seen": true});
                     }
-                  },
+                    bool noMarginRequired =
+                        message.senderEmail == previousMessage?.senderEmail;
+                    previousMessage = message;
+
+                    return ChatPill(
+                      text: message.contents,
+                      isLastMessage: snapshot.data!.docs.last.id == document.id
+                          ? true
+                          : false,
+                      // contextKey: stickeyKey,
+                      isSeen: message.isSeen,
+                      isMe: _isMe(
+                        message.senderEmail,
+                        signedInUser!.email!,
+                      ),
+                      noMaginRequired: noMarginRequired,
+                    );
+                  }).toList(),
+                ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: ChatTextField(
+                    onSendButtonPressed: (String contents) {
+                      if (contents.isNotEmpty) {
+                        Message message = Message(
+                            recepientEmail: widget.recepientEmail,
+                            time: DateTime.now(),
+                            chatId: widget.chat.chatId,
+                            senderEmail: widget.senderEmail,
+                            contents: contents,
+                            isSeen: false);
+                        if (widget.chatExists == false) {
+                          _addNewChat.addNewChat(widget.chat);
+                        }
+                        _firestore.collection('messages').add(message.toJson());
+                      }
+                    },
+                  ),
                 ),
               ],
             );
