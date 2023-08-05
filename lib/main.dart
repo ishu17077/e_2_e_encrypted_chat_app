@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
           buttonColor: Color(0xff0cf3e1),
         ),
       ),
-      home: SignUpPage(),
+      home: user != null ? const ChatPage() : SignUpPage(),
     );
   }
 }
