@@ -107,7 +107,7 @@ class _ChatPageState extends State<ChatPage> {
                             onPressed: () => Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => ChatAdd())),
+                                    builder: (context) => const ChatAdd())),
                           ),
                         ],
                       ),
@@ -126,7 +126,7 @@ class _ChatPageState extends State<ChatPage> {
             children: [
               Padding(
                 padding: const EdgeInsets.only(
-                    top: 5.0, bottom: 10.0, left: 8.0, right: 11.0),
+                    top: 5.0, bottom: 0.0, left: 8.0, right: 11.0),
                 child: TextField(
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.zero,

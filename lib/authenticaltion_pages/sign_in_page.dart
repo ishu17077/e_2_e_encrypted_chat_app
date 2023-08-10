@@ -1,8 +1,11 @@
 import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/reusable_widgets/app_back_button.dart';
 import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/reusable_widgets/my_form_field.dart';
+import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/sign_up_page.dart';
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_page.dart';
+import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/existing_user.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class SignInPage extends StatefulWidget {
@@ -28,6 +31,12 @@ class _SignInPageState extends State<SignInPage> {
   @override
   void initState() {
     // TODO: implement initState
+    User? signedInUser = AddNewUser.signedInUser;
+    if (signedInUser == null) {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => SignUpPage()));
+    }
+
     _emailController.addListener(() {
       _validateEmail(_emailController.text);
     });

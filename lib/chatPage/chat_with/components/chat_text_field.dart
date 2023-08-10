@@ -2,15 +2,28 @@ import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
-class ChatTextField extends StatelessWidget {
+class ChatTextField extends StatefulWidget {
   final Function onSendButtonPressed;
   ChatTextField({super.key, required this.onSendButtonPressed});
+
+  @override
+  State<ChatTextField> createState() => _ChatTextFieldState();
+}
+
+class _ChatTextFieldState extends State<ChatTextField> {
   final TextEditingController _textEditingController = TextEditingController();
+  bool shouldKeyBoardAppear = false;
   String? contents;
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _textEditingController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      
       padding:
           const EdgeInsets.only(left: 7.0, right: 7.0, top: 0.0, bottom: 0.0),
       margin: const EdgeInsets.only(left: 5.0, right: 5.0, top: 4.0),
@@ -19,14 +32,19 @@ class ChatTextField extends StatelessWidget {
         color: const Color.fromRGBO(76, 72, 90, 1),
       ),
       child: TextField(
-        keyboardType: TextInputType.multiline,
-        minLines: 1,
-        maxLines: 5,
-        onChanged: (contents) {
-          this.contents = contents;
+        onTap: () {
+          setState(() {
+            shouldKeyBoardAppear = true;
+          });
         },
-        style: TextStyle(color: Colors.white.withOpacity(0.9)),
+        keyboardType: TextInputType.multiline,
+        readOnly: !shouldKeyBoardAppear,
         controller: _textEditingController,
+        minLines: 1,
+        showCursor: true,
+        autofocus: true,
+        maxLines: 5,
+        style: TextStyle(color: Colors.white.withOpacity(0.9)),
         decoration: InputDecoration(
             isDense: true,
             contentPadding: const EdgeInsets.only(
@@ -39,15 +57,16 @@ class ChatTextField extends StatelessWidget {
               color: kSexyTealColor,
             ),
             suffixIcon: IconButton(
-              icon: const Icon(
-                Icons.send_rounded,
-                color: kSexyTealColor,
-              ),
-              onPressed: () {
-                _textEditingController.clear();
-                onSendButtonPressed(contents?.trimRight() ?? '');
-              },
-            )),
+                icon: const Icon(
+                  Icons.send_rounded,
+                  color: kSexyTealColor,
+                ),
+                onPressed: () {
+                  widget.onSendButtonPressed(
+                      _textEditingController.value.text.trimRight().trimLeft());
+                  contents = '';
+                  _textEditingController.clear();
+                })),
       ),
     );
   }

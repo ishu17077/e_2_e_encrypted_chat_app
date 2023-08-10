@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 
 class ChatPill extends StatelessWidget {
   final String? text;
+
   final bool isSeen;
-  final bool? isMe;
-  final bool isLastMessage;
-  // final GlobalKey contextKey;
+  final bool isMe;
   final bool noMaginRequired;
+  final bool isLastMessage;
 
   const ChatPill({
     super.key,
@@ -15,7 +15,6 @@ class ChatPill extends StatelessWidget {
     this.isSeen = false,
     this.noMaginRequired = false,
     this.isLastMessage = false,
-    // required this.contextKey,
     required this.isMe,
   });
 
@@ -25,14 +24,12 @@ class ChatPill extends StatelessWidget {
       margin: EdgeInsets.only(
         left: 6.5,
         right: 6.5,
-        bottom: noMaginRequired ? 1.0 : 6.0,
         top: 1.0,
+        bottom: noMaginRequired ? 1.0 : 10,
       ),
       child: Column(children: [
         Align(
-          alignment:
-              isMe ?? false ? Alignment.bottomRight : Alignment.bottomLeft,
-          heightFactor: 1,
+          alignment: isMe ? Alignment.bottomRight : Alignment.bottomLeft,
           child: Container(
             constraints: BoxConstraints(
                 minWidth: 0,
@@ -42,14 +39,14 @@ class ChatPill extends StatelessWidget {
             padding:
                 const EdgeInsets.symmetric(vertical: 8.0, horizontal: 11.5),
             decoration: ShapeDecoration(
-              color: isMe ?? false ? Colors.black45 : kSubHeadingColor,
+              color: isMe ? Colors.black45 : kSubHeadingColor,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
                   side: BorderSide.none),
             ),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Flexible(
@@ -83,7 +80,7 @@ class ChatPill extends StatelessWidget {
           ),
         ),
         isLastMessage
-            ? SizedBox(height: MediaQuery.of(context).size.height * 0.01)
+            ? SizedBox(height: MediaQuery.of(context).size.height * 0.038)
             : const SizedBox(),
       ]),
     );

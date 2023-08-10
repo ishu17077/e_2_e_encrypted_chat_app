@@ -1,3 +1,5 @@
+import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/components/mesure_size.dart';
+import 'package:flutter/rendering.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/components/chat_pill.dart';
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/components/chat_text_field.dart';
@@ -8,7 +10,6 @@ import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 
 final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -37,8 +38,10 @@ class ChatWithPage extends StatefulWidget {
 class _ChatWithPageState extends State<ChatWithPage> {
   late User? signedInUser;
   Message? previousMessage;
+  double heightOfTextField = 0;
   final AddNewChat _addNewChat = AddNewChat();
-  OverlayEntry? sticky;
+  final GlobalKey _textBoxChangeKey = GlobalKey();
+
   Stream<QuerySnapshot<Map<String, dynamic>>>? _mystream;
   // final GlobalKey stickeyKey = GlobalKey();
   @override
@@ -49,6 +52,7 @@ class _ChatWithPageState extends State<ChatWithPage> {
         .where('chat_id', isEqualTo: widget.chat.chatId)
         .orderBy('time')
         .snapshots();
+
     //! _mystream was seperately assigned as it was changing with everytime something happens like a keyboard pop up lol
     // if (sticky != null) {
     //   sticky?.remove();
@@ -126,62 +130,107 @@ class _ChatWithPageState extends State<ChatWithPage> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
+            var docsSnapshot = snapshot.data!.docs;
             return Stack(
               children: [
-                ListView(
-                  reverse: true,
-                  physics: const BouncingScrollPhysics(),
-                  children: snapshot.data!.docs.reversed
-                      .map((DocumentSnapshot document) {
-                    Map<String, dynamic> messageMap =
-                        document.data()! as Map<String, dynamic>;
+                heightOfTextField != 0
+                    ? Positioned(
+                        bottom: heightOfTextField == 0 ? 26 : heightOfTextField,
+                        top: MediaQuery.of(context).size.height * 0.010,
+                        child: SizedBox(
+                          height: MediaQuery.of(context).size.height,
+                          width: MediaQuery.of(context).size.width,
+                          child: ListView(
+                            reverse: true,
+                            physics: const BouncingScrollPhysics(),
+                            children: docsSnapshot.reversed
+                                .map((DocumentSnapshot document) {
+                              Map<String, dynamic> messageMap =
+                                  document.data()! as Map<String, dynamic>;
 
-                    Message message = Message.fromJson(messageMap);
-                    message.id = document.id;
-                    if (message.senderEmail != signedInUser!.email &&
-                        message.isSeen == false) {
-                      _firestore
-                          .collection('messages')
-                          .doc(message.id)
-                          .update({"is_seen": true});
-                    }
-                    bool noMarginRequired =
-                        message.senderEmail == previousMessage?.senderEmail;
-                    previousMessage = message;
+                              Message message = Message.fromJson(messageMap);
+                              message.id = document.id;
+                              if (message.senderEmail != signedInUser!.email &&
+                                  message.isSeen == false) {
+                                _firestore
+                                    .collection('messages')
+                                    .doc(message.id)
+                                    .update({"is_seen": true});
+                              }
+                              bool noMarginRequired = message.senderEmail ==
+                                  previousMessage?.senderEmail;
+                              previousMessage = message;
 
-                    return ChatPill(
-                      text: message.contents,
-                      isLastMessage: snapshot.data!.docs.last.id == document.id
-                          ? true
-                          : false,
-                      // contextKey: stickeyKey,
-                      isSeen: message.isSeen,
-                      isMe: _isMe(
-                        message.senderEmail,
-                        signedInUser!.email!,
+                              return ChatPill(
+                                text: message.contents,
+                                isLastMessage: docsSnapshot.last == document,
+                                isSeen: message.isSeen,
+                                isMe: _isMe(
+                                  message.senderEmail,
+                                  signedInUser!.email!,
+                                ),
+                                noMaginRequired: noMarginRequired,
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      )
+                    : const Center(
+                        child: CircularProgressIndicator(),
                       ),
-                      noMaginRequired: noMarginRequired,
-                    );
-                  }).toList(),
-                ),
                 Align(
                   alignment: Alignment.bottomCenter,
-                  child: ChatTextField(
-                    onSendButtonPressed: (String contents) {
-                      if (contents.isNotEmpty) {
-                        Message message = Message(
-                            recepientEmail: widget.recepientEmail,
-                            time: DateTime.now(),
-                            chatId: widget.chat.chatId,
-                            senderEmail: widget.senderEmail,
-                            contents: contents,
-                            isSeen: false);
-                        if (widget.chatExists == false) {
-                          _addNewChat.addNewChat(widget.chat);
-                        }
-                        _firestore.collection('messages').add(message.toJson());
+                  child: MeasureSize(
+                    onChange: (size) {
+                      double? screenHeight = MediaQuery.of(context).size.height;
+                      print("Scrren Height: $screenHeight");
+                      double widgetHeight = size.height;
+                      if (widgetHeight <= 55) {
+                        setState(() {
+                          heightOfTextField = widgetHeight / 2;
+                        });
+                      } else if (widgetHeight > 55 && widgetHeight < 67) {
+                        setState(() {
+                          heightOfTextField = widgetHeight / 1.65;
+                        });
+                      } else if (widgetHeight >= 67 && widgetHeight < 95) {
+                        setState(() {
+                          heightOfTextField = widgetHeight / 1.425;
+                        });
+                      } else if (widgetHeight >= 100 && widgetHeight < 115) {
+                        setState(() {
+                          heightOfTextField = widgetHeight / 1.30;
+                        });
+                      } else {
+                        setState(() {
+                          heightOfTextField = widgetHeight / 1.25;
+                        });
                       }
+
+                      print(size.height);
                     },
+                    child: ChatTextField(
+                      key: _textBoxChangeKey,
+                      onSendButtonPressed: (String contents) {
+                        if (contents.isNotEmpty) {
+                          Message message = Message(
+                              recepientEmail: widget.recepientEmail,
+                              time: DateTime.now(),
+                              chatId: widget.chat.chatId,
+                              senderEmail: widget.senderEmail,
+                              contents: contents,
+                              isSeen: false);
+                          if (widget.chatExists == false) {
+                            _addNewChat
+                                .addNewChat(widget.chat)
+                                .then((value) => widget.chatExists = true);
+                          }
+                          _firestore
+                              .collection('messages')
+                              .add(message.toJson());
+                        }
+                      },
+                    ),
                   ),
                 ),
               ],
@@ -192,15 +241,19 @@ class _ChatWithPageState extends State<ChatWithPage> {
     );
   }
 
-  // Widget stickyBuilder() {
-  //   return Builder(
-  //     builder: (context) {
-  //       final keyContext = stickeyKey.currentContext;
-  //       if(keyContext != null){
-  //         final b
-  //       }
-  //     },
-  //   );
+  // bool gotNotification(SizeChangedLayoutNotification notification) {
+  //   // change height here
+  //   var height = _textBoxChangeKey.currentContext?.size?.height;
+  //   if (_heightOfTextFieldNotifier != height && height != null) {
+  //     print(_heightOfTextFieldNotifier);
+  //     setState(() {
+  //       _heightOfTextFieldNotifier = height;
+  //     });
+  //   }
+  //   print("Size: $height");
+
+  //   _textBoxChangeKey = GlobalKey();
+  //   return true;
   // }
 
   bool _isMe(String sender, String signedInUserEmail) {

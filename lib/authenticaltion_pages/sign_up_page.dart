@@ -64,7 +64,8 @@ class SignUpPage extends StatelessWidget {
                     return value;
                   }).onError((error, stackTrace) {
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text('Ya toh net kharab ha ya toh dimag')));
+                        content: Text(
+                            'Ya toh net kharab ha ya toh dimag ya toh Google ka server')));
                     throw Exception();
                   });
                   print(userCredential.user?.displayName);

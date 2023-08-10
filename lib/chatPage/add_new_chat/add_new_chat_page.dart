@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/reusable_widgets/app_back_button.dart';
+import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/sign_up_page.dart';
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/chat_with_page.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
@@ -37,6 +38,10 @@ class _ChatAddState extends State<ChatAdd> {
   @override
   void initState() {
     // TODO: implement initState
+    if (signedInUser == null) {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => SignUpPage()));
+    }
     collectionReference = _firebaseFirestore.collection('chats');
 
     _snapshots = _firebaseFirestore
@@ -94,10 +99,10 @@ class _ChatAddState extends State<ChatAdd> {
                   chatId: '${signedInUser?.email!}${user.emailAddress}',
                   chatNames: [signedInUser?.displayName, user.username]);
               future = chatIdExists(
-                      '${signedInUser?.email!}${user.emailAddress}',
-                      "${user.emailAddress}${signedInUser?.email!}")
+                      '${signedInUser!.email!}${user.emailAddress}',
+                      "${user.emailAddress}${signedInUser!.email!}")
                   .then((value) {
-                if (value.isNotEmpty) {
+                if (value != null) {
                   chat.chatId = value;
                   chatExists = true;
                 } else {
@@ -157,7 +162,7 @@ class _ChatAddState extends State<ChatAdd> {
         ));
   }
 
-  Future<String> chatIdExists(String chatId1, String chatId2) async {
+  Future<String?> chatIdExists(String chatId1, String chatId2) async {
     final QuerySnapshot result1 = await collectionReference
         .where('chat_id', whereIn: [chatId1, chatId2]).get();
     final List<DocumentSnapshot> documents1 = result1.docs;
@@ -166,6 +171,6 @@ class _ChatAddState extends State<ChatAdd> {
       return result1.docs.single.get('chat_id');
     }
 
-    return '';
+    return null;
   }
 }

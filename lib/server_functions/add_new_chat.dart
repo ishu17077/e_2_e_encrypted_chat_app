@@ -5,6 +5,9 @@ class AddNewChat {
   FirebaseFirestore db = FirebaseFirestore.instance;
 
   Future addNewChat(Chat chat) async {
+
+
+    
     await db
         .collection('chats')
         .add(chat.toJson())
