@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_page.dart';
+import 'package:e_2_e_encrypted_chat_app/encryption/encryption.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/email_and_password_page.dart';

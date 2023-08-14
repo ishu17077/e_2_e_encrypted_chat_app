@@ -1,7 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_2_e_encrypted_chat_app/encryption/encryption_methods.dart';
+import 'package:e_2_e_encrypted_chat_app/main.dart';
+import 'package:e_2_e_encrypted_chat_app/server_functions/existing_user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:e_2_e_encrypted_chat_app/models/user.dart' as myuser;
+import 'package:e_2_e_encrypted_chat_app/models/user.dart' as myUser;
+
+final _firestore = FirebaseFirestore.instance;
+final _auth = FirebaseAuth.instance;
 
 class AddNewUser {
   static User? get signedInUser {
@@ -17,7 +23,7 @@ class AddNewUser {
       print("Display Name: ${data?.displayName}");
       print("Email: ${data?.email}");
     });
-    return FirebaseAuth.instance.currentUser;
+    return _auth.currentUser;
     // return FirebaseAuth.instance.currentUser;
     // return await user.asFuture().asStream().first;
     // final userCredential = await FirebaseAuth.instance.signInWithCredential(const AuthCredential(providerId: 'google.com', signInMethod: 'password'));
@@ -25,9 +31,9 @@ class AddNewUser {
     // print(user?.uid);
   }
 
-  static Future<String?> addUserToDatabase(myuser.User user) async {
+  static Future<String?> addUserToDatabase(myUser.User user) async {
     String _error = '';
-    final _firestore = FirebaseFirestore.instance;
+
     final QuerySnapshot checkExists = await _firestore
         .collection('users')
         .where('email_address', isEqualTo: signedInUser?.email)
@@ -42,6 +48,8 @@ class AddNewUser {
         _error = error.toString();
         throw Exception();
       });
+    } else {
+      print("User already Exists");
     }
 
     return _error;
@@ -61,10 +69,12 @@ class AddNewUser {
     );
 
     //! Once signed in returning the UserCredential
-    final UserCredential user =
-        await FirebaseAuth.instance.signInWithCredential(credential);
-    myuser.User userDatabase = myuser.User(
+
+    final UserCredential user = await _auth.signInWithCredential(credential);
+    final publicKeyJwb = await EncryptionMethods.generateAndStoreKeysJwk();
+    myUser.User userDatabase = myUser.User(
         emailAddress: user.user!.email,
+        publicKeyJwb: publicKeyJwb!,
         username: user.user!.displayName,
         photoUrl: user.user?.photoURL ??
             'https://marmelab.com/images/blog/ascii-art-converter/homer.png',
@@ -73,22 +83,25 @@ class AddNewUser {
     return user;
   }
 
-  static Future<String?> createUserWithEmailandPassword(
+  static Future<myUser.User?> createUserWithEmailandPassword(
       String name, String email, String password) async {
     final UserCredential credential;
     try {
-      credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      credential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-      myuser.User userDatabase = myuser.User(
+      final publicKeyJwb = await EncryptionMethods.generateAndStoreKeysJwk();
+      myUser.User userDatabase = myUser.User(
           emailAddress: credential.user!.email,
           username: credential.user!.displayName,
+          publicKeyJwb: publicKeyJwb!,
           photoUrl: credential.user?.photoURL ??
               'https://marmelab.com/images/blog/ascii-art-converter/homer.png',
           lastseen: DateTime.now());
-      addUserToDatabase(userDatabase);
-      return credential.user?.uid;
+
+      await addUserToDatabase(userDatabase);
+      return userDatabase;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         print('The password provided is too weak.');
@@ -97,7 +110,7 @@ class AddNewUser {
       }
     } catch (e) {
       print(e);
-      return (e.toString());
+      return null;
     }
     return null;
   }

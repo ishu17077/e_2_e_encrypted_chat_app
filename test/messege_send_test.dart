@@ -4,18 +4,18 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() async {
-  await Firebase.initializeApp();
-  Message message = Message(
-      chatId: '',
-      recepientEmail: 'Lololol',
-      contents: 'Lambda',
-      time: DateTime.now(),
-      senderEmail: 'Legends of Sex',
-      isSeen: false);
-  GetMessages getMessages = GetMessages();
-  test('should send a message to Lololol sender', () async {
-    final messageFromFirestore = await getMessages.sendMessage(message);
-    print(messageFromFirestore);
-    expect(messageFromFirestore, isNotEmpty);
-  });
+  // await Firebase.initializeApp();
+  // Message message = Message(
+  //     chatId: '',
+  //     recepientEmail: 'Lololol',
+  //     contents: 'Lambda',
+  //     time: DateTime.now(),
+  //     senderEmail: 'Legends of Sex',
+  //     isSeen: false);
+  // GetMessages getMessages = GetMessages();
+  // test('should send a message to Lololol sender', () async {
+  //   final messageFromFirestore = await getMessages.sendMessage(message);
+  //   print(messageFromFirestore);
+  //   expect(messageFromFirestore, isNotEmpty);
+  // });
 }

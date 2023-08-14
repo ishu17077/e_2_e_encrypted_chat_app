@@ -169,7 +169,7 @@ class _SignInPageState extends State<SignInPage> {
                       _formKey.currentState?.save();
                       if (_formKey.currentState!.validate()) {
                         ExistingUser.signInExistingUserWithEmailandPassword(
-                            _emailController.text, _passwordController.text);
+                            _emailController.text.toLowerCase(), _passwordController.text);
                         Navigator.push(
                             context,
                             MaterialPageRoute(

@@ -10,7 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 // import 'package:e_2_e_encrypted_chat_app/main.dart';
 
-void main() async {
+void main() {
   //? Maybe this is not a bug, but a feature
 
   test('Checking for internet connection', () async {
@@ -18,7 +18,7 @@ void main() async {
       Uri.parse('https://www.google.com'),
       headers: {"Accept": "application/json"},
     );
-    print("\\\\x1B[32mInternet is phenomenal ;)");
+    print("\x1B[32mInternet is phenomenal ;)\x1B[0m");
     expectLater(response.statusCode, 200);
   });
 }

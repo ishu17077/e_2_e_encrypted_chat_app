@@ -28,17 +28,17 @@ class GetMessages {
     });
   }
 
-  static List<Message> forHomeScreen(List<Message> messages) {
-    for (int i = 0; i < messages.length; i++) {
-      for (int j = i + 1; j < messages.length; j++) {
-        if (j > i) {
-          break;
-        }
-        if (messages[i].senderEmail == messages[j].senderEmail) {
-          messages.remove(messages[i]);
-        }
-      }
-    }
-    return messages;
-  }
+  // static List<Message> forHomeScreen(List<Message> messages) {
+  //   for (int i = 0; i < messages.length; i++) {
+  //     for (int j = i + 1; j < messages.length; j++) {
+  //       if (j > i) {
+  //         break;
+  //       }  //? My first lovely ineffecient piece of sh*t lol
+  //       if (messages[i].senderEmail == messages[j].senderEmail) {
+  //         messages.remove(messages[i]);
+  //       }
+  //     }
+  //   }
+  //   return messages;
+  // }
 }

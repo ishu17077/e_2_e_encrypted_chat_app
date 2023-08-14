@@ -1,5 +1,6 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/sign_up_page.dart';
 import 'package:e_2_e_encrypted_chat_app/chatPage/add_new_chat/add_new_chat_page.dart';
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/chat_with_page.dart';
 import 'package:e_2_e_encrypted_chat_app/models/chat.dart';
@@ -27,6 +28,10 @@ class _ChatPageState extends State<ChatPage> {
   Stream<QuerySnapshot<Map<String, dynamic>>>? _snapshotChats;
   @override
   void initState() {
+    if (signedInUser == null) {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => SignUpPage()));
+    }
     _snapshotChats = _firestore
         .collection("chats")
         .where('belongs_to_emails',
@@ -242,7 +247,10 @@ class _ChatPageState extends State<ChatPage> {
               //! WHat if display name is same, we need to do it with email rather
               ? chat.chatNames.first ?? ''
               : chat.chatNames.last ?? '',
-          recepientEmail: chat.chatWithEmail,
+          recepientEmail: chat.belongsToEmails.first != signedInUser?.email
+              //! WHat if display name is same, we need to do it with email rather
+              ? chat.belongsToEmails.first ?? ''
+              : chat.belongsToEmails.last ?? '',
           senderEmail: signedInUser!.email!,
         );
       })),

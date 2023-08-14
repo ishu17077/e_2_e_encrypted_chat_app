@@ -6,9 +6,8 @@ import 'package:e_2_e_encrypted_chat_app/server_functions/get_messages.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'reusable_widgets/app_back_button.dart';
 
@@ -38,6 +37,7 @@ class _EmailAndPasswordAuthenticationState
   FocusNode _focus = FocusNode();
   bool _isConfPassValid = false;
   bool _isEmailValid = false;
+  bool _isLoading = false;
   late final GlobalKey<FormState> _formKey;
   @override
   void initState() {
@@ -256,21 +256,17 @@ class _EmailAndPasswordAuthenticationState
                     Center(
                       child: sexyTealButton(
                         context,
-                        onPressed: () {
+                        onPressed: () async {
                           _formKey.currentState?.save();
                           if (_formKey.currentState!.validate()) {
-                            AddNewUser.createUserWithEmailandPassword(
-                                _nameController.text,
-                                _emailController.text,
-                                _passwordController.text);
-                            myUser.User user = myUser.User(
-                              emailAddress: _emailController.text,
-                              username:
-                                  _nameController.text.trimRight().trimLeft(),
-                              photoUrl: '',
-                              lastseen: DateTime.now(),
-                            );
-                            GetMessages.addUser(user)
+                            
+                            final myUser.User? user =
+                                await AddNewUser.createUserWithEmailandPassword(
+                                    _nameController.text,
+                                    _emailController.text.toLowerCase(),
+                                    _passwordController.text);
+
+                            GetMessages.addUser(user!)
                                 .then((value) => Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
@@ -336,14 +332,16 @@ class _EmailAndPasswordAuthenticationState
         shape: MaterialStateProperty.all(
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(35))),
       ),
-      onPressed: onPressed,
-      child: const Text(
-        "SIGN UP",
-        style: TextStyle(
-          color: kBackgroundColor,
-          fontSize: 15,
-        ),
-      ),
+      onPressed: _isLoading ? null : onPressed,
+      child: _isLoading
+          ? const CircularProgressIndicator()
+          : const Text(
+              "SIGN UP",
+              style: TextStyle(
+                color: kBackgroundColor,
+                fontSize: 15,
+              ),
+            ),
     );
   }
 

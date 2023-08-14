@@ -86,9 +86,6 @@ class _ChatAddState extends State<ChatAdd> {
               User user = User.fromJson(userMap);
 
               Chat chat = Chat(
-                  chatWithEmail: user.emailAddress ?? 'test@testmail.com',
-                  unreadMessages: 0,
-                  lastOnline: DateTime.now(),
                   photoUrls: [
                     signedInUser?.photoURL ??
                         'https://marmelab.com/images/blog/ascii-art-converter/homer.png',
