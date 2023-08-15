@@ -34,7 +34,7 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
-      - name: Run web Hook Test Setup
+      - name: Run Web Hook Preparation Setup
         run: flutter pub run webcrypto:setup
 
       # Your project will need to have tests in test/ and a dependency on
