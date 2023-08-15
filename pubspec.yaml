@@ -41,7 +41,8 @@ dependencies:
   flutter_facebook_auth: ^6.0.0
   google_sign_in: ^6.1.0
   http: ^1.1.0
-  webcrypto: ^0.5.3
+  webcrypto:
+    path: ./webcrypto-0.5.3
 
 dev_dependencies:
   flutter_lints: ^2.0.0
