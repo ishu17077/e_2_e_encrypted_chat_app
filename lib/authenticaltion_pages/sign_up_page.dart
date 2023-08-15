@@ -52,8 +52,7 @@ class SignUpPage extends StatelessWidget {
               heightImage: 38.0,
               widthImage: 38.0,
               onPressed: () async {
-                // _addNewUser.signedInUser;
-                final user = FirebaseAuth.instance.currentUser;
+                final user = AddNewUser.signedInUser;
                 if (user == null) {
                   UserCredential userCredential =
                       await _addNewUser.signInWithGoogle.then((value) {

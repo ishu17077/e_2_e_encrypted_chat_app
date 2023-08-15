@@ -74,12 +74,12 @@ class AddNewUser {
     final publicKeyJwb = await EncryptionMethods.generateAndStoreKeysJwk();
     myUser.User userDatabase = myUser.User(
         emailAddress: user.user!.email,
-        publicKeyJwb: publicKeyJwb!,
+        publicKeyJwb: publicKeyJwb ?? '',
         username: user.user!.displayName,
         photoUrl: user.user?.photoURL ??
             'https://marmelab.com/images/blog/ascii-art-converter/homer.png',
         lastseen: DateTime.now());
-    addUserToDatabase(userDatabase);
+    await addUserToDatabase(userDatabase);
     return user;
   }
 

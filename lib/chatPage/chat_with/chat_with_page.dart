@@ -207,14 +207,16 @@ class _ChatWithPageState extends State<ChatWithPage> {
                                             previousMessage?.senderEmail;
                                     previousMessage = message;
 
-                                    return FutureBuilder(
-                                        future: decryptedMessage(
+                                    Future<String> decryptMessageFuture = decryptedMessage(
                                                 iv: _iv!,
                                                 encryptedMessageContents:
                                                     message.contents,
                                                 deriveKey: _encryptionKeys!)
                                             .then((value) =>
-                                                message.contents = value),
+                                                message.contents = value);
+                                                
+                                    return FutureBuilder(
+                                        future: decryptMessageFuture,
                                         builder: (context, futureshot) {
                                           if (futureshot.hasError) {
                                             return const Center(
@@ -223,9 +225,7 @@ class _ChatWithPageState extends State<ChatWithPage> {
                                           }
                                           if (futureshot.connectionState ==
                                               ConnectionState.waiting) {
-                                            return const Center(
-                                                child:
-                                                    CircularProgressIndicator());
+                                            return SizedBox();
                                           }
                                           return ChatPill(
                                             text: message.contents,
