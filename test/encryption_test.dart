@@ -20,12 +20,13 @@ void main() async {
   final deriveKeyVar = await deriveKey(jwb.privateKey, jwb.publicKey);
   test('Check for message encryption and decryption', () async {
     print("\x1B[34mMessage Contents: ${message.contents}\x1B[0m");
-    print("\x1B[36mEncrypting.....\x1B[0m");
+    print(
+        "\x1B[36mEncrypting with public key: \x1B[35m${jwb.publicKey}\x1B[0m ");
     final String encryptedMessageContents = await encryptMessage(
         iv: iv, messageContents: message.contents, deriveKey: deriveKeyVar);
     print("\x1B[33mEncrypted message: $encryptedMessageContents\x1B[0m");
     print(
-        "\x1B[36mDecrypting message \'$encryptedMessageContents\'\x1B[0m......");
+        "\x1B[36mDecrypting message \'$encryptedMessageContents\' with private key: \x1B[31m${jwb.privateKey}\x1B[0m ");
     final String decryptedMessageContents = await decryptedMessage(
         iv: iv,
         encryptedMessageContents: encryptedMessageContents,
