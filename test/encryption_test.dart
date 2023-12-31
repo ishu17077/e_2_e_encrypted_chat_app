@@ -23,7 +23,7 @@ void main() async {
     print(
         "\x1B[36mEncrypting with public key: \x1B[35m${jwb.publicKey}\x1B[0m ");
     final String encryptedMessageContents = await encryptMessage(
-        iv: iv, messageContents: message.contents, deriveKey: deriveKeyVar);
+        iv: iv, messageContents: message.contents, deriveKey: deriveKeyVar);    
     print("\x1B[33mEncrypted message: $encryptedMessageContents\x1B[0m");
     print(
         "\x1B[36mDecrypting message \'$encryptedMessageContents\' with private key: \x1B[31m${jwb.privateKey}\x1B[0m ");

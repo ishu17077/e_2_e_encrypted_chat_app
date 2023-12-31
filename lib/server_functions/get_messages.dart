@@ -1,10 +1,15 @@
+import 'dart:ffi';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_2_e_encrypted_chat_app/models/user.dart';
 
 import 'package:e_2_e_encrypted_chat_app/models/message.dart';
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class GetMessages {
-  FirebaseFirestore db = FirebaseFirestore.instance;
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
   final user = <String, dynamic>{
     "first": "Ada",
     "last": "Lovelace",
@@ -19,13 +24,27 @@ class GetMessages {
   }
 
   Future sendMessage(Message message) async {
-    await db
+    await _db
         .collection("messages")
         .add(message.toJson())
         .then((DocumentReference doc) {
-      print('DocumentSnapshot added  with ID: ${doc.id}, ${doc.path}');
-      return db.collection("messages").get();
+      debugPrint('DocumentSnapshot added  with ID: ${doc.id}, ${doc.path}');
+      return _db.collection("messages").get();
     });
+  }
+
+  Future<bool> setData(String key, String value) async {
+    await _prefs.then((prefs) {
+      prefs.setString(key, value).whenComplete(() => true);
+    });
+    return false;
+  }
+
+  Future<String?> getData(String key) async {
+    await _prefs.then((prefs) {
+      return (prefs.getString(key));
+    });
+    return null;
   }
 
   // static List<Message> forHomeScreen(List<Message> messages) {

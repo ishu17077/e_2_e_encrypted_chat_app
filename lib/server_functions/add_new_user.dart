@@ -1,10 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_2_e_encrypted_chat_app/encryption/encryption_methods.dart';
-import 'package:e_2_e_encrypted_chat_app/main.dart';
-import 'package:e_2_e_encrypted_chat_app/server_functions/existing_user.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:e_2_e_encrypted_chat_app/models/user.dart' as myUser;
+import 'package:e_2_e_encrypted_chat_app/models/user.dart' as my_user;
 
 final _firestore = FirebaseFirestore.instance;
 final _auth = FirebaseAuth.instance;
@@ -31,7 +30,7 @@ class AddNewUser {
     // print(user?.uid);
   }
 
-  static Future<String?> addUserToDatabase(myUser.User user) async {
+  static Future<String?> addUserToDatabase(my_user.User user) async {
     String _error = '';
 
     final QuerySnapshot checkExists = await _firestore
@@ -72,7 +71,7 @@ class AddNewUser {
 
     final UserCredential user = await _auth.signInWithCredential(credential);
     final publicKeyJwb = await EncryptionMethods.generateAndStoreKeysJwk();
-    myUser.User userDatabase = myUser.User(
+    my_user.User userDatabase = my_user.User(
         emailAddress: user.user!.email,
         publicKeyJwb: publicKeyJwb ?? '',
         username: user.user!.displayName,
@@ -83,7 +82,7 @@ class AddNewUser {
     return user;
   }
 
-  static Future<myUser.User?> createUserWithEmailandPassword(
+  static Future<my_user.User?> createUserWithEmailandPassword(
       String name, String email, String password) async {
     final UserCredential credential;
     try {
@@ -92,7 +91,7 @@ class AddNewUser {
         password: password,
       );
       final publicKeyJwb = await EncryptionMethods.generateAndStoreKeysJwk();
-      myUser.User userDatabase = myUser.User(
+      my_user.User userDatabase = my_user.User(
           emailAddress: credential.user!.email,
           username: credential.user!.displayName,
           publicKeyJwb: publicKeyJwb!,
