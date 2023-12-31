@@ -3,7 +3,7 @@ import 'package:e_2_e_encrypted_chat_app/encryption/encryption_methods.dart';
 import 'package:e_2_e_encrypted_chat_app/models/user.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide User;
 
-class ExistingUser {
+mixin ExistingUser {
   static Future<User> signInExistingUserWithEmailandPassword(
       String email, String password) async {
     UserCredential? credential;
@@ -24,7 +24,9 @@ class ExistingUser {
         .where('email_address', isEqualTo: credential!.user!.email!)
         .get()
         .then((snapshots) {
-      snapshots.docs.first.data().update('public_key_jwb', (value) => publicKey);
+      snapshots.docs.first
+          .data()
+          .update('public_key_jwb', (value) => publicKey);
     });
     return User(
       emailAddress: credential.user!.email ?? '',
@@ -34,6 +36,4 @@ class ExistingUser {
       lastseen: DateTime.now(),
     );
   }
-
-
 }
