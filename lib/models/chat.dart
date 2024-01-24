@@ -18,12 +18,12 @@ class Chat {
         'photo_urls': photoUrls,
         'chat_id': chatId,
       };
-  factory Chat.fromJson(Map<String, dynamic> json) {
+  factory Chat.fromJson(Map<String, dynamic> chatMap) {
     final Chat chat = Chat(
-      photoUrls: List.castFrom(json['photo_urls'] as List),
-      belongsToEmails: List.castFrom(json['belongs_to_emails'] as List),
-      chatNames: List.castFrom(json['chat_names'] as List) ?? ['', ''],
-      chatId: json['chat_id'],
+      photoUrls: List.castFrom(chatMap['photo_urls'] as List),
+      belongsToEmails: List.castFrom(chatMap['belongs_to_emails'] as List),
+      chatNames: List.castFrom(chatMap['chat_names'] as List) ?? ['', ''],
+      chatId: chatMap['chat_id'],
     );
     return chat;
   }

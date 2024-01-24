@@ -23,13 +23,13 @@ class User {
         'last_seen': lastseen,
         'public_key_jwb': publicKeyJwb!,
       };
-  factory User.fromJson(Map<String, dynamic> json) {
+  factory User.fromJson(Map<String, dynamic> userMap) {
     final User user = User(
-      emailAddress: json['email_address'],
-      username: json['username'],
-      publicKeyJwb: json['public_key_jwb'] ?? '',
-      photoUrl: json['photo_url'],
-      lastseen: (json['last_seen'] as Timestamp).toDate(),
+      emailAddress: userMap['email_address'],
+      username: userMap['username'],
+      publicKeyJwb: userMap['public_key_jwb'] ?? '',
+      photoUrl: userMap['photo_url'],
+      lastseen: (userMap['last_seen'] as Timestamp).toDate(),
     );
     return user;
   }

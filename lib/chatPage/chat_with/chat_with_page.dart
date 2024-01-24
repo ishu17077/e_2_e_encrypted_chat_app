@@ -149,7 +149,8 @@ class _ChatWithPageState extends State<ChatWithPage> {
         padding: const EdgeInsets.only(top: 0.0, bottom: 7.0),
         child: FutureBuilder(
             future: _userFromFuture,
-            builder: (context, futureshot) {
+            builder: (context, futureshot) {  
+                       
               if (futureshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               }

@@ -1,21 +1,22 @@
 import 'package:e_2_e_encrypted_chat_app/server_functions/get_messages.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
-  print("Handling a background message: ${message.messageId}");
-  print("Title: ${message.notification?.title}");
-  print("Body: ${message.notification?.body}");
-  print("Payload: ${message.data}");
+  debugPrint("Handling a background message: ${message.messageId}");
+  debugPrint("Title: ${message.notification?.title}");
+  debugPrint("Body: ${message.notification?.body}");
+  debugPrint("Payload: ${message.data}");
 
 }
 
 Future<void> onMessageRecieved(RemoteMessage message) async {
-  print('Title: ${message.notification!.title}');
-  print('Body: ${message.notification!.body}');
-  print('Payload: ${message.data}');
+  debugPrint('Title: ${message.notification!.title}');
+  debugPrint('Body: ${message.notification!.body}');
+  debugPrint('Payload: ${message.data}');
 }
 
 class FirebaseApi {

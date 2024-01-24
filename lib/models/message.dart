@@ -24,15 +24,15 @@ class Message {
         'time': time,
         'chat_id': chatId,
       };
-  factory Message.fromJson(Map<String, dynamic> json) {
+  factory Message.fromJson(Map<String, dynamic> messageMap) {
     final Message message = Message(
-      senderEmail: json['sender_email'],
-      recepientEmail: json['recipient_email'],
+      senderEmail: messageMap['sender_email'],
+      recepientEmail: messageMap['recipient_email'],
       // ignore: unnecessary_cast
-      time: (json['time'] ?? Timestamp.now() as Timestamp).toDate(),
-      contents: json['contents'] ?? '',
-      isSeen: json['is_seen'] ?? false,
-      chatId: json['chat_id'],
+      time: (messageMap['time'] ?? Timestamp.now() as Timestamp).toDate(),
+      contents: messageMap['contents'] ?? '',
+      isSeen: messageMap['is_seen'] ?? false,
+      chatId: messageMap['chat_id'],
     );
     return message;
   }
