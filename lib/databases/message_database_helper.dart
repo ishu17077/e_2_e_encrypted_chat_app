@@ -35,14 +35,14 @@ class MessageDatabaseHelper {
 
   void _createDb(Database db, int newVersion) async {
     db.execute(
-        'CREATE TABLE $_messagesTable ($_colId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, $_colRecepientEmail TINYTEXT, $_colBelongsToChatId TEXT NOT NULL, $_colTime DATE, $_colSenderEmail TEXT, $_colContents TEXT, $_colIsSeen BOOL)');
+        'CREATE TABLE $_messagesTable ($_colId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, $_colRecepientEmail TINYTEXT NOT NULL, $_colBelongsToChatId TEXT NOT NULL, $_colTime TIMESTAMP NOT NULL, $_colSenderEmail TEXT, $_colContents TEXT, $_colIsSeen BOOLEAN)');
   }
 
   Future<List<Map<String, dynamic>>> _getMessageMapList(
       ChatStore chatStore) async {
     Database db = await database;
     var result = await db.query(_messagesTable,
-        where: '$_colBelongsToChatId = ?', whereArgs: [chatStore.chatId]);
+        where: '$_colBelongsToChatId = ?', whereArgs: [chatStore.id]);
     return result;
   }
 
@@ -69,7 +69,7 @@ class MessageDatabaseHelper {
   Future<int> getMessagesCount(ChatStore chatStore) async {
     Database db = await database;
     var x = await db.query(_messagesTable,
-        where: '$_colBelongsToChatId = ?', whereArgs: [chatStore.chatId]);
+        where: '$_colBelongsToChatId = ?', whereArgs: [chatStore.id]);
     int result = Sqflite.firstIntValue(x) ?? 0;
     return result;
   }

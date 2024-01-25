@@ -125,16 +125,16 @@ class _ChatAddState extends State<ChatAdd> {
                 onTap: () {
                   // ignore: use_build_context_synchronously
                   if (chatExists != null) {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ChatWithPage(
-                                  chatStore: chat,
-                                  chatExists: chatExists!,
-                                  chatName: user.username,
-                                  senderEmail: signedInUser!.email!,
-                                  recepientEmail: user.emailAddress!,
-                                )));
+                    // Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //         builder: (context) => ChatWithPage(
+                    //               chatStore: chat,
+                    //               chatExists: chatExists!,
+                    //               chatName: user.username,
+                    //               senderEmail: signedInUser!.email!,
+                    //               recepientEmail: user.emailAddress!,
+                    //             )));
                   }
                 },
                 enabled: true,

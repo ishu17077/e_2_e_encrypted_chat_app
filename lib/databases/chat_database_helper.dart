@@ -10,7 +10,7 @@ class ChatDatabaseHelper {
   final String _colId = 'id';
   final String _colBelongsToEmail = 'belongs_to_email';
   final String _colPhotoUrl = 'photo_url';
-  final String _colChatId = 'chat_id';
+  final String _colName = 'name';
 
   ChatDatabaseHelper._createInstance();
 
@@ -24,7 +24,7 @@ class ChatDatabaseHelper {
 
   Future<Database> initializeDatabase() async {
     // Get the directory path for both Android and iOS to store database.
-    
+
     String path = "${(await directory).path}/databases/chats.db";
     var chatsDatabase =
         await openDatabase(path, onCreate: _createDb, version: 1);
@@ -33,7 +33,7 @@ class ChatDatabaseHelper {
 
   void _createDb(Database db, int newVersion) async {
     await db.execute(
-        'CREATE TABLE $_chatTable ($_colId INTEGER PRIMARY KEY AUTOINCREMENT, $_colBelongsToEmail TINYTEXT, $_colPhotoUrl TEXT, $_colChatId TEXT NOT NULL)');
+        'CREATE TABLE $_chatTable ($_colId INTEGER PRIMARY KEY AUTOINCREMENT, $_colBelongsToEmail TINYTEXT, $_colPhotoUrl TEXT, $_colName VARCHAR(50))');
   }
 
   // Fetch Operation: Get all note objects from database
@@ -46,7 +46,8 @@ class ChatDatabaseHelper {
 
   Future<int> insertChat(ChatStore chatStore) async {
     Database db = await database;
-    int result = await db.insert(_chatTable, chatStore.toJson());
+    int result = await db.insert(_chatTable, chatStore.toJson(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
     return result;
   }
 
@@ -76,17 +77,19 @@ class ChatDatabaseHelper {
   Future<int> updateChat(ChatStore chatStore) async {
     var db = await database;
     var result = await db.update(_chatTable, chatStore.toJson(),
-        where: '$_colId = ?', whereArgs: [chatStore.id], conflictAlgorithm: ConflictAlgorithm.replace);
+        where: '$_colId = ?',
+        whereArgs: [chatStore.id],
+        conflictAlgorithm: ConflictAlgorithm.replace);
     return result;
   }
 
   Future<List<ChatStore>> getChatsList() async {
     var chatMapList = await _getChatMapList();
-    List<ChatStore> chatStore = List.empty(growable: true);
+    print(chatMapList);
+    List<ChatStore> chatStoreList = List.empty(growable: true);
     for (Map<String, dynamic> chatMap in chatMapList) {
-      chatStore.add(ChatStore.fromJson(chatMap));
+      chatStoreList.add(ChatStore.fromJson(chatMap));
     }
-    return chatStore;
+    return chatStoreList;
   }
-
 }
