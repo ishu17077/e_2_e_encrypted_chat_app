@@ -2,15 +2,15 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/sign_up_page.dart';
 import 'package:e_2_e_encrypted_chat_app/chatPage/add_new_chat/add_new_chat_page.dart';
+
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/chat_with_page.dart';
 import 'package:e_2_e_encrypted_chat_app/databases/chat_database_helper.dart';
-import 'package:e_2_e_encrypted_chat_app/models/chat.dart';
 import 'package:e_2_e_encrypted_chat_app/models/chat_store.dart';
-import 'package:e_2_e_encrypted_chat_app/models/message.dart';
+import 'package:e_2_e_encrypted_chat_app/models/message_store.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
 
 final _firestore = FirebaseFirestore.instance;
 
@@ -23,27 +23,25 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   // final ScrollController _scrollController = ScrollController();
-  CollectionReference<Map<String, dynamic>>? _collectionLastMessages;
-  ChatStore? chatStore;
+  // CollectionReference<Map<String, dynamic>>? _collectionLastMessages;
+  List<ChatStore>? chatList;
+  int count = 0;
   bool shouldHideTextField = false;
+  // ignore: non_constant_identifier_names
+  ChatDatabaseHelper chatDatabaseHelper = ChatDatabaseHelper();
   final signedInUser = AddNewUser.signedInUser;
-  Stream<QuerySnapshot<Map<String, dynamic>>>? _snapshotChats;
   @override
   void initState() {
     if (signedInUser == null) {
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => SignUpPage()));
     }
-    _snapshotChats = _firestore
-        .collection("chats")
-        .where('belongs_to_emails',
-            //! Hope you see the problem
-            arrayContains: signedInUser!.email)
-        // .orderBy('time', descending: true)
-        .snapshots();
-
-    _collectionLastMessages = FirebaseFirestore.instance.collection('messages');
-
+    updateListView();
+    chatDatabaseHelper.insertChat(ChatStore(
+        belongsToEmail: 'belongsToEmail@sexyMail.com',
+        photoUrl:
+            'https://marmelab.com/images/blog/ascii-art-converter/homer.png',
+        name: 'HolaBoi'));
     super.initState();
   }
 
@@ -56,6 +54,7 @@ class _ChatPageState extends State<ChatPage> {
   // List<Message> messages = [];
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: kBackgroundColor,
@@ -129,6 +128,7 @@ class _ChatPageState extends State<ChatPage> {
             )
           ],
           body: Column(
+            
             mainAxisSize: MainAxisSize.max,
             children: [
               Padding(
@@ -153,6 +153,16 @@ class _ChatPageState extends State<ChatPage> {
                   cursorColor: Colors.teal,
                 ),
               ),
+
+              Expanded(
+                child: ListView.builder(
+                  itemBuilder: (context, index) {
+                    return chatTile(chatList![index], context);
+                  },
+                  itemCount: count,
+                ),
+              )
+
               // StreamBuilder<QuerySnapshot>(
               //   stream: _snapshotChats,
               //   builder: (BuildContext context,
@@ -262,7 +272,6 @@ class _ChatPageState extends State<ChatPage> {
   // }
 
   ListTile chatTile(ChatStore chatStore, BuildContext context) {
-    this.chatStore = chatStore;
     return ListTile(
       tileColor: kBackgroundColor,
       leading: CircleAvatar(
@@ -273,15 +282,29 @@ class _ChatPageState extends State<ChatPage> {
         style: const TextStyle(color: Colors.white),
       ),
       subtitle: Text(
-        chatStore.mostRecentMessage.contents,
+        'Hi',
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: const TextStyle(color: Colors.white70),
       ),
-      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => ChatWithPage(chatStore: chatStore))),
+      onTap: () {
+        // Navigator.of(context).push(MaterialPageRoute(
+        //   builder: (context) => ChatWithPage(chatStore: chatStore)))
+      },
       enabled: true,
       enableFeedback: true,
     );
+  }
+
+  void updateListView() async {
+    final Future<Database> dbFuture = chatDatabaseHelper.initializeDatabase();
+    dbFuture.then((value) {
+      chatDatabaseHelper.getChatsList().then((chatList) {
+        setState(() {
+          this.chatList = chatList;
+          count = chatList.length;
+        });
+      });
+    });
   }
 }
