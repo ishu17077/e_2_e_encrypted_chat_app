@@ -3,7 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/sign_up_page.dart';
 import 'package:e_2_e_encrypted_chat_app/chatPage/add_new_chat/add_new_chat_page.dart';
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/chat_with_page.dart';
+import 'package:e_2_e_encrypted_chat_app/databases/chat_database_helper.dart';
 import 'package:e_2_e_encrypted_chat_app/models/chat.dart';
+import 'package:e_2_e_encrypted_chat_app/models/chat_store.dart';
 import 'package:e_2_e_encrypted_chat_app/models/message.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
@@ -22,7 +24,7 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   // final ScrollController _scrollController = ScrollController();
   CollectionReference<Map<String, dynamic>>? _collectionLastMessages;
-  Chat? chat;
+  ChatStore? chatStore;
   bool shouldHideTextField = false;
   final signedInUser = AddNewUser.signedInUser;
   Stream<QuerySnapshot<Map<String, dynamic>>>? _snapshotChats;
@@ -151,36 +153,36 @@ class _ChatPageState extends State<ChatPage> {
                   cursorColor: Colors.teal,
                 ),
               ),
-              StreamBuilder<QuerySnapshot>(
-                stream: _snapshotChats,
-                builder: (BuildContext context,
-                    AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (snapshot.hasError) {
-                    return const Text('Something Went wrong');
-                  } else if (snapshot.connectionState ==
-                      ConnectionState.waiting) {
-                    return const Expanded(
-                        child: Center(child: CircularProgressIndicator()));
-                  }
-                  // ignore: avoid_print
-                  print(
-                      "Signed in as email${FirebaseAuth.instance.currentUser?.email!} ");
-                  //! Hope you see the problem
-                  return Expanded(
-                    child: ListView(
-                      physics: const BouncingScrollPhysics(),
-                      children:
-                          snapshot.data!.docs.map((DocumentSnapshot document) {
-                        Map<String, dynamic> data =
-                            document.data()! as Map<String, dynamic>;
-                        Chat chat = Chat.fromJson(data);
-                        print("Chat id: ${chat.chatId}");
-                        return chatTile(chat, context);
-                      }).toList(),
-                    ),
-                  );
-                },
-              ),
+              // StreamBuilder<QuerySnapshot>(
+              //   stream: _snapshotChats,
+              //   builder: (BuildContext context,
+              //       AsyncSnapshot<QuerySnapshot> snapshot) {
+              //     if (snapshot.hasError) {
+              //       return const Text('Something Went wrong');
+              //     } else if (snapshot.connectionState ==
+              //         ConnectionState.waiting) {
+              //       return const Expanded(
+              //           child: Center(child: CircularProgressIndicator()));
+              //     }
+              //     // ignore: avoid_print
+              //     print(
+              //         "Signed in as email${FirebaseAuth.instance.currentUser?.email!} ");
+              //     //! Hope you see the problem
+              //     return Expanded(
+              //       child: ListView(
+              //         physics: const BouncingScrollPhysics(),
+              //         children:
+              //             snapshot.data!.docs.map((DocumentSnapshot document) {
+              //           Map<String, dynamic> data =
+              //               document.data()! as Map<String, dynamic>;
+              //           Chat chat = Chat.fromJson(data);
+              //           print("Chat id: ${chat.chatId}");
+              //           return chatTile(chat, context);
+              //         }).toList(),
+              //       ),
+              //     );
+              //   },
+              // ),
             ],
           ),
         ),
@@ -188,72 +190,96 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  ListTile chatTile(Chat chat, BuildContext context) {
-    this.chat = chat;
+  // ListTile chatTile(Chat chat, BuildContext context) {
+  //   this.chat = chat;
+  //   return ListTile(
+  //     tileColor: kBackgroundColor,
+  //     leading: CircleAvatar(
+  //       backgroundImage: NetworkImage(chat.belongsToEmails.first !=
+  //               signedInUser?.email
+  //           ? chat.photoUrls.first ??
+  //               'https://marmelab.com/images/blog/ascii-art-converter/homer.png'
+  //           : chat.photoUrls.last ??
+  //               'https://marmelab.com/images/blog/ascii-art-converter/homer.png'),
+  //     ),
+  //     title: Text(
+  //       chat.belongsToEmails.first != signedInUser?.email
+  //           ? chat.chatNames.first ?? ''
+  //           : chat.chatNames.last ?? '',
+  //       style: const TextStyle(color: Colors.white),
+  //     ),
+  //     subtitle: StreamBuilder<QuerySnapshot>(
+  //       stream: _collectionLastMessages!
+  //           .where('chat_id', isEqualTo: chat.chatId)
+  //           .orderBy('time')
+  //           .snapshots(),
+  //       builder: (context, snapshot) {
+  //         if (snapshot.hasError) {
+  //           return const Text("Could not load the last message...",
+  //               style: TextStyle(color: Colors.white70));
+  //         } else if (snapshot.connectionState == ConnectionState.waiting) {
+  //           return AnimatedTextKit(
+  //             animatedTexts: [
+  //               ColorizeAnimatedText(
+  //                 'Text is Loading',
+  //                 textStyle:
+  //                     const TextStyle(color: Colors.white70, fontSize: 16),
+  //                 colors: [Colors.white, Colors.white54],
+  //               ),
+  //             ],
+  //             isRepeatingAnimation: true,
+  //           );
+  //         }
+  //         final lastMessageMap =
+  //             snapshot.data!.docs.last.data() as Map<String, dynamic>;
+  //         Message message = Message.fromJson(lastMessageMap);
+  //         return Text(
+  //           message.contents,
+  //           maxLines: 1,
+  //           overflow: TextOverflow.ellipsis,
+  //           style: const TextStyle(color: Colors.white70),
+  //         );
+  //       },
+  //     ),
+  //     onTap: () =>
+  //         Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+  //       return ChatWithPage(
+  //         chat: chat,
+  //         chatName: chat.belongsToEmails.first != signedInUser?.email
+  //             //! WHat if display name is same, we need to do it with email rather
+  //             ? chat.chatNames.first ?? ''
+  //             : chat.chatNames.last ?? '',
+  //         recepientEmail: chat.belongsToEmails.first != signedInUser?.email
+  //             //! WHat if display name is same, we need to do it with email rather
+  //             ? chat.belongsToEmails.first ?? ''
+  //             : chat.belongsToEmails.last ?? '',
+  //         senderEmail: signedInUser!.email!,
+  //       );
+  //     })),
+  //     enabled: true,
+  //     enableFeedback: true,
+  //   );
+  // }
+
+  ListTile chatTile(ChatStore chatStore, BuildContext context) {
+    this.chatStore = chatStore;
     return ListTile(
       tileColor: kBackgroundColor,
       leading: CircleAvatar(
-        backgroundImage: NetworkImage(chat.belongsToEmails.first !=
-                signedInUser?.email
-            ? chat.photoUrls.first ??
-                'https://marmelab.com/images/blog/ascii-art-converter/homer.png'
-            : chat.photoUrls.last ??
-                'https://marmelab.com/images/blog/ascii-art-converter/homer.png'),
+        backgroundImage: NetworkImage(chatStore.photoUrl),
       ),
       title: Text(
-        chat.belongsToEmails.first != signedInUser?.email
-            ? chat.chatNames.first ?? ''
-            : chat.chatNames.last ?? '',
+        chatStore.name ?? '',
         style: const TextStyle(color: Colors.white),
       ),
-      subtitle: StreamBuilder<QuerySnapshot>(
-        stream: _collectionLastMessages!
-            .where('chat_id', isEqualTo: chat.chatId)
-            .orderBy('time')
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return const Text("Could not load the last message...",
-                style: TextStyle(color: Colors.white70));
-          } else if (snapshot.connectionState == ConnectionState.waiting) {
-            return AnimatedTextKit(
-              animatedTexts: [
-                ColorizeAnimatedText(
-                  'Text is Loading',
-                  textStyle:
-                      const TextStyle(color: Colors.white70, fontSize: 16),
-                  colors: [Colors.white, Colors.white54],
-                ),
-              ],
-              isRepeatingAnimation: true,
-            );
-          }
-          final lastMessageMap =
-              snapshot.data!.docs.last.data() as Map<String, dynamic>;
-          Message message = Message.fromJson(lastMessageMap);
-          return Text(
-            message.contents,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(color: Colors.white70),
-          );
-        },
+      subtitle: Text(
+        chatStore.mostRecentMessage.contents,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(color: Colors.white70),
       ),
-      onTap: () =>
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-        return ChatWithPage(
-          chat: chat,
-          chatName: chat.belongsToEmails.first != signedInUser?.email
-              //! WHat if display name is same, we need to do it with email rather
-              ? chat.chatNames.first ?? ''
-              : chat.chatNames.last ?? '',
-          recepientEmail: chat.belongsToEmails.first != signedInUser?.email
-              //! WHat if display name is same, we need to do it with email rather
-              ? chat.belongsToEmails.first ?? ''
-              : chat.belongsToEmails.last ?? '',
-          senderEmail: signedInUser!.email!,
-        );
-      })),
+      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => ChatWithPage(chatStore: chatStore))),
       enabled: true,
       enableFeedback: true,
     );
