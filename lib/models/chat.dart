@@ -1,9 +1,11 @@
+
 class Chat {
   String? get id => _id;
   String? _id;
   List<String?> belongsToEmails;
   List<String?> photoUrls;
   String chatId;
+  
 
   List<String?> chatNames;
   Chat({
@@ -17,6 +19,7 @@ class Chat {
         'chat_names': chatNames,
         'photo_urls': photoUrls,
         'chat_id': chatId,
+        
       };
   factory Chat.fromJson(Map<String, dynamic> chatMap) {
     final Chat chat = Chat(

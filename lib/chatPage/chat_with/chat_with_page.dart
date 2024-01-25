@@ -3,6 +3,7 @@ import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/sign_up_page.dart
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/components/mesure_size.dart';
 import 'package:e_2_e_encrypted_chat_app/encryption/encryption.dart';
 import 'package:e_2_e_encrypted_chat_app/encryption/encryption_methods.dart';
+import 'package:e_2_e_encrypted_chat_app/models/chat_store.dart';
 import 'package:e_2_e_encrypted_chat_app/models/user.dart' as my_user;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/components/chat_pill.dart';
@@ -18,20 +19,14 @@ import 'package:flutter/material.dart';
 final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
 class ChatWithPage extends StatefulWidget {
-  String? chatName;
-  Chat chat;
+  ChatStore chatStore;
   bool chatExists;
-  String senderEmail;
-  String recepientEmail;
   DateTime? lastOnline = DateTime.tryParse('19700101');
 
   ChatWithPage({
     super.key,
-    this.chatName = '',
-    required this.senderEmail,
-    required this.recepientEmail,
     this.chatExists = true,
-    required this.chat,
+    required this.chatStore,
     this.lastOnline,
   });
 
@@ -59,7 +54,7 @@ class _ChatWithPageState extends State<ChatWithPage> {
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => SignUpPage()));
     }
-    _iv = Uint8List.fromList(widget.chat.chatId.codeUnits);
+    _iv = Uint8List.fromList(widget.chatStore.chatId.codeUnits);
     _userFromFuture = _firestore
         .collection('users')
         .where('email_address', isEqualTo: widget.recepientEmail)
@@ -69,7 +64,7 @@ class _ChatWithPageState extends State<ChatWithPage> {
       getEncryptedKeys().then((value) {
         _mystream = _firestore
             .collection('messages')
-            .where('chat_id', isEqualTo: widget.chat.chatId)
+            .where('chat_id', isEqualTo: widget.chatStore.chatId)
             .orderBy('time')
             .snapshots();
       });
@@ -130,11 +125,12 @@ class _ChatWithPageState extends State<ChatWithPage> {
             // ignore: prefer_const_constructors
             CircleAvatar(
               backgroundColor: kSexyTealColor,
-              backgroundImage: NetworkImage(widget.chat.belongsToEmails.first !=
+              backgroundImage: NetworkImage(widget
+                          .chatStore.belongsToEmails.first !=
                       signedInUser!.email
-                  ? widget.chat.photoUrls.first ??
+                  ? widget.chatStore.photoUrls.first ??
                       'https://marmelab.com/images/blog/ascii-art-converter/homer.png'
-                  : widget.chat.photoUrls.last ??
+                  : widget.chatStore.photoUrls.last ??
                       'https://marmelab.com/images/blog/ascii-art-converter/homer.png'),
             ),
             SizedBox(width: MediaQuery.of(context).size.width * 0.05),
@@ -149,8 +145,7 @@ class _ChatWithPageState extends State<ChatWithPage> {
         padding: const EdgeInsets.only(top: 0.0, bottom: 7.0),
         child: FutureBuilder(
             future: _userFromFuture,
-            builder: (context, futureshot) {  
-                       
+            builder: (context, futureshot) {
               if (futureshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               }
@@ -289,12 +284,12 @@ class _ChatWithPageState extends State<ChatWithPage> {
                                 Message message = Message(
                                     recepientEmail: widget.recepientEmail,
                                     time: DateTime.now(),
-                                    chatId: widget.chat.chatId,
+                                    chatId: widget.chatStore.chatId,
                                     senderEmail: widget.senderEmail,
                                     contents: contents,
                                     isSeen: false);
                                 if (widget.chatExists == false) {
-                                  _addNewChat.addNewChat(widget.chat).then(
+                                  _addNewChat.addNewChat(widget.chatStore).then(
                                       (value) => widget.chatExists = true);
                                 }
                                 message.contents = await encryptMessage(

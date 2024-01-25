@@ -129,7 +129,7 @@ class _ChatAddState extends State<ChatAdd> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => ChatWithPage(
-                                  chat: chat,
+                                  chatStore: chat,
                                   chatExists: chatExists!,
                                   chatName: user.username,
                                   senderEmail: signedInUser!.email!,
