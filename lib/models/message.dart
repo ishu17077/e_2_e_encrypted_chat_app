@@ -1,18 +1,21 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Message {
   String? id;
   String recepientEmail;
-  String chatId;
   DateTime time;
   String senderEmail;
+  Uint8List iv;
   String contents;
   bool isSeen;
   Message({
     required this.recepientEmail,
     required this.time,
-    required this.chatId,
     required this.senderEmail,
+    required this.iv,
     required this.contents,
     required this.isSeen,
   });
@@ -21,8 +24,8 @@ class Message {
         'recipient_email': recepientEmail,
         'is_seen': isSeen,
         'contents': contents,
-        'time': time,
-        'chat_id': chatId,
+        'iv': utf8.decode(iv),
+        'time': Timestamp.fromDate(time),
       };
   factory Message.fromJson(Map<String, dynamic> messageMap) {
     final Message message = Message(
@@ -30,9 +33,9 @@ class Message {
       recepientEmail: messageMap['recipient_email'],
       // ignore: unnecessary_cast
       time: (messageMap['time'] ?? Timestamp.now() as Timestamp).toDate(),
+      iv: utf8.encode(messageMap['iv']),
       contents: messageMap['contents'] ?? '',
       isSeen: messageMap['is_seen'] ?? false,
-      chatId: messageMap['chat_id'],
     );
     return message;
   }

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/sign_up_page.dart';
@@ -37,11 +39,20 @@ class _ChatPageState extends State<ChatPage> {
           context, MaterialPageRoute(builder: (context) => SignUpPage()));
     }
     updateListView();
-    chatDatabaseHelper.insertChat(ChatStore(
-        belongsToEmail: 'belongsToEmail@sexyMail.com',
-        photoUrl:
-            'https://marmelab.com/images/blog/ascii-art-converter/homer.png',
-        name: 'HolaBoi'));
+    // chatDatabaseHelper.insertChat(ChatStore(
+    //   belongsToEmail: 'belongsToEmail@sexyMail.com',
+    //   photoUrl:
+    //       'https://marmelab.com/images/blog/ascii-art-converter/homer.png',
+    //   name: 'HolaBoi',
+    //   mostRecentMessage: MessageStore(
+    //       chatId: 1,
+    //       recepientEmail: 'chomail@gomail.com',
+    //       contents: 'Hey There',
+    //       isSeen: true,
+    //       senderEmail: 'belongsToEmail@sexyMail.com',
+    //       time: DateTime.now()),
+    // ));
+    // print(json.encode(value));
     super.initState();
   }
 
@@ -54,7 +65,6 @@ class _ChatPageState extends State<ChatPage> {
   // List<Message> messages = [];
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: kBackgroundColor,
@@ -65,7 +75,7 @@ class _ChatPageState extends State<ChatPage> {
           headerSliverBuilder: (context, innerBoxIsScrolled) => [
             SliverAppBar(
               elevation: 0.0,
-              collapsedHeight: 70,
+              collapsedHeight: 65,
               backgroundColor: kBackgroundColor,
               flexibleSpace: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -110,16 +120,18 @@ class _ChatPageState extends State<ChatPage> {
                                 ),
                               ],
                             ),
-                            onPressed: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const ChatAdd())),
+                            onPressed: () {
+                              // Navigator.push(
+                              //   context,
+                              //   MaterialPageRoute(
+                              //       builder: (context) => const ChatAdd()));
+                            },
                           ),
                         ],
                       ),
                     ),
                   ),
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.020),
+                  // SizedBox(height: MediaQuery.of(context).size.height * 0.010),
                   // innerBoxIsScrolled
                   //     ? Container()
                   //     :
@@ -128,7 +140,6 @@ class _ChatPageState extends State<ChatPage> {
             )
           ],
           body: Column(
-            
             mainAxisSize: MainAxisSize.max,
             children: [
               Padding(
@@ -153,7 +164,7 @@ class _ChatPageState extends State<ChatPage> {
                   cursorColor: Colors.teal,
                 ),
               ),
-
+              const SizedBox(height: 5),
               Expanded(
                 child: ListView.builder(
                   itemBuilder: (context, index) {
@@ -271,28 +282,49 @@ class _ChatPageState extends State<ChatPage> {
   //   );
   // }
 
-  ListTile chatTile(ChatStore chatStore, BuildContext context) {
-    return ListTile(
-      tileColor: kBackgroundColor,
-      leading: CircleAvatar(
-        backgroundImage: NetworkImage(chatStore.photoUrl),
+  Widget chatTile(ChatStore chatStore, BuildContext context) {
+    return Hero(
+      tag: chatStore.id ?? '_',
+      child: ListTile(
+        tileColor: kBackgroundColor,
+        splashColor: kSexyTealColor.withOpacity(0.2),
+        leading: CircleAvatar(
+          backgroundImage: NetworkImage(chatStore.photoUrl),
+        ),
+        title: Text(
+          chatStore.name ?? '',
+          style: const TextStyle(color: Colors.white),
+        ),
+        subtitle: Text(
+          chatStore.mostRecentMessage.contents ?? '',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(color: Colors.white70),
+        ),
+        // trailing: Align(
+        //   alignment: Alignment.centerLeft,
+        //   child:
+        //       _isMe(chatStore.mostRecentMessage.senderEmail, signedInUser!.email!)
+        //           ? chatStore.mostRecentMessage.isSeen
+        //               ? const Icon(
+        //                   Icons.done_all,
+        //                   color: Colors.blue,
+        //                   size: 12,
+        //                 )
+        //               : const Icon(
+        //                   Icons.done,
+        //                   color: Colors.grey,
+        //                   size: 17,
+        //                 )
+        //           : const SizedBox(),
+        // ),
+        onTap: () {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => ChatWithPage(chatStore: chatStore)));
+        },
+        enabled: true,
+        enableFeedback: true,
       ),
-      title: Text(
-        chatStore.name ?? '',
-        style: const TextStyle(color: Colors.white),
-      ),
-      subtitle: Text(
-        'Hi',
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(color: Colors.white70),
-      ),
-      onTap: () {
-        // Navigator.of(context).push(MaterialPageRoute(
-        //   builder: (context) => ChatWithPage(chatStore: chatStore)))
-      },
-      enabled: true,
-      enableFeedback: true,
     );
   }
 
@@ -306,5 +338,10 @@ class _ChatPageState extends State<ChatPage> {
         });
       });
     });
+  }
+
+  bool _isMe(String sender, String signedInUserEmail) {
+    bool isMe = sender == signedInUserEmail ? true : false;
+    return isMe;
   }
 }

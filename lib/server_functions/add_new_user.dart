@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_2_e_encrypted_chat_app/encryption/encryption_methods.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:e_2_e_encrypted_chat_app/models/user.dart' as my_user;
 
@@ -18,9 +19,9 @@ class AddNewUser {
       }
     });
     user.onData((data) {
-      print(data?.uid);
-      print("Display Name: ${data?.displayName}");
-      print("Email: ${data?.email}");
+      debugPrint(data?.uid);
+      debugPrint("Display Name: ${data?.displayName}");
+      debugPrint("Email: ${data?.email}");
     });
     return _auth.currentUser;
     // return FirebaseAuth.instance.currentUser;
