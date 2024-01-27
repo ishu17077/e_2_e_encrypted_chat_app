@@ -27,7 +27,7 @@
 //   bool hasData = false;
 
 //   String lastMessage = 'Good Luck Mate';
-//   Stream<QuerySnapshot>? _snapshots;
+//   Stream<QuerySnapshot<Map<String, dynamic>>>? _snapshots;
 
 //   DateTime lastTime = DateTime.now();
 
@@ -67,7 +67,7 @@
 //           ),
 //         ),
 //         backgroundColor: kBackgroundColor,
-//         body: StreamBuilder<QuerySnapshot>(
+//         body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
 //           stream: _snapshots,
 //           builder: (context, snapshots) {
 //             if (snapshots.hasError) {

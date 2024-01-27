@@ -75,7 +75,8 @@ class _ChatPageState extends State<ChatPage> {
           headerSliverBuilder: (context, innerBoxIsScrolled) => [
             SliverAppBar(
               elevation: 0.0,
-              collapsedHeight: 65,
+              leading: null,
+              collapsedHeight: 60,
               backgroundColor: kBackgroundColor,
               flexibleSpace: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -283,48 +284,48 @@ class _ChatPageState extends State<ChatPage> {
   // }
 
   Widget chatTile(ChatStore chatStore, BuildContext context) {
-    return Hero(
-      tag: chatStore.id ?? '_',
-      child: ListTile(
-        tileColor: kBackgroundColor,
-        splashColor: kSexyTealColor.withOpacity(0.2),
-        leading: CircleAvatar(
-          backgroundImage: NetworkImage(chatStore.photoUrl),
-        ),
-        title: Text(
+    return ListTile(
+      tileColor: kBackgroundColor,
+      splashColor: kSexyTealColor.withOpacity(0.2),
+      leading: CircleAvatar(
+        backgroundImage: NetworkImage(chatStore.photoUrl),
+      ),
+      title: Hero(
+        tag: chatStore.id ?? '_',
+        child: Text(
           chatStore.name ?? '',
           style: const TextStyle(color: Colors.white),
         ),
-        subtitle: Text(
-          chatStore.mostRecentMessage.contents ?? '',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: Colors.white70),
-        ),
-        // trailing: Align(
-        //   alignment: Alignment.centerLeft,
-        //   child:
-        //       _isMe(chatStore.mostRecentMessage.senderEmail, signedInUser!.email!)
-        //           ? chatStore.mostRecentMessage.isSeen
-        //               ? const Icon(
-        //                   Icons.done_all,
-        //                   color: Colors.blue,
-        //                   size: 12,
-        //                 )
-        //               : const Icon(
-        //                   Icons.done,
-        //                   color: Colors.grey,
-        //                   size: 17,
-        //                 )
-        //           : const SizedBox(),
-        // ),
-        onTap: () {
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => ChatWithPage(chatStore: chatStore)));
-        },
-        enabled: true,
-        enableFeedback: true,
       ),
+      subtitle: Text(
+        chatStore.mostRecentMessage.contents ?? '',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(color: Colors.white70),
+      ),
+      // trailing: Align(
+      //   alignment: Alignment.centerLeft,
+      //   child:
+      //       _isMe(chatStore.mostRecentMessage.senderEmail, signedInUser!.email!)
+      //           ? chatStore.mostRecentMessage.isSeen
+      //               ? const Icon(
+      //                   Icons.done_all,
+      //                   color: Colors.blue,
+      //                   size: 12,
+      //                 )
+      //               : const Icon(
+      //                   Icons.done,
+      //                   color: Colors.grey,
+      //                   size: 17,
+      //                 )
+      //           : const SizedBox(),
+      // ),
+      onTap: () {
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => ChatWithPage(chatStore: chatStore)));
+      },
+      enabled: true,
+      enableFeedback: true,
     );
   }
 

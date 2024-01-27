@@ -17,6 +17,7 @@ import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:sqflite/sqflite.dart';
 
 final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -47,10 +48,13 @@ class _ChatWithPageState extends State<ChatWithPage> {
   MessageDatabaseHelper messageDatabaseHelper = MessageDatabaseHelper();
   final GlobalKey _textBoxChangeKey = GlobalKey();
   my_user.User? user;
-
-  Stream<QuerySnapshot<Map<String, dynamic>>>? _mystream;
+  ScrollController _scrollController = ScrollController();
+  // Stream<QuerySnapshot<Map<String, dynamic>>>? _mystream;
+  var _myStream;
+  bool keepLoading = true;
   Future? _userFromFuture;
   List<int>? _encryptionKeys;
+  bool initialScrollDone = false;
   // Uint8List? _iv;
 
   // final GlobalKey stickeyKey = GlobalKey();
@@ -63,6 +67,7 @@ class _ChatWithPageState extends State<ChatWithPage> {
     }
     updateListView(widget.chatStore);
     // _iv = Uint8List.fromList(widget.chatStore.chatId.codeUnits);
+    // _scrollController.position.maxScrollExtent;
     _userFromFuture = _firestore
         .collection('users')
         .where('email_address',
@@ -82,13 +87,21 @@ class _ChatWithPageState extends State<ChatWithPage> {
       // ));
       // updateListView(widget.chatStore);
 
-      getEncryptedKeys().then((value) {
-        _mystream = _firestore
-            .collection('messages')
-            .where('recipient_email',
-                isEqualTo: widget.chatStore.belongsToEmail)
-            .orderBy('time')
-            .snapshots();
+      getEncryptedKeys();
+    });
+    _myStream = _firestore
+        .collection('messages')
+        .where('recipient_email',
+            isEqualTo: 'chhotabheem5663@gmail.com') //? Yahan bhi
+        .orderBy('time', descending: true)
+        .snapshots()
+        .listen((querySnapshot) {
+      querySnapshot.docs.map((DocumentSnapshot documentSnapshot) {
+        Map<String, dynamic> docs =
+            documentSnapshot.data()! as Map<String, dynamic>;
+        final Message message = Message.fromJson(docs);
+        print(message.contents);
+        return 1;
       });
     });
     //! _mystream was seperately assigned as it was changing with everytime something happens like a keyboard pop up lol
@@ -116,8 +129,13 @@ class _ChatWithPageState extends State<ChatWithPage> {
 
   Future getEncryptedKeys() async {
     final privateKey = await EncryptionMethods.getPrivateKeyJwk();
+
     _encryptionKeys =
         await EncryptionMethods.getDerivedKey(privateKey!, user!.publicKeyJwb!);
+    setState(() {
+      keepLoading = false;
+    });
+
     return null;
   }
 
@@ -165,200 +183,226 @@ class _ChatWithPageState extends State<ChatWithPage> {
           ],
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.only(top: 0.0, bottom: 7.0),
-        child:
-            // FutureBuilder(
-            // future: _userFromFuture,
-            // builder: (context, futureshot) {
-            //   if (futureshot.connectionState == ConnectionState.waiting) {
-            //     return const Center(child: CircularProgressIndicator());
-            //   }
-            //   if (futureshot.hasError) {
-            //     return const Center(
-            //         child: Text(
-            //             "There's an error processing this chat...check again later"));
-            //   }
-            //   return
+      body: keepLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.only(top: 0.0, bottom: 7.0),
+              child:
+                  // FutureBuilder(
+                  // future: _userFromFuture,
+                  // builder: (context, futureshot) {
+                  //   if (futureshot.connectionState == ConnectionState.waiting) {
+                  //     return const Center(child: CircularProgressIndicator());
+                  //   }
+                  //   if (futureshot.hasError) {
+                  //     return const Center(
+                  //         child: Text(
+                  //             "There's an error processing this chat...check again later"));
+                  //   }
+                  //   return
 
-            Stack(
-          children: [
-            heightOfTextField != 0
-                ?
-                // StreamBuilder<QuerySnapshot>(
-                //     stream: _mystream,
-                //     builder: (BuildContext context,
-                //         AsyncSnapshot<QuerySnapshot> snapshot) {
-                //       // if (snapshot.hasError) {
-                //       //   return const Center(
-                //       //       child: Text(
-                //       //           "There's an error processing this chat...check again later"));
-                //       // }
-                //       // if (snapshot.connectionState == ConnectionState.waiting) {
-                //       //   return const Center(child: CircularProgressIndicator());
-                //       // }
-                //       var docsSnapshot = snapshot.data!.docs;
-                //       return
-                Positioned(
-                    bottom: heightOfTextField == 0 ? 26 : heightOfTextField,
-                    top: MediaQuery.of(context).size.height * 0.010,
-                    child: SizedBox(
-                      height: MediaQuery.of(context).size.height,
-                      width: MediaQuery.of(context).size.width,
-                      // child: ListView(
-                      //   reverse: true,
-                      //   physics: const BouncingScrollPhysics(),
-                      //   children: docsSnapshot.reversed
-                      //       .map((DocumentSnapshot document) {
+                  Stack(
+                children: [
+                  heightOfTextField != 0
+                      ?
+                      // StreamBuilder<QuerySnapshot>(
+                      //     stream: _mystream,
+                      //     builder: (BuildContext context,
+                      //         AsyncSnapshot<QuerySnapshot> snapshot) {
+                      //       // if (snapshot.hasError) {
+                      //       //   return const Center(
+                      //       //       child: Text(
+                      //       //           "There's an error processing this chat...check again later"));
+                      //       // }
+                      //       // if (snapshot.connectionState == ConnectionState.waiting) {
+                      //       //   return const Center(child: CircularProgressIndicator());
+                      //       // }
+                      //       var docsSnapshot = snapshot.data!.docs;
+                      //       return
+                      Positioned(
+                          bottom:
+                              heightOfTextField == 0 ? 26 : heightOfTextField,
+                          top: MediaQuery.of(context).size.height * 0.010,
+                          child: SizedBox(
+                            height: MediaQuery.of(context).size.height,
+                            width: MediaQuery.of(context).size.width,
+                            // child: ListView(
+                            //   reverse: true,
+                            //   physics: const BouncingScrollPhysics(),
+                            //   children: docsSnapshot.reversed
+                            //       .map((DocumentSnapshot document) {
 
-                      //     Map<String, dynamic> messageMap =
-                      //         document.data()! as Map<String, dynamic>;
+                            //     Map<String, dynamic> messageMap =
+                            //         document.data()! as Map<String, dynamic>;
 
-                      //     Message message = Message.fromJson(messageMap);
+                            //     Message message = Message.fromJson(messageMap);
 
-                      //     message.id = document.id;
-                      //     if (message.senderEmail != signedInUser!.email &&
-                      //         message.isSeen == false) {
-                      //       _firestore
-                      //           .collection('messages')
-                      //           .doc(message.id)
-                      //           .update({"is_seen": true});
-                      //     }
-                      //     bool noMarginRequired = message.senderEmail ==
-                      //         previousMessage?.senderEmail;
-                      //     previousMessage = message;
+                            //     message.id = document.id;
+                            //     if (message.senderEmail != signedInUser!.email &&
+                            //         message.isSeen == false) {
+                            //       _firestore
+                            //           .collection('messages')
+                            //           .doc(message.id)
+                            //           .update({"is_seen": true});
+                            //     }
+                            //     bool noMarginRequired = message.senderEmail ==
+                            //         previousMessage?.senderEmail;
+                            //     previousMessage = message;
 
-                      //     Future<String> decryptMessageFuture =
-                      //         decryptedMessage(
-                      //                 iv: message!.iv!,
-                      //                 encryptedMessageContents:
-                      //                     message.contents,
-                      //                 deriveKey: _encryptionKeys!)
-                      //             .then(
-                      //                 (value) => message.contents = value);
+                            //     Future<String> decryptMessageFuture =
+                            //         decryptedMessage(
+                            //                 iv: message!.iv!,
+                            //                 encryptedMessageContents:
+                            //                     message.contents,
+                            //                 deriveKey: _encryptionKeys!)
+                            //             .then(
+                            //                 (value) => message.contents = value);
 
-                      //     return FutureBuilder(
-                      //         future: decryptMessageFuture,
-                      //         builder: (context, futureshot) {
-                      //           if (futureshot.hasError) {
-                      //             return const Center(
-                      //                 child: Text(
-                      //                     "There's an error processing this message...check again later"));
-                      //           }
-                      //           if (futureshot.connectionState ==
-                      //               ConnectionState.waiting) {
-                      //             return const SizedBox();
-                      //           }
-                      //           messageDatabaseHelper.insertMessage(
-                      //               MessageStore(
-                      //                   recepientEmail:
-                      //                       message.recepientEmail,
-                      //                   chatId: widget.chatStore.id!,
-                      //                   contents: message.contents,
-                      //                   isSeen: message.isSeen,
-                      //                   senderEmail: message.senderEmail,
-                      //                   time: message.time));
-                      //           return ChatPill(
-                      //             text: message.contents,
-                      //             isLastMessage:
-                      //                 docsSnapshot.last == document,
-                      //             isSeen: message.isSeen,
-                      //             isMe: _isMe(
-                      //               message.senderEmail,
-                      //               signedInUser!.email!,
-                      //             ),
-                      //             noMaginRequired: noMarginRequired,
-                      //           );
-                      //         });
-                      //   }).toList(),
-                      // ),
-                      child: ListView.builder(
-                        itemBuilder: (context, index) {
-                          MessageStore messageStore = messageStoreList[index];
-                          bool noMarginRequired = messageStore.senderEmail ==
-                              previousMessageStore
-                                  ?.senderEmail; //? for some weird reason when previousMessageStore is null it actually returns false
+                            //     return FutureBuilder(
+                            //         future: decryptMessageFuture,
+                            //         builder: (context, futureshot) {
+                            //           if (futureshot.hasError) {
+                            //             return const Center(
+                            //                 child: Text(
+                            //                     "There's an error processing this message...check again later"));
+                            //           }
+                            //           if (futureshot.connectionState ==
+                            //               ConnectionState.waiting) {
+                            //             return const SizedBox();
+                            //           }
+                            //           messageDatabaseHelper.insertMessage(
+                            //               MessageStore(
+                            //                   recepientEmail:
+                            //                       message.recepientEmail,
+                            //                   chatId: widget.chatStore.id!,
+                            //                   contents: message.contents,
+                            //                   isSeen: message.isSeen,
+                            //                   senderEmail: message.senderEmail,
+                            //                   time: message.time));
+                            //           return ChatPill(
+                            //             text: message.contents,
+                            //             isLastMessage:
+                            //                 docsSnapshot.last == document,
+                            //             isSeen: message.isSeen,
+                            //             isMe: _isMe(
+                            //               message.senderEmail,
+                            //               signedInUser!.email!,
+                            //             ),
+                            //             noMaginRequired: noMarginRequired,
+                            //           );
+                            //         });
+                            //   }).toList(),
+                            // ),
+                            child: ListView.builder(
+                              controller: _scrollController,
+                              itemBuilder: (context, index) {
+                                MessageStore messageStore =
+                                    messageStoreList[index];
+                                bool noMarginRequired = messageStore
+                                        .senderEmail ==
+                                    previousMessageStore
+                                        ?.senderEmail; //? for some weird reason when previousMessageStore is null it actually returns false
 
-                          previousMessageStore = messageStore;
-                          return ChatPill(
-                            text: messageStore.contents,
-                            isSeen: messageStore.isSeen,
-                            isLastMessage: index == count - 1,
-                            isMe: _isMe(messageStore!.senderEmail!,
-                                signedInUser!.email!),
-                            noMaginRequired: noMarginRequired,
-                          );
+                                previousMessageStore = messageStore;
+                                if (initialScrollDone == false) {
+                                  WidgetsBinding.instance.addPostFrameCallback(
+                                      (_) => _scrollToEnd());
+                                  initialScrollDone = true;
+                                } //! Error
+                                return ChatPill(
+                                  text: messageStore.contents,
+                                  isSeen: messageStore.isSeen,
+                                  isLastMessage: index == count - 1,
+                                  isMe: _isMe(messageStore!.senderEmail!,
+                                      signedInUser!.email!),
+                                  noMaginRequired: noMarginRequired,
+                                );
+                              },
+                              itemCount: count,
+                            ),
+                          ),
+                        )
+                      // })
+                      : const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: MeasureSize(
+                      onChange: (size) {
+                        double? screenHeight =
+                            MediaQuery.of(context).size.height;
+                        print("Scrren Height: $screenHeight");
+                        double widgetHeight = size.height;
+                        if (widgetHeight <= 55) {
+                          setState(() {
+                            heightOfTextField = widgetHeight / 2;
+                          });
+                        } else if (widgetHeight > 55 && widgetHeight < 67) {
+                          setState(() {
+                            heightOfTextField = widgetHeight / 1.65;
+                          });
+                        } else if (widgetHeight >= 67 && widgetHeight < 95) {
+                          setState(() {
+                            heightOfTextField = widgetHeight / 1.425;
+                          });
+                        } else if (widgetHeight >= 100 && widgetHeight < 115) {
+                          setState(() {
+                            heightOfTextField = widgetHeight / 1.30;
+                          });
+                        } else {
+                          setState(() {
+                            heightOfTextField = widgetHeight / 1.25;
+                          });
+                        }
+
+                        print(size.height);
+                      },
+                      child: ChatTextField(
+                        key: _textBoxChangeKey,
+                        onSendButtonPressed: (String contents) async {
+                          if (contents.isNotEmpty) {
+                            Message message = Message(
+                                recepientEmail: widget.chatStore.belongsToEmail,
+                                time: DateTime.now(),
+                                iv: Uint8List(16),
+                                senderEmail: signedInUser!.email!,
+                                contents: contents,
+                                isSeen: false);
+                            if (widget.chatExists == false) {
+                              _addNewChat
+                                  .addNewChat(widget.chatStore)
+                                  .then((value) => widget.chatExists = true);
+                            }
+                            message.contents = await encryptMessage(
+                                iv: message!.iv!,
+                                messageContents: contents,
+                                deriveKey: _encryptionKeys!);
+                            _firestore
+                                .collection('messages')
+                                .add(message.toJson())
+                                .whenComplete(() {
+                              messageDatabaseHelper.insertMessage(MessageStore(
+                                  recepientEmail: message.recepientEmail,
+                                  chatId: widget.chatStore.id!,
+                                  contents: contents,
+                                  isSeen: message.isSeen,
+                                  senderEmail: message.senderEmail,
+                                  time: message.time));
+                              updateListView(widget.chatStore);
+                              WidgetsBinding.instance
+                                  .addPostFrameCallback((_) => _scrollToEnd());
+                            });
+                          }
                         },
-                        itemCount: count,
                       ),
                     ),
-                  )
-                // })
-                : const Center(
-                    child: CircularProgressIndicator(),
                   ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: MeasureSize(
-                onChange: (size) {
-                  double? screenHeight = MediaQuery.of(context).size.height;
-                  print("Scrren Height: $screenHeight");
-                  double widgetHeight = size.height;
-                  if (widgetHeight <= 55) {
-                    setState(() {
-                      heightOfTextField = widgetHeight / 2;
-                    });
-                  } else if (widgetHeight > 55 && widgetHeight < 67) {
-                    setState(() {
-                      heightOfTextField = widgetHeight / 1.65;
-                    });
-                  } else if (widgetHeight >= 67 && widgetHeight < 95) {
-                    setState(() {
-                      heightOfTextField = widgetHeight / 1.425;
-                    });
-                  } else if (widgetHeight >= 100 && widgetHeight < 115) {
-                    setState(() {
-                      heightOfTextField = widgetHeight / 1.30;
-                    });
-                  } else {
-                    setState(() {
-                      heightOfTextField = widgetHeight / 1.25;
-                    });
-                  }
-
-                  print(size.height);
-                },
-                child: ChatTextField(
-                  key: _textBoxChangeKey,
-                  onSendButtonPressed: (String contents) async {
-                    if (contents.isNotEmpty) {
-                      Message message = Message(
-                          recepientEmail: widget.chatStore.belongsToEmail,
-                          time: DateTime.now(),
-                          iv: Uint8List(16),
-                          senderEmail: signedInUser!.email!,
-                          contents: contents,
-                          isSeen: false);
-                      if (widget.chatExists == false) {
-                        _addNewChat
-                            .addNewChat(widget.chatStore)
-                            .then((value) => widget.chatExists = true);
-                      }
-                      message.contents = await encryptMessage(
-                          iv: message!.iv!,
-                          messageContents: contents,
-                          deriveKey: _encryptionKeys!);
-                      _firestore.collection('messages').add(message.toJson());
-                    }
-                  },
-                ),
+                ],
               ),
-            ),
-          ],
-        ),
 
-        // }),
-      ),
+              // }),
+            ),
     );
   }
 
@@ -393,5 +437,15 @@ class _ChatWithPageState extends State<ChatWithPage> {
         });
       });
     });
+  }
+
+  _scrollToEnd() {
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent + 100,
+      duration: const Duration(
+        milliseconds: 200,
+      ),
+      curve: Curves.easeInOut,
+    );
   }
 }
