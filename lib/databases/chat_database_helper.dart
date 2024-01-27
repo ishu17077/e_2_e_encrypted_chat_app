@@ -40,7 +40,7 @@ class ChatDatabaseHelper {
 
   void _createDb(Database db, int newVersion) async {
     await db.execute(
-        'CREATE TABLE $_chatTable ($_colId INTEGER PRIMARY KEY AUTOINCREMENT, $_colBelongsToEmail TINYTEXT, $_colPhotoUrl TEXT, $_colName VARCHAR(50),$_colMostRecentMessageContents TEXT, $_colMostRecentMessageSenderEmail TINYTEXT, $_colMostRecentMessageRecepientEmail TINYTEXT, $_colMostRecentMessageTime VARCHAR(50), $_colMostRecentMessageIsSeen VARCHAR(5))');
+        'CREATE TABLE $_chatTable ($_colId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, $_colBelongsToEmail TINYTEXT, $_colPhotoUrl TEXT, $_colName VARCHAR(50),$_colMostRecentMessageContents TEXT, $_colMostRecentMessageSenderEmail TINYTEXT, $_colMostRecentMessageRecepientEmail TINYTEXT, $_colMostRecentMessageTime VARCHAR(50), $_colMostRecentMessageIsSeen VARCHAR(5))');
   }
 
   // Fetch Operation: Get all note objects from database
