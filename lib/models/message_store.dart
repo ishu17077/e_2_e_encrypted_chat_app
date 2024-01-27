@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MessageStore {
-  String? get id => _id;
-  String? _id;
+  int? get id => _id;
+  int? _id;
   String recepientEmail;
-  String chatId;
+  int chatId;
   DateTime time;
   String senderEmail;
   String contents;
@@ -32,20 +32,21 @@ class MessageStore {
   toJson() => {
         'chat_id': chatId,
         'contents': contents,
-        'is_seen': isSeen,
+        'is_seen': isSeen.toString() ?? 'false',
         'sender_email': senderEmail,
-        'time': Timestamp.fromDate(time).toString(),
+        'time': time.toString(),
         'recepient_email': recepientEmail,
       };
   factory MessageStore.fromJson(Map<String, dynamic> messageStoreMap) {
     final MessageStore messageStore = MessageStore.withId(
       messageStoreMap['id'],
       recepientEmail: messageStoreMap['recepient_email'],
-      chatId: messageStoreMap['chat_id'],
+      chatId: int.parse(messageStoreMap['chat_id']),
       contents: messageStoreMap['contents'],
-      isSeen: messageStoreMap['is_seen'],
+      isSeen: messageStoreMap['is_seen'] == 'true' ? true : false,
       senderEmail: messageStoreMap['sender_email'],
-      time: (messageStoreMap['time'] ?? Timestamp.now() as Timestamp).toDate(),
+      // ignore: unnecessary_cast
+      time: DateTime.parse(messageStoreMap['time']),
     );
     return messageStore;
   }

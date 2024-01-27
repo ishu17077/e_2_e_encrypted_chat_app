@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:e_2_e_encrypted_chat_app/server_functions/get_messages.dart';
 import 'package:flutter/material.dart';
 
@@ -9,11 +11,12 @@ class ChatSend extends StatelessWidget {
   String sender = '';
   String recepient = '';
   Message message = Message(
-      chatId: '', //! ChatId should be unique
+      // chatId: '', //! ChatId should be unique
       recepientEmail: 'Lololol',
       time: DateTime.now(),
       contents: '',
       senderEmail: 'Legends of Sex',
+      iv: Uint8List(16),
       isSeen: false);
   @override
   Widget build(BuildContext context) {

@@ -24,8 +24,8 @@ class ChatPill extends StatelessWidget {
       margin: EdgeInsets.only(
         left: 6.5,
         right: 6.5,
-        top: 1.0,
-        bottom: noMaginRequired ? 1.0 : 10,
+        top: noMaginRequired ? 1.0 : 10.0,
+        bottom: 1.0,
       ),
       child: Column(children: [
         Align(

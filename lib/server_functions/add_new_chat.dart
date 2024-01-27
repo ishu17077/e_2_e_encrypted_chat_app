@@ -1,16 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:e_2_e_encrypted_chat_app/models/chat.dart';
+import 'package:e_2_e_encrypted_chat_app/databases/chat_database_helper.dart';
+import 'package:e_2_e_encrypted_chat_app/databases/message_database_helper.dart';
+import 'package:e_2_e_encrypted_chat_app/models/chat_store.dart';
+import 'package:sqflite/sqflite.dart';
 
 class AddNewChat {
-  FirebaseFirestore db = FirebaseFirestore.instance;
+  FirebaseFirestore _db = FirebaseFirestore.instance;
+  ChatDatabaseHelper _chatDb = ChatDatabaseHelper();
 
-  Future addNewChat(Chat chat) async {
-    await db
-        .collection('chats')
-        .add(chat.toJson())
-        .then((DocumentReference doc) {
-      print('DocumentSnapshot added  with ID: ${doc.id}, ${doc.path}');
-      return db.collection('chats').get();
-    });
+  Future addNewChat(ChatStore chatStore) async {
+    // await _db
+    //     .collection('chats')
+    //     .add(chat.toJson())
+    //     .then((DocumentReference doc) {
+    //   print('DocumentSnapshot added  with ID: ${doc.id}, ${doc.path}');
+    //   return db.collection('chats').get();
+    // });
+    await _chatDb.insertChat(chatStore);
   }
 }

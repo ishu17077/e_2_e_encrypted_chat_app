@@ -11,6 +11,13 @@ class ChatDatabaseHelper {
   final String _colBelongsToEmail = 'belongs_to_email';
   final String _colPhotoUrl = 'photo_url';
   final String _colName = 'name';
+  final String _colMostRecentMessageContents = 'most_recent_message_contents';
+  final String _colMostRecentMessageTime = 'most_recent_message_time';
+  final String _colMostRecentMessageIsSeen = 'most_recent_message_is_seen';
+  final String _colMostRecentMessageSenderEmail =
+      'most_recent_message_sender_email';
+  final String _colMostRecentMessageRecepientEmail =
+      'most_recent_message_recepient_email';
 
   ChatDatabaseHelper._createInstance();
 
@@ -33,7 +40,7 @@ class ChatDatabaseHelper {
 
   void _createDb(Database db, int newVersion) async {
     await db.execute(
-        'CREATE TABLE $_chatTable ($_colId INTEGER PRIMARY KEY AUTOINCREMENT, $_colBelongsToEmail TINYTEXT, $_colPhotoUrl TEXT, $_colName VARCHAR(50))');
+        'CREATE TABLE $_chatTable ($_colId INTEGER PRIMARY KEY AUTOINCREMENT, $_colBelongsToEmail TINYTEXT, $_colPhotoUrl TEXT, $_colName VARCHAR(50),$_colMostRecentMessageContents TEXT, $_colMostRecentMessageSenderEmail TINYTEXT, $_colMostRecentMessageRecepientEmail TINYTEXT, $_colMostRecentMessageTime VARCHAR(50), $_colMostRecentMessageIsSeen VARCHAR(5))');
   }
 
   // Fetch Operation: Get all note objects from database

@@ -10,7 +10,7 @@ class MessageDatabaseHelper {
   final String _messagesTable = 'messages_db';
   final String _colId = 'id';
   final String _colRecepientEmail = 'recepient_email';
-  final String _colBelongsToChatId = 'belongs_to_chat_id';
+  final String _colChatId = 'chat_id';
   final String _colTime = 'time';
   final String _colSenderEmail = 'sender_email';
   final String _colContents = 'contents';
@@ -35,14 +35,14 @@ class MessageDatabaseHelper {
 
   void _createDb(Database db, int newVersion) async {
     db.execute(
-        'CREATE TABLE $_messagesTable ($_colId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, $_colRecepientEmail TINYTEXT NOT NULL, $_colBelongsToChatId TEXT NOT NULL, $_colTime TIMESTAMP NOT NULL, $_colSenderEmail TEXT, $_colContents TEXT, $_colIsSeen BOOLEAN)');
+        'CREATE TABLE $_messagesTable ($_colId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, $_colRecepientEmail TINYTEXT NOT NULL, $_colChatId TEXT NOT NULL, $_colTime VARCHAR(50), $_colSenderEmail TEXT, $_colContents TEXT, $_colIsSeen VARCHAR(5))');
   }
 
   Future<List<Map<String, dynamic>>> _getMessageMapList(
       ChatStore chatStore) async {
     Database db = await database;
     var result = await db.query(_messagesTable,
-        where: '$_colBelongsToChatId = ?', whereArgs: [chatStore.id]);
+        where: '$_colChatId = ?', whereArgs: [chatStore.id]);
     return result;
   }
 
@@ -69,7 +69,7 @@ class MessageDatabaseHelper {
   Future<int> getMessagesCount(ChatStore chatStore) async {
     Database db = await database;
     var x = await db.query(_messagesTable,
-        where: '$_colBelongsToChatId = ?', whereArgs: [chatStore.id]);
+        where: '$_colChatId = ?', whereArgs: [chatStore.id]);
     int result = Sqflite.firstIntValue(x) ?? 0;
     return result;
   }
