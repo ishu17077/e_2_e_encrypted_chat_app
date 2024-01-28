@@ -9,7 +9,7 @@ class MessageDatabaseHelper {
 
   final String _messagesTable = 'messages_db';
   final String _colId = 'id';
-  final String _colRecepientEmail = 'recepient_email';
+  final String _colrecipientEmail = 'recipient_email';
   final String _colChatId = 'chat_id';
   final String _colTime = 'time';
   final String _colSenderEmail = 'sender_email';
@@ -35,14 +35,16 @@ class MessageDatabaseHelper {
 
   void _createDb(Database db, int newVersion) async {
     db.execute(
-        'CREATE TABLE $_messagesTable ($_colId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, $_colRecepientEmail TINYTEXT NOT NULL, $_colChatId TEXT NOT NULL, $_colTime VARCHAR(50), $_colSenderEmail TEXT, $_colContents TEXT, $_colIsSeen VARCHAR(5))');
+        'CREATE TABLE $_messagesTable ($_colId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, $_colrecipientEmail TINYTEXT NOT NULL, $_colChatId TEXT NOT NULL, $_colTime VARCHAR(50), $_colSenderEmail TEXT, $_colContents TEXT, $_colIsSeen VARCHAR(5))');
   }
 
-  Future<List<Map<String, dynamic>>> _getMessageMapList(
-      ChatStore chatStore) async {
+  Future<List<Map<String, dynamic>>> _getMessageMapList(ChatStore chatStore,
+      {int? chatId}) async {
     Database db = await database;
     var result = await db.query(_messagesTable,
-        where: '$_colChatId = ?', whereArgs: [chatStore.id]);
+        where: '$_colChatId = ?',
+        whereArgs: [chatStore!.id ?? chatId],
+        orderBy: 'time DESC');
     return result;
   }
 
@@ -74,8 +76,10 @@ class MessageDatabaseHelper {
     return result;
   }
 
-  Future<List<MessageStore>> getMessagesList(ChatStore chatStore) async {
-    var messageStoreMapList = await _getMessageMapList(chatStore);
+  Future<List<MessageStore>> getMessagesList(ChatStore chatStore,
+      {int? chatId}) async {
+    var messageStoreMapList =
+        await _getMessageMapList(chatStore, chatId: chatId);
     List<MessageStore> messageStoreList = List.empty(growable: true);
     for (Map<String, dynamic> messageStoreMap in messageStoreMapList) {
       messageStoreList.add(MessageStore.fromJson(messageStoreMap));

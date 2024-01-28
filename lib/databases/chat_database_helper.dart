@@ -16,8 +16,8 @@ class ChatDatabaseHelper {
   final String _colMostRecentMessageIsSeen = 'most_recent_message_is_seen';
   final String _colMostRecentMessageSenderEmail =
       'most_recent_message_sender_email';
-  final String _colMostRecentMessageRecepientEmail =
-      'most_recent_message_recepient_email';
+  final String _colMostRecentMessagerecipientEmail =
+      'most_recent_message_recipient_email';
 
   ChatDatabaseHelper._createInstance();
 
@@ -40,14 +40,16 @@ class ChatDatabaseHelper {
 
   void _createDb(Database db, int newVersion) async {
     await db.execute(
-        'CREATE TABLE $_chatTable ($_colId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, $_colBelongsToEmail TINYTEXT, $_colPhotoUrl TEXT, $_colName VARCHAR(50),$_colMostRecentMessageContents TEXT, $_colMostRecentMessageSenderEmail TINYTEXT, $_colMostRecentMessageRecepientEmail TINYTEXT, $_colMostRecentMessageTime VARCHAR(50), $_colMostRecentMessageIsSeen VARCHAR(5))');
+        'CREATE TABLE $_chatTable ($_colId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, $_colBelongsToEmail TINYTEXT, $_colPhotoUrl TEXT, $_colName VARCHAR(50),$_colMostRecentMessageContents TEXT, $_colMostRecentMessageSenderEmail TINYTEXT, $_colMostRecentMessagerecipientEmail TINYTEXT, $_colMostRecentMessageTime VARCHAR(50), $_colMostRecentMessageIsSeen VARCHAR(5))');
   }
 
   // Fetch Operation: Get all note objects from database
   Future<List<Map<String, dynamic>>> _getChatMapList() async {
     Database db = await database;
 //		var result = await db.rawQuery('SELECT * FROM $noteTable order by $colPriority ASC');
-    var result = await db.query(_chatTable); //? We have to do a left join here
+    var result = await db.query(_chatTable,
+        orderBy:
+            '$_colMostRecentMessageTime DESC'); //? We have to do a left join here
     return result;
   }
 
@@ -81,11 +83,12 @@ class ChatDatabaseHelper {
   }
 
   // Update Operation: Update a Note object and save it to database
-  Future<int> updateChat(ChatStore chatStore) async {
+  Future<int> updateChat(ChatStore chatStore, int id) async {
+    //? Chatstore doesn't have setter for id
     var db = await database;
     var result = await db.update(_chatTable, chatStore.toJson(),
         where: '$_colId = ?',
-        whereArgs: [chatStore.id],
+        whereArgs: [id],
         conflictAlgorithm: ConflictAlgorithm.replace);
     return result;
   }

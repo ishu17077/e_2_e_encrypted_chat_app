@@ -8,7 +8,7 @@ class AddNewChat {
   FirebaseFirestore _db = FirebaseFirestore.instance;
   ChatDatabaseHelper _chatDb = ChatDatabaseHelper();
 
-  Future addNewChat(ChatStore chatStore) async {
+  Future<int> addNewChat(ChatStore chatStore) async {
     // await _db
     //     .collection('chats')
     //     .add(chat.toJson())
@@ -16,6 +16,6 @@ class AddNewChat {
     //   print('DocumentSnapshot added  with ID: ${doc.id}, ${doc.path}');
     //   return db.collection('chats').get();
     // });
-    await _chatDb.insertChat(chatStore);
+    return await _chatDb.insertChat(chatStore);
   }
 }

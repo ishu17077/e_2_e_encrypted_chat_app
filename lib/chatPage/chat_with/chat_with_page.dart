@@ -1,7 +1,9 @@
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/sign_up_page.dart';
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_page.dart';
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/components/mesure_size.dart';
+import 'package:e_2_e_encrypted_chat_app/databases/chat_database_helper.dart';
 import 'package:e_2_e_encrypted_chat_app/databases/message_database_helper.dart';
 import 'package:e_2_e_encrypted_chat_app/encryption/encryption.dart';
 import 'package:e_2_e_encrypted_chat_app/encryption/encryption_methods.dart';
@@ -25,13 +27,11 @@ final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 class ChatWithPage extends StatefulWidget {
   ChatStore chatStore;
   bool chatExists;
-  DateTime? lastOnline = DateTime.tryParse('19700101');
 
   ChatWithPage({
     super.key,
     this.chatExists = true,
     required this.chatStore,
-    this.lastOnline,
   });
 
   @override
@@ -40,7 +40,7 @@ class ChatWithPage extends StatefulWidget {
 
 class _ChatWithPageState extends State<ChatWithPage> {
   late User? signedInUser;
-  MessageStore? previousMessageStore = null;
+  MessageStore? previousMessageStore;
   double heightOfTextField = 0;
   int count = 0;
   List<MessageStore> messageStoreList = List.empty(growable: true);
@@ -48,8 +48,10 @@ class _ChatWithPageState extends State<ChatWithPage> {
   MessageDatabaseHelper messageDatabaseHelper = MessageDatabaseHelper();
   final GlobalKey _textBoxChangeKey = GlobalKey();
   my_user.User? user;
-  ScrollController _scrollController = ScrollController();
+  // ScrollController _scrollController = ScrollController();
   // Stream<QuerySnapshot<Map<String, dynamic>>>? _mystream;
+  static final ChatDatabaseHelper _chatDatabaseHelper = ChatDatabaseHelper();
+  int? chatId;
   var _myStream;
   bool keepLoading = true;
   Future? _userFromFuture;
@@ -60,6 +62,7 @@ class _ChatWithPageState extends State<ChatWithPage> {
   // final GlobalKey stickeyKey = GlobalKey();
   @override
   void initState() {
+    chatId = widget.chatStore.id;
     signedInUser = AddNewUser.signedInUser;
     if (signedInUser == null) {
       Navigator.pushReplacement(
@@ -71,14 +74,14 @@ class _ChatWithPageState extends State<ChatWithPage> {
     _userFromFuture = _firestore
         .collection('users')
         .where('email_address',
-            isEqualTo:
-                'chhotabheem5663@gmail.com') //? Yahan widget.chatStore.belongToEmail hoga because woh specific id match karna ha hume
+            isEqualTo: widget.chatStore
+                .belongsToEmail) //? Yahan widget.chatStore.belongToEmail hoga because woh specific id match karna ha hume
         .get()
         .then((snapshot) {
       user = my_user.User.fromJson(snapshot.docs.first.data());
 
       // messageDatabaseHelper.insertMessage(MessageStore(
-      //   recepientEmail: 'lo@mail.com',
+      //   recipientEmail: 'lo@mail.com',
       //   chatId: widget.chatStore.id!,
       //   contents: 'hey there',
       //   isSeen: true,
@@ -87,35 +90,42 @@ class _ChatWithPageState extends State<ChatWithPage> {
       // ));
       // updateListView(widget.chatStore);
 
-      getEncryptedKeys();
-    });
-    _myStream = _firestore
-        .collection('messages')
-        .where('recipient_email',
-            isEqualTo: 'chhotabheem5663@gmail.com') //? Yahan bhi
-        .orderBy('time', descending: true)
-        .snapshots()
-        .listen((querySnapshot) {
-      querySnapshot.docs.map((DocumentSnapshot documentSnapshot) {
-        Map<String, dynamic> docs =
-            documentSnapshot.data()! as Map<String, dynamic>;
-        final Message message = Message.fromJson(docs);
-        print(message.contents);
-        return 1;
+      getEncryptedKeys().then((value) {
+        var firestoreMessageCollection = _firestore.collection('messages');
+        _myStream = firestoreMessageCollection
+            .where('recipient_email', isEqualTo: signedInUser!.email!)
+            .orderBy('time', descending: true)
+            .snapshots()
+            .listen((querySnapshot) {
+          querySnapshot.docs.forEach((documentSnapshot) {
+            Map<String, dynamic> docs =
+                documentSnapshot.data()! as Map<String, dynamic>;
+            final Message message = Message.fromJson(docs);
+            decryptedMessage(
+                    iv: message.iv,
+                    encryptedMessageContents: message.contents,
+                    deriveKey: _encryptionKeys!)
+                .then((value) {
+              MessageStore messageStore = MessageStore(
+                  recipientEmail: message.recipientEmail,
+                  chatId: chatId!,
+                  contents: value!,
+                  isSeen: message.isSeen,
+                  senderEmail: message.senderEmail,
+                  time: message.time);
+              messageDatabaseHelper.insertMessage(messageStore).then((value) {
+                widget.chatStore.mostRecentMessage = messageStore;
+                _chatDatabaseHelper.insertChat(widget.chatStore);
+                firestoreMessageCollection.doc(message.id!).delete();
+                updateListView(widget.chatStore);
+              });
+            });
+          });
+        });
       });
     });
+
     //! _mystream was seperately assigned as it was changing with everytime something happens like a keyboard pop up lol
-    // if (sticky != null) {
-    //   sticky?.remove();
-    // }
-    // sticky = OverlayEntry(
-    //   builder: (context) => stickyBuilder(),
-    // );
-
-    // SchedulerBinding.instance.addPostFrameCallback((_) {
-    //   Overlay.of(context).insert(sticky!);
-    // });
-
     super.initState();
   }
 
@@ -124,6 +134,7 @@ class _ChatWithPageState extends State<ChatWithPage> {
     // TODO: implement dispose
     // sticky?.remove();
     // stickeyKey.currentState?.dispose();
+
     super.dispose();
   }
 
@@ -168,7 +179,7 @@ class _ChatWithPageState extends State<ChatWithPage> {
           children: [
             // ignore: prefer_const_constructors
             Hero(
-              tag: widget.chatStore.id ?? '_',
+              tag: chatId ?? '_',
               child: CircleAvatar(
                 backgroundColor: kSexyTealColor,
                 backgroundImage: NetworkImage(widget.chatStore.photoUrl),
@@ -187,114 +198,18 @@ class _ChatWithPageState extends State<ChatWithPage> {
           ? const Center(child: CircularProgressIndicator())
           : Padding(
               padding: const EdgeInsets.only(top: 0.0, bottom: 7.0),
-              child:
-                  // FutureBuilder(
-                  // future: _userFromFuture,
-                  // builder: (context, futureshot) {
-                  //   if (futureshot.connectionState == ConnectionState.waiting) {
-                  //     return const Center(child: CircularProgressIndicator());
-                  //   }
-                  //   if (futureshot.hasError) {
-                  //     return const Center(
-                  //         child: Text(
-                  //             "There's an error processing this chat...check again later"));
-                  //   }
-                  //   return
-
-                  Stack(
+              child: Stack(
                 children: [
                   heightOfTextField != 0
-                      ?
-                      // StreamBuilder<QuerySnapshot>(
-                      //     stream: _mystream,
-                      //     builder: (BuildContext context,
-                      //         AsyncSnapshot<QuerySnapshot> snapshot) {
-                      //       // if (snapshot.hasError) {
-                      //       //   return const Center(
-                      //       //       child: Text(
-                      //       //           "There's an error processing this chat...check again later"));
-                      //       // }
-                      //       // if (snapshot.connectionState == ConnectionState.waiting) {
-                      //       //   return const Center(child: CircularProgressIndicator());
-                      //       // }
-                      //       var docsSnapshot = snapshot.data!.docs;
-                      //       return
-                      Positioned(
+                      ? Positioned(
                           bottom:
                               heightOfTextField == 0 ? 26 : heightOfTextField,
                           top: MediaQuery.of(context).size.height * 0.010,
                           child: SizedBox(
                             height: MediaQuery.of(context).size.height,
                             width: MediaQuery.of(context).size.width,
-                            // child: ListView(
-                            //   reverse: true,
-                            //   physics: const BouncingScrollPhysics(),
-                            //   children: docsSnapshot.reversed
-                            //       .map((DocumentSnapshot document) {
-
-                            //     Map<String, dynamic> messageMap =
-                            //         document.data()! as Map<String, dynamic>;
-
-                            //     Message message = Message.fromJson(messageMap);
-
-                            //     message.id = document.id;
-                            //     if (message.senderEmail != signedInUser!.email &&
-                            //         message.isSeen == false) {
-                            //       _firestore
-                            //           .collection('messages')
-                            //           .doc(message.id)
-                            //           .update({"is_seen": true});
-                            //     }
-                            //     bool noMarginRequired = message.senderEmail ==
-                            //         previousMessage?.senderEmail;
-                            //     previousMessage = message;
-
-                            //     Future<String> decryptMessageFuture =
-                            //         decryptedMessage(
-                            //                 iv: message!.iv!,
-                            //                 encryptedMessageContents:
-                            //                     message.contents,
-                            //                 deriveKey: _encryptionKeys!)
-                            //             .then(
-                            //                 (value) => message.contents = value);
-
-                            //     return FutureBuilder(
-                            //         future: decryptMessageFuture,
-                            //         builder: (context, futureshot) {
-                            //           if (futureshot.hasError) {
-                            //             return const Center(
-                            //                 child: Text(
-                            //                     "There's an error processing this message...check again later"));
-                            //           }
-                            //           if (futureshot.connectionState ==
-                            //               ConnectionState.waiting) {
-                            //             return const SizedBox();
-                            //           }
-                            //           messageDatabaseHelper.insertMessage(
-                            //               MessageStore(
-                            //                   recepientEmail:
-                            //                       message.recepientEmail,
-                            //                   chatId: widget.chatStore.id!,
-                            //                   contents: message.contents,
-                            //                   isSeen: message.isSeen,
-                            //                   senderEmail: message.senderEmail,
-                            //                   time: message.time));
-                            //           return ChatPill(
-                            //             text: message.contents,
-                            //             isLastMessage:
-                            //                 docsSnapshot.last == document,
-                            //             isSeen: message.isSeen,
-                            //             isMe: _isMe(
-                            //               message.senderEmail,
-                            //               signedInUser!.email!,
-                            //             ),
-                            //             noMaginRequired: noMarginRequired,
-                            //           );
-                            //         });
-                            //   }).toList(),
-                            // ),
                             child: ListView.builder(
-                              controller: _scrollController,
+                              reverse: true,
                               itemBuilder: (context, index) {
                                 MessageStore messageStore =
                                     messageStoreList[index];
@@ -304,15 +219,17 @@ class _ChatWithPageState extends State<ChatWithPage> {
                                         ?.senderEmail; //? for some weird reason when previousMessageStore is null it actually returns false
 
                                 previousMessageStore = messageStore;
-                                if (initialScrollDone == false) {
-                                  WidgetsBinding.instance.addPostFrameCallback(
-                                      (_) => _scrollToEnd());
-                                  initialScrollDone = true;
-                                } //! Error
+                                // if (initialScrollDone == false) {
+                                //   WidgetsBinding.instance
+                                //       .addPostFrameCallback(
+                                //           (_) => _scrollToEnd());
+                                //   initialScrollDone = true;
+                                // } //! Error
                                 return ChatPill(
                                   text: messageStore.contents,
                                   isSeen: messageStore.isSeen,
-                                  isLastMessage: index == count - 1,
+                                  isLastMessage: index ==
+                                      0, //? Listview is reverse so 0 index = last at screen
                                   isMe: _isMe(messageStore!.senderEmail!,
                                       signedInUser!.email!),
                                   noMaginRequired: noMarginRequired,
@@ -330,9 +247,8 @@ class _ChatWithPageState extends State<ChatWithPage> {
                     alignment: Alignment.bottomCenter,
                     child: MeasureSize(
                       onChange: (size) {
-                        double? screenHeight =
-                            MediaQuery.of(context).size.height;
-                        print("Scrren Height: $screenHeight");
+                        // double? screenHeight =
+                        //     MediaQuery.of(context).size.height;
                         double widgetHeight = size.height;
                         if (widgetHeight <= 55) {
                           setState(() {
@@ -340,7 +256,7 @@ class _ChatWithPageState extends State<ChatWithPage> {
                           });
                         } else if (widgetHeight > 55 && widgetHeight < 67) {
                           setState(() {
-                            heightOfTextField = widgetHeight / 1.65;
+                            heightOfTextField = widgetHeight / 1.55;
                           });
                         } else if (widgetHeight >= 67 && widgetHeight < 95) {
                           setState(() {
@@ -361,39 +277,7 @@ class _ChatWithPageState extends State<ChatWithPage> {
                       child: ChatTextField(
                         key: _textBoxChangeKey,
                         onSendButtonPressed: (String contents) async {
-                          if (contents.isNotEmpty) {
-                            Message message = Message(
-                                recepientEmail: widget.chatStore.belongsToEmail,
-                                time: DateTime.now(),
-                                iv: Uint8List(16),
-                                senderEmail: signedInUser!.email!,
-                                contents: contents,
-                                isSeen: false);
-                            if (widget.chatExists == false) {
-                              _addNewChat
-                                  .addNewChat(widget.chatStore)
-                                  .then((value) => widget.chatExists = true);
-                            }
-                            message.contents = await encryptMessage(
-                                iv: message!.iv!,
-                                messageContents: contents,
-                                deriveKey: _encryptionKeys!);
-                            _firestore
-                                .collection('messages')
-                                .add(message.toJson())
-                                .whenComplete(() {
-                              messageDatabaseHelper.insertMessage(MessageStore(
-                                  recepientEmail: message.recepientEmail,
-                                  chatId: widget.chatStore.id!,
-                                  contents: contents,
-                                  isSeen: message.isSeen,
-                                  senderEmail: message.senderEmail,
-                                  time: message.time));
-                              updateListView(widget.chatStore);
-                              WidgetsBinding.instance
-                                  .addPostFrameCallback((_) => _scrollToEnd());
-                            });
-                          }
+                          await _sendMessage(contents);
                         },
                       ),
                     ),
@@ -406,20 +290,62 @@ class _ChatWithPageState extends State<ChatWithPage> {
     );
   }
 
-  // bool gotNotification(SizeChangedLayoutNotification notification) {
-  //   // change height here
-  //   var height = _textBoxChangeKey.currentContext?.size?.height;
-  //   if (_heightOfTextFieldNotifier != height && height != null) {
-  //     print(_heightOfTextFieldNotifier);
-  //     setState(() {
-  //       _heightOfTextFieldNotifier = height;
-  //     });
-  //   }
-  //   print("Size: $height");
+  Future<void> _sendMessage(String unEncryptedContents) async {
+    if (unEncryptedContents.isNotEmpty) {
+      Message message = Message(
+          recipientEmail: widget.chatStore.belongsToEmail,
+          time: DateTime.now(),
+          iv: _iv(),
+          senderEmail: signedInUser!.email!,
+          contents: unEncryptedContents,
+          isSeen: false);
+      if (widget.chatExists == false) {
+        await _addNewChatToChatTable(message).then((value) {
+          print(chatId);
+        });
+      }
+      message.contents = await encryptMessage(
+          iv: message!.iv!,
+          messageContents: unEncryptedContents,
+          deriveKey: _encryptionKeys!);
+      _firestore.collection('messages').add(message.toJson()).whenComplete(() {
+        _insertMessageToDatabase(message, unEncryptedContents);
+      });
+    }
+  }
 
-  //   _textBoxChangeKey = GlobalKey();
-  //   return true;
-  // }
+  Future<void> _addNewChatToChatTable(Message message) async {
+    await _addNewChat.addNewChat(widget.chatStore).then((value) {
+      widget.chatExists = true;
+      chatId = value;
+      return value;
+    });
+    widget.chatStore.mostRecentMessage = MessageStore(
+      recipientEmail: message.recipientEmail,
+      chatId: chatId!,
+      contents: message.contents,
+      isSeen: message.isSeen,
+      senderEmail: message.senderEmail,
+      time: message.time,
+    );
+    await ChatDatabaseHelper().updateChat(widget.chatStore, chatId!);
+  }
+
+  void _insertMessageToDatabase(
+      Message message, String unEncryptedContents) async {
+    MessageStore messageStore = MessageStore(
+        recipientEmail: message.recipientEmail,
+        chatId: chatId!,
+        contents: unEncryptedContents,
+        isSeen: message.isSeen,
+        senderEmail: message.senderEmail,
+        time: message.time);
+
+    await messageDatabaseHelper.insertMessage(messageStore);
+    widget.chatStore.mostRecentMessage = messageStore;
+    await _chatDatabaseHelper.insertChat(widget.chatStore);
+    updateListView(widget.chatStore);
+  }
 
   bool _isMe(String sender, String signedInUserEmail) {
     bool isMe = sender == signedInUserEmail ? true : false;
@@ -430,7 +356,9 @@ class _ChatWithPageState extends State<ChatWithPage> {
     final Future<Database> dbFuture =
         messageDatabaseHelper.initializeDatabase();
     dbFuture.then((value) {
-      messageDatabaseHelper.getMessagesList(chatStore).then((messageList) {
+      messageDatabaseHelper
+          .getMessagesList(chatStore, chatId: chatId)
+          .then((messageList) {
         setState(() {
           messageStoreList = messageList;
           count = messageList.length;
@@ -439,13 +367,21 @@ class _ChatWithPageState extends State<ChatWithPage> {
     });
   }
 
-  _scrollToEnd() {
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent + 100,
-      duration: const Duration(
-        milliseconds: 200,
-      ),
-      curve: Curves.easeInOut,
-    );
+  // _scrollToEnd() {
+  //   _scrollController.animateTo(
+  //     _scrollController.position.maxScrollExtent + 100,
+  //     duration: const Duration(
+  //       milliseconds: 200,
+  //     ),
+  //     curve: Curves.easeInOut,
+  //   );
+  // }
+
+  Uint8List _iv() {
+    var random = Random.secure();
+    List<int> ivList = List<int>.generate(8, (_) => random.nextInt(99));
+    Uint8List iv = Uint8List.fromList(ivList);
+    return iv;
   }
+  //! isSeen not working
 }

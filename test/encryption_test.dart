@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_2_e_encrypted_chat_app/encryption/encryption.dart';
@@ -7,13 +8,15 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() async {
   //? Dummy Message
-  final Uint8List _iv = Uint8List(16);
-  print(utf8.decode(_iv));
+  var random = Random.secure();
+  List<int> _ivList = List<int>.generate(8, (_) => random.nextInt(99));
+  // print(_ivList.toString());
+  Uint8List _iv = Uint8List.fromList(_ivList);
+  print(_iv.toString());
   Message message = Message(
-    recepientEmail: 'Lalaba@testmail.com',
+    recipientEmail: 'Lalaba@testmail.com',
     time: DateTime.now(),
     iv: _iv,
-    chatId: '0W5fvWskonvemsu7KIDM',
     senderEmail: 'anon@testmail.com',
     contents: 'Hey?? How you doing',
     isSeen: false,
@@ -53,5 +56,23 @@ void main() async {
         deriveKey: deriveKeyVar);
     print("\x1B[32mDecrypted message: $decryptedMessageContents\x1B[0m");
     expectLater(decryptedMessageContents, messageSend.contents);
+  });
+
+  test('Kuch nhi', () async {
+    final _deriveKeyVar = await deriveKey(jwb.privateKey,
+        '{"kty":"EC","crv":"P-256","x":"b0eDOC5sJ03swHn-829M9NfmG_bDrICaObPlwUKndzE","y":"ppaOFXOCWucDf1SelyRXqaGjeGctTODZi6yUsxjBOO4"}');
+
+    Message _message = Message(
+      recipientEmail: 'chhotabheem5663@gmail.com',
+      time: DateTime.now(),
+      iv: _iv,
+      senderEmail: 'ishujamui1@gmail.com',
+      contents: await encryptMessage(
+          iv: _iv,
+          messageContents: 'Hey How you doing',
+          deriveKey: _deriveKeyVar),
+      isSeen: false,
+    );
+    print(_message.toJson());
   });
 }

@@ -39,26 +39,13 @@ class _ChatPageState extends State<ChatPage> {
           context, MaterialPageRoute(builder: (context) => SignUpPage()));
     }
     updateListView();
-    // chatDatabaseHelper.insertChat(ChatStore(
-    //   belongsToEmail: 'belongsToEmail@sexyMail.com',
-    //   photoUrl:
-    //       'https://marmelab.com/images/blog/ascii-art-converter/homer.png',
-    //   name: 'HolaBoi',
-    //   mostRecentMessage: MessageStore(
-    //       chatId: 1,
-    //       recepientEmail: 'chomail@gomail.com',
-    //       contents: 'Hey There',
-    //       isSeen: true,
-    //       senderEmail: 'belongsToEmail@sexyMail.com',
-    //       time: DateTime.now()),
-    // ));
+
     // print(json.encode(value));
     super.initState();
   }
 
   @override
   void dispose() {
-    // _scrollController.dispose();
     super.dispose();
   }
 
@@ -122,10 +109,10 @@ class _ChatPageState extends State<ChatPage> {
                               ],
                             ),
                             onPressed: () {
-                              // Navigator.push(
-                              //   context,
-                              //   MaterialPageRoute(
-                              //       builder: (context) => const ChatAdd()));
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const ChatAdd()));
                             },
                           ),
                         ],
@@ -271,7 +258,7 @@ class _ChatPageState extends State<ChatPage> {
   //             //! WHat if display name is same, we need to do it with email rather
   //             ? chat.chatNames.first ?? ''
   //             : chat.chatNames.last ?? '',
-  //         recepientEmail: chat.belongsToEmails.first != signedInUser?.email
+  //         recipientEmail: chat.belongsToEmails.first != signedInUser?.email
   //             //! WHat if display name is same, we need to do it with email rather
   //             ? chat.belongsToEmails.first ?? ''
   //             : chat.belongsToEmails.last ?? '',
@@ -298,7 +285,7 @@ class _ChatPageState extends State<ChatPage> {
         ),
       ),
       subtitle: Text(
-        chatStore.mostRecentMessage.contents ?? '',
+        chatStore.mostRecentMessage?.contents ?? '',
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: const TextStyle(color: Colors.white70),
@@ -322,7 +309,10 @@ class _ChatPageState extends State<ChatPage> {
       // ),
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => ChatWithPage(chatStore: chatStore)));
+            builder: (context) => ChatWithPage(
+                  chatStore: chatStore,
+                  chatExists: true,
+                )));
       },
       enabled: true,
       enableFeedback: true,
@@ -335,6 +325,7 @@ class _ChatPageState extends State<ChatPage> {
       chatDatabaseHelper.getChatsList().then((chatList) {
         setState(() {
           this.chatList = chatList;
+
           count = chatList.length;
         });
       });

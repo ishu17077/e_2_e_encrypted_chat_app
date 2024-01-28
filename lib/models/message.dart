@@ -5,14 +5,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Message {
   String? id;
-  String recepientEmail;
+  String recipientEmail;
   DateTime time;
   String senderEmail;
   Uint8List iv;
   String contents;
   bool isSeen;
   Message({
-    required this.recepientEmail,
+    required this.recipientEmail,
     required this.time,
     required this.senderEmail,
     required this.iv,
@@ -21,7 +21,7 @@ class Message {
   });
   toJson() => {
         'sender_email': senderEmail,
-        'recipient_email': recepientEmail,
+        'recipient_email': recipientEmail,
         'is_seen': isSeen,
         'contents': contents,
         'iv': utf8.decode(iv),
@@ -30,7 +30,7 @@ class Message {
   factory Message.fromJson(Map<String, dynamic> messageMap) {
     final Message message = Message(
       senderEmail: messageMap['sender_email'],
-      recepientEmail: messageMap['recipient_email'],
+      recipientEmail: messageMap['recipient_email'],
       // ignore: unnecessary_cast
       time: (messageMap['time'] ?? Timestamp.now() as Timestamp).toDate(),
       iv: utf8.encode(messageMap['iv']),

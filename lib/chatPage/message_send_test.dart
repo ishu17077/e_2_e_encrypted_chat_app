@@ -9,10 +9,10 @@ import 'package:e_2_e_encrypted_chat_app/models/message.dart';
 class ChatSend extends StatelessWidget {
   String contents = '';
   String sender = '';
-  String recepient = '';
+  String recipient = '';
   Message message = Message(
       // chatId: '', //! ChatId should be unique
-      recepientEmail: 'Lololol',
+      recipientEmail: 'Lololol',
       time: DateTime.now(),
       contents: '',
       senderEmail: 'Legends of Sex',
@@ -33,10 +33,10 @@ class ChatSend extends StatelessWidget {
           ),
           TextField(
             decoration: const InputDecoration(
-              hintText: "Recepient",
+              hintText: "recipient",
             ),
             onChanged: (value) {
-              recepient = value;
+              recipient = value;
             },
           ),
           TextField(
@@ -51,7 +51,7 @@ class ChatSend extends StatelessWidget {
             onPressed: () {
               message.contents = contents;
               message.senderEmail = sender;
-              message.recepientEmail = recepient;
+              message.recipientEmail = recipient;
 
               GetMessages().sendMessage(message);
             },

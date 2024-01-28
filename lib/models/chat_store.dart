@@ -7,7 +7,7 @@ class ChatStore {
   String belongsToEmail;
   String? name;
   String photoUrl;
-  MessageStore mostRecentMessage;
+  MessageStore? mostRecentMessage;
 
   ChatStore({
     required this.belongsToEmail,
@@ -26,13 +26,13 @@ class ChatStore {
   toJson() => {
         'belongs_to_email': belongsToEmail,
         'photo_url': photoUrl,
-        'most_recent_message_contents': mostRecentMessage.contents,
+        'most_recent_message_contents': mostRecentMessage?.contents,
         'most_recent_message_time':
-            mostRecentMessage.time.toString() ?? DateTime.now().toString(),
+            mostRecentMessage?.time.toString() ?? DateTime.now().toString(),
         'most_recent_message_is_seen':
-            mostRecentMessage.isSeen.toString() ?? 'false',
-        'most_recent_message_sender_email': mostRecentMessage.senderEmail,
-        'most_recent_message_recepient_email': mostRecentMessage.recepientEmail,
+            mostRecentMessage?.isSeen.toString() ?? 'false',
+        'most_recent_message_sender_email': mostRecentMessage?.senderEmail,
+        'most_recent_message_recipient_email': mostRecentMessage?.recipientEmail,
         'name': name,
       };
 
@@ -46,7 +46,7 @@ class ChatStore {
             ? true
             : false,
         senderEmail: chatStoreMap['most_recent_message_sender_email'],
-        recepientEmail: chatStoreMap['most_recent_message_recepient_email'],
+        recipientEmail: chatStoreMap['most_recent_message_recipient_email'],
         time: DateTime.parse(chatStoreMap['most_recent_message_time']),
       ),
       belongsToEmail: chatStoreMap['belongs_to_email'],
