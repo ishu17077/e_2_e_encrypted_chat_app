@@ -7,7 +7,7 @@ void main() async {
   // await Firebase.initializeApp();
   // Message message = Message(
   //     chatId: '',
-  //     recepientEmail: 'Lololol',
+  //     recipientEmail: 'Lololol',
   //     contents: 'Lambda',
   //     time: DateTime.now(),
   //     senderEmail: 'Legends of Sex',
