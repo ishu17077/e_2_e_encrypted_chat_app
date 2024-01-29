@@ -61,10 +61,10 @@ class MessageDatabaseHelper {
   //   return result;
   // }
 
-  Future<int> deleteChat(MessageStore messageStore) async {
+  Future<int> deleteMessage(int messageId) async {
     Database db = await database;
-    int result = await db.delete(_messagesTable,
-        where: '$_colId = ?', whereArgs: [messageStore.id]);
+    int result = await db
+        .delete(_messagesTable, where: '$_colId = ?', whereArgs: [messageId]);
     return result;
   }
 

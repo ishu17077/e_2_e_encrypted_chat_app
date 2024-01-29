@@ -49,6 +49,12 @@ class AddNewUser {
         throw Exception();
       });
     } else {
+      var collection = _firestore.collection('users');
+      var collectionBetichod = await collection
+          .where('email_address', isEqualTo: signedInUser?.email)
+          .get();
+      ;
+      collection.doc(collectionBetichod.docs.first.id).update(user.toJson());
       print("User already Exists");
     }
 
@@ -65,7 +71,7 @@ class AddNewUser {
     //? Create a new credential
     final credential = GoogleAuthProvider.credential(
       accessToken: googleSignInAuthentication?.accessToken,
-      idToken: googleSignInAuthentication?.idToken,
+      idToken: googleSignInAuthentication?.idTo ken,
     );
 
     //! Once signed in returning the UserCredential
@@ -80,6 +86,7 @@ class AddNewUser {
             'https://marmelab.com/images/blog/ascii-art-converter/homer.png',
         lastseen: DateTime.now());
     await addUserToDatabase(userDatabase);
+
     return user;
   }
 

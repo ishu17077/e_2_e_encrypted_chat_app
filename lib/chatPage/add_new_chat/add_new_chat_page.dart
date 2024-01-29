@@ -86,7 +86,6 @@ class _ChatAddState extends State<ChatAdd> {
               Map<String, dynamic> userMap =
                   documentSnapshot.data()! as Map<String, dynamic>;
               User user = User.fromJson(userMap);
-
               ChatStore chatStore = ChatStore(
                 photoUrl: user.photoUrl ??
                     'https://marmelab.com/images/blog/ascii-art-converter/homer.png',
@@ -94,13 +93,32 @@ class _ChatAddState extends State<ChatAdd> {
                 name: user.username ?? '**No Name**',
                 mostRecentMessage: null,
               );
-              doesExist = _chatChatExists(user.emailAddress!).then((value) {
-                chatExists = value;
-                return value;
+              doesExist = (_chatChatExists(user.emailAddress!)).then((value) {
+                if (value != null) {
+                  chatStore = ChatStore.withId(
+                    value,
+                    photoUrl: user.photoUrl ??
+                        'https://marmelab.com/images/blog/ascii-art-converter/homer.png',
+                    belongsToEmail: user.emailAddress!,
+                    name: user.username ?? '**No Name**',
+                    mostRecentMessage: null,
+                  );
+                  return true;
+                }
+                return false;
               });
 
-              return chatExists ?? false
-                  ? ListTile(
+              return FutureBuilder(
+                  future: doesExist,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return const Text(
+                          "Error connecting to server...check your internet connection");
+                    } else if (snapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    return ListTile(
                       tileColor: kBackgroundColor,
                       leading: CircleAvatar(
                         backgroundColor: kSexyTealColor,
@@ -117,20 +135,19 @@ class _ChatAddState extends State<ChatAdd> {
                       ),
                       onTap: () {
                         // ignore: use_build_context_synchronously
-                        if (chatExists != null) {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ChatWithPage(
-                                        chatStore: chatStore,
-                                        chatExists: chatExists!,
-                                      )));
-                        }
+
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ChatWithPage(
+                                      chatStore: chatStore!,
+                                      chatExists: snapshot.data as bool,
+                                    )));
                       },
                       enabled: true,
                       enableFeedback: true,
-                    )
-                  : const SizedBox();
+                    );
+                  });
             }).toList();
             return FutureBuilder(
                 future: doesExist,
@@ -150,7 +167,7 @@ class _ChatAddState extends State<ChatAdd> {
         ));
   }
 
-  Future<bool> _chatChatExists(String chatEmailAddress) async {
+  Future<int?> _chatChatExists(String chatEmailAddress) async {
     // final QuerySnapshot result1 = await collectionReference
     //     .where('chat_id', whereIn: [chatId1, chatId2]).get();
     // final List<DocumentSnapshot> documents1 = result1.docs;
@@ -159,16 +176,15 @@ class _ChatAddState extends State<ChatAdd> {
     //   return result1.docs.single.get('chat_id');
     // }
     List<ChatStore> chatStoreList = List.empty(growable: true);
-    bool checkExists = false;
-
+    int? chatId;
     chatDatabaseHelper.initializeDatabase();
     chatStoreList = await chatDatabaseHelper.getChatsList();
-    chatStoreList.forEach((element) {
+    for (var element in chatStoreList) {
       if (element.belongsToEmail == chatEmailAddress) {
-        checkExists = true;
+        chatId = element.id;
+        break;
       }
-    });
-    print(checkExists);
-    return checkExists;
+    }
+    return chatId;
   }
 }
