@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_2_e_encrypted_chat_app/models/user.dart';
 
 import 'package:e_2_e_encrypted_chat_app/models/message.dart';
+import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,6 +14,25 @@ class GetMessages {
     "last": "Lovelace",
     "born": 1815
   };
+
+  static void messageStream(
+      Function(Map<String, dynamic>, CollectionReference<Map<String, dynamic>>)
+          functionCallBack) {
+    final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+    _firestore.settings = const Settings(persistenceEnabled: true);
+    var firestoreMessageCollection = _firestore.collection('messages');
+    var _myStream = firestoreMessageCollection
+        .where('recipient_email', isEqualTo: AddNewUser.signedInUser!.email!)
+        .orderBy('time', descending: true)
+        .snapshots()
+        .listen((querySnapshot) {
+      querySnapshot.docs.forEach((documentSnapshot) {
+        Map<String, dynamic> docs =
+            documentSnapshot.data()! as Map<String, dynamic>;
+        functionCallBack(docs, firestoreMessageCollection);
+      });
+    });
+  }
 
   static Future<void> addUser(User user) async {
     FirebaseFirestore db = FirebaseFirestore.instance;

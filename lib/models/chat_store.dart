@@ -41,11 +41,11 @@ class ChatStore {
       chatStoreMap['id'],
       mostRecentMessage: MessageStore(
         chatId: chatStoreMap['id'],
-        contents: chatStoreMap['most_recent_message_contents'],
+        contents: chatStoreMap['most_recent_message_contents'] ?? '',
         isSeen: chatStoreMap['most_recent_message_is_seen'] == 'true'
             ? true
             : false,
-        senderEmail: chatStoreMap['most_recent_message_sender_email'],
+        senderEmail: chatStoreMap['most_recent_message_sender_email'] ,
         recipientEmail: chatStoreMap['most_recent_message_recipient_email'],
         time: DateTime.parse(chatStoreMap['most_recent_message_time']),
       ),

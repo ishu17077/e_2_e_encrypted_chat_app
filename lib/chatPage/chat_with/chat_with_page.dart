@@ -16,13 +16,14 @@ import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/components/chat_text
 import 'package:e_2_e_encrypted_chat_app/models/message.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_chat.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
+import 'package:e_2_e_encrypted_chat_app/server_functions/get_messages.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:sqflite/sqflite.dart';
 
-final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
 class ChatWithPage extends StatefulWidget {
   ChatStore chatStore;
@@ -40,6 +41,7 @@ class ChatWithPage extends StatefulWidget {
 
 class _ChatWithPageState extends State<ChatWithPage> {
   late User? signedInUser;
+
   MessageStore? previousMessageStore;
   double heightOfTextField = 0;
   int count = 0;
@@ -91,42 +93,39 @@ class _ChatWithPageState extends State<ChatWithPage> {
       // updateListView(widget.chatStore);
 
       getEncryptedKeys().then((value) {
-        var firestoreMessageCollection = _firestore.collection('messages');
-        _myStream = firestoreMessageCollection
-            .where('recipient_email', isEqualTo: signedInUser!.email!)
-            .orderBy('time', descending: true)
-            .snapshots()
-            .listen((querySnapshot) {
-          querySnapshot.docs.forEach((documentSnapshot) {
-            Map<String, dynamic> docs =
-                documentSnapshot.data()! as Map<String, dynamic>;
-            final Message message = Message.fromJson(docs);
-            decryptedMessage(
-                    iv: message.iv,
-                    encryptedMessageContents: message.contents,
-                    deriveKey: _encryptionKeys!)
-                .then((value) {
-              MessageStore messageStore = MessageStore(
-                  recipientEmail: message.recipientEmail,
-                  chatId: chatId!,
-                  contents: value!,
-                  isSeen: message.isSeen,
-                  senderEmail: message.senderEmail,
-                  time: message.time);
-              messageDatabaseHelper.insertMessage(messageStore).then((value) {
-                widget.chatStore.mostRecentMessage = messageStore;
-                _chatDatabaseHelper.insertChat(widget.chatStore);
-                firestoreMessageCollection.doc(message.id!).delete();
-                updateListView(widget.chatStore);
-              });
-            });
-          });
-        });
+        GetMessages.messageStream((docs, firestoreMessageCollection) =>
+            onNewMessage(docs, firestoreMessageCollection));
       });
     });
 
     //! _mystream was seperately assigned as it was changing with everytime something happens like a keyboard pop up lol
     super.initState();
+  }
+
+  void onNewMessage(Map<String, dynamic> docs,
+      CollectionReference<Map<String, dynamic>> firestoreMessageCollection) {
+    final Message message = Message.fromJson(docs);
+    decryptedMessage(
+            iv: message.iv,
+            encryptedMessageContents: message.contents,
+            deriveKey: _encryptionKeys!)
+        .then((value) {
+      MessageStore messageStore = MessageStore(
+          recipientEmail: message.recipientEmail,
+          chatId: chatId!,
+          contents: value!,
+          isSeen: message.isSeen,
+          senderEmail: message.senderEmail,
+          time: message.time);
+      messageDatabaseHelper.insertMessage(messageStore).then((value) {
+        widget.chatStore.mostRecentMessage = messageStore;
+        _chatDatabaseHelper.insertChat(widget.chatStore);
+        firestoreMessageCollection.doc(message.id!).delete();
+        updateListView(widget.chatStore);
+      });
+    }).onError((error, stackTrace) {
+      print("Unable to decrypt message");
+    });
   }
 
   @override
@@ -219,12 +218,7 @@ class _ChatWithPageState extends State<ChatWithPage> {
                                         ?.senderEmail; //? for some weird reason when previousMessageStore is null it actually returns false
 
                                 previousMessageStore = messageStore;
-                                // if (initialScrollDone == false) {
-                                //   WidgetsBinding.instance
-                                //       .addPostFrameCallback(
-                                //           (_) => _scrollToEnd());
-                                //   initialScrollDone = true;
-                                // } //! Error
+
                                 return ChatPill(
                                   text: messageStore.contents,
                                   isSeen: messageStore.isSeen,
@@ -300,16 +294,26 @@ class _ChatWithPageState extends State<ChatWithPage> {
           contents: unEncryptedContents,
           isSeen: false);
       if (widget.chatExists == false) {
-        await _addNewChatToChatTable(message).then((value) {
-          print(chatId);
-        });
+        await _addNewChatToChatTable(message);
       }
       message.contents = await encryptMessage(
           iv: message!.iv!,
           messageContents: unEncryptedContents,
           deriveKey: _encryptionKeys!);
-      _firestore.collection('messages').add(message.toJson()).whenComplete(() {
-        _insertMessageToDatabase(message, unEncryptedContents);
+      int id = await _insertMessageToDatabase(message, unEncryptedContents);
+      updateListView(widget.chatStore);
+      _firestore
+          .collection('messages')
+          .add(message.toJson())
+          .onError((error, stackTrace) {
+        _deleteToDatabase(id);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text(
+          'Couldn\'t send your last message, please check your internet connection',
+          style: TextStyle(color: Colors.red),
+        )));
+        throw Exception(
+            'Message can\'t be sent, check your internet connection');
       });
     }
   }
@@ -320,6 +324,7 @@ class _ChatWithPageState extends State<ChatWithPage> {
       chatId = value;
       return value;
     });
+    print(chatId);
     widget.chatStore.mostRecentMessage = MessageStore(
       recipientEmail: message.recipientEmail,
       chatId: chatId!,
@@ -328,10 +333,10 @@ class _ChatWithPageState extends State<ChatWithPage> {
       senderEmail: message.senderEmail,
       time: message.time,
     );
-    await ChatDatabaseHelper().updateChat(widget.chatStore, chatId!);
+    // await ChatDatabaseHelper().updateChat(widget.chatStore, chatId!);
   }
 
-  void _insertMessageToDatabase(
+  Future<int> _insertMessageToDatabase(
       Message message, String unEncryptedContents) async {
     MessageStore messageStore = MessageStore(
         recipientEmail: message.recipientEmail,
@@ -341,10 +346,15 @@ class _ChatWithPageState extends State<ChatWithPage> {
         senderEmail: message.senderEmail,
         time: message.time);
 
-    await messageDatabaseHelper.insertMessage(messageStore);
+    int id = await messageDatabaseHelper.insertMessage(messageStore);
     widget.chatStore.mostRecentMessage = messageStore;
-    await _chatDatabaseHelper.insertChat(widget.chatStore);
+    await _chatDatabaseHelper.updateChat(widget.chatStore, chatId!);
     updateListView(widget.chatStore);
+    return id;
+  }
+
+  Future<void> _deleteToDatabase(int id) async {
+    await messageDatabaseHelper.deleteMessage(id);
   }
 
   bool _isMe(String sender, String signedInUserEmail) {

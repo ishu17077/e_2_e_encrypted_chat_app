@@ -78,10 +78,16 @@ Future<String> decryptedMessage(
       Uint8List.fromList(encryptedMessageContents.codeUnits);
 
   //? Decypting the message
-  final decryptedMessageContenrsBytes =
-      await aesGcmSecretKey.decryptBytes(messageContentsBytes, iv);
+  try {
+    final decryptedMessageContenrsBytes =
+        await aesGcmSecretKey.decryptBytes(messageContentsBytes, iv);
 
-  //? Converting decrypted message into string
-  final decryptedMessage = String.fromCharCodes(decryptedMessageContenrsBytes);
-  return decryptedMessage;
+    //? Converting decrypted message into string
+    final decryptedMessage =
+        String.fromCharCodes(decryptedMessageContenrsBytes);
+    return decryptedMessage;
+  } catch (e) {
+    print("Cannot decrypt message");
+    return '';
+  }
 }
