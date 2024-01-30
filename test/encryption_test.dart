@@ -57,22 +57,4 @@ void main() async {
     print("\x1B[32mDecrypted message: $decryptedMessageContents\x1B[0m");
     expectLater(decryptedMessageContents, messageSend.contents);
   });
-
-  test('Kuch nhi', () async {
-    final _deriveKeyVar = await deriveKey(jwb.privateKey,
-        '{"kty":"EC","crv":"P-256","x":"b0eDOC5sJ03swHn-829M9NfmG_bDrICaObPlwUKndzE","y":"ppaOFXOCWucDf1SelyRXqaGjeGctTODZi6yUsxjBOO4"}');
-
-    Message _message = Message(
-      recipientEmail: 'chhotabheem5663@gmail.com',
-      time: DateTime.now(),
-      iv: _iv,
-      senderEmail: 'ishujamui1@gmail.com',
-      contents: await encryptMessage(
-          iv: _iv,
-          messageContents: 'Hey How you doing',
-          deriveKey: _deriveKeyVar),
-      isSeen: false,
-    );
-    print(_message.toJson());
-  });
 }

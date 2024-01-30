@@ -80,7 +80,7 @@ class _MyFormFieldState extends State<MyFormField> {
               //         strokeAlign: -100, color: Colors.redAccent, width: 0)),
               errorStyle: const TextStyle(
                 height: 0,
-                fontSize: -1,
+                fontSize: 0,
               ),
               errorBorder: InputBorder.none,
             ),

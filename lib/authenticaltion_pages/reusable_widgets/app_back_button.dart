@@ -1,9 +1,9 @@
+import 'package:e_2_e_encrypted_chat_app/chatPage/chat_page.dart';
 import 'package:flutter/material.dart';
 
 class AppBackButton extends StatelessWidget {
-  const AppBackButton({
-    super.key,
-  });
+  final VoidCallback onPressed;
+  const AppBackButton({super.key, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +13,7 @@ class AppBackButton extends StatelessWidget {
         size: 30,
         color: Colors.white38,
       ),
-      onPressed: () => Navigator.pop(context),
+      onPressed: onPressed,
     );
   }
 }

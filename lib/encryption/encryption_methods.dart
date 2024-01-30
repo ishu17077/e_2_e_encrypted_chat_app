@@ -34,9 +34,8 @@ class EncryptionMethods {
   }
 
   static Future<List<int>> getDerivedKey(
-      String senderPrivateKeyJwk, String receiverPublicKeyJwk) async {
-    final derivedKey =
-        await deriveKey(senderPrivateKeyJwk, receiverPublicKeyJwk);
+      String privateKeyJwk, String publicKeyJwk) async {
+    final derivedKey = await deriveKey(privateKeyJwk, publicKeyJwk);
     return derivedKey;
   }
 }

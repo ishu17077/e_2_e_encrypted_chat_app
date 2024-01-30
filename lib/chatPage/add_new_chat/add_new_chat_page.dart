@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/reusable_widgets/app_back_button.dart';
 import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/sign_up_page.dart';
+import 'package:e_2_e_encrypted_chat_app/chatPage/chat_page.dart';
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/chat_with_page.dart';
 import 'package:e_2_e_encrypted_chat_app/databases/chat_database_helper.dart';
 import 'package:e_2_e_encrypted_chat_app/models/chat_store.dart';
@@ -14,7 +15,11 @@ import 'package:flutter/material.dart';
 
 // ignore: camel_case_types
 class ChatAdd extends StatefulWidget {
-  const ChatAdd({super.key});
+  final Map<String, List<int>> derivdedKeys;
+  final StreamSubscription chatStream;
+  final Function updateChatsView;
+  const ChatAdd(this.derivdedKeys, this.chatStream, this.updateChatsView,
+      {super.key});
 
   @override
   State<ChatAdd> createState() => _ChatAddState();
@@ -59,7 +64,7 @@ class _ChatAddState extends State<ChatAdd> {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: kBackgroundColor,
-          leading: const AppBackButton(),
+          leading: AppBackButton(onPressed: () => Navigator.pop(context)),
           elevation: 0,
           title: const Text(
             "People you can talk to",
@@ -141,7 +146,10 @@ class _ChatAddState extends State<ChatAdd> {
                             MaterialPageRoute(
                                 builder: (context) => ChatWithPage(
                                       chatStore: chatStore!,
+                                      chatStream: widget.chatStream,
                                       chatExists: snapshot.data as bool,
+                                      derivedKey: widget.derivdedKeys,
+                                      updateChatsView: widget.updateChatsView,
                                     )));
                       },
                       enabled: true,

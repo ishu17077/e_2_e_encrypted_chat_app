@@ -28,14 +28,14 @@ class JsonWebKeyPair {
 
 //? SendersJwk -> sender.privateKey
 //? ReceiverJwk -> receiver.publicKey
-Future<List<int>> deriveKey(String senderJwk, String recieverJwk) async {
+Future<List<int>> deriveKey(String privateKeyJwk, String publicKey) async {
   //? Sender's Key
-  final senderPrivateKey = json.decode(senderJwk);
+  final senderPrivateKey = json.decode(privateKeyJwk);
   final senderEcdhKey = await EcdhPrivateKey.importJsonWebKey(
     senderPrivateKey,
     EllipticCurve.p256,
   );
-  final recieverPublicKey = json.decode(recieverJwk);
+  final recieverPublicKey = json.decode(publicKey);
   final recieverEcdhKey = await EcdhPublicKey.importJsonWebKey(
     recieverPublicKey,
     EllipticCurve.p256,

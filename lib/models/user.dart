@@ -4,7 +4,7 @@ class User {
   String? get id => _id;
   String? username;
   String? photoUrl;
-  String? emailAddress;
+  String emailAddress;
   String? _id;
   DateTime lastseen;
   String? publicKeyJwb;

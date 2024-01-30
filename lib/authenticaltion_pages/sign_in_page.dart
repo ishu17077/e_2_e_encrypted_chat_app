@@ -31,11 +31,6 @@ class _SignInPageState extends State<SignInPage> {
   @override
   void initState() {
     // TODO: implement initState
-    User? signedInUser = AddNewUser.signedInUser;
-    if (signedInUser == null) {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => SignUpPage()));
-    }
 
     _emailController.addListener(() {
       _validateEmail(_emailController.text);
@@ -75,7 +70,8 @@ class _SignInPageState extends State<SignInPage> {
                     Padding(
                       padding: EdgeInsets.only(
                           top: MediaQuery.of(context).size.height * 0.0069),
-                      child: const AppBackButton(),
+                      child: AppBackButton(
+                          onPressed: () => Navigator.pop(context)),
                     ),
                     SizedBox(
                         height:
@@ -168,12 +164,16 @@ class _SignInPageState extends State<SignInPage> {
                         child: sexyTealButton(context, onPressed: () {
                       _formKey.currentState?.save();
                       if (_formKey.currentState!.validate()) {
+                        FirebaseAuth.instance.signOut();
                         ExistingUser.signInExistingUserWithEmailandPassword(
-                            _emailController.text.toLowerCase(), _passwordController.text);
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const ChatPage()));
+                                _emailController.text.toLowerCase(),
+                                _passwordController.text)
+                            .then((value) {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const ChatPage()));
+                        });
                       }
                     })),
                   ],
