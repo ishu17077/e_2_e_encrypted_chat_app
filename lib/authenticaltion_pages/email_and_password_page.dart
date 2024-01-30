@@ -110,7 +110,7 @@ class _EmailAndPasswordAuthenticationState
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    const AppBackButton(),
+                    AppBackButton(onPressed: () => Navigator.pop(context)),
 
                     Padding(
                       padding: EdgeInsets.only(
@@ -259,24 +259,21 @@ class _EmailAndPasswordAuthenticationState
                         onPressed: () async {
                           _formKey.currentState?.save();
                           if (_formKey.currentState!.validate()) {
-                            
                             final myUser.User? user =
                                 await AddNewUser.createUserWithEmailandPassword(
-                                    _nameController.text,
-                                    _emailController.text.toLowerCase(),
-                                    _passwordController.text);
-
-                            GetMessages.addUser(user!)
-                                .then((value) => Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const ChatPage())))
-                                .onError((error, stackTrace) => ScaffoldMessenger
-                                        .of(context)
-                                    .showSnackBar(const SnackBar(
-                                        content: Text(
-                                            "Dekho email kahin already registered toh nhi ya toh net off kiye ho!!"))));
+                                        _nameController.text,
+                                        _emailController.text.toLowerCase(),
+                                        _passwordController.text)
+                                    .then((value) => Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const ChatPage())))
+                                    .onError((error, stackTrace) =>
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(const SnackBar(
+                                                content:
+                                                    Text("Dekho email kahin already registered toh nhi ya toh net off kiye ho!!"))));
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(

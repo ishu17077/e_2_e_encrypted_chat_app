@@ -1,4 +1,5 @@
 import 'package:e_2_e_encrypted_chat_app/models/chat_store.dart';
+import 'package:e_2_e_encrypted_chat_app/models/message_store.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -90,6 +91,30 @@ class ChatDatabaseHelper {
         where: '$_colId = ?',
         whereArgs: [id],
         conflictAlgorithm: ConflictAlgorithm.replace);
+    return result;
+  }
+
+  Future<int> updateChatMessages(
+      MessageStore mostRecentMessage, int chatId) async {
+    //? Chatstore doesn't have setter for id
+    var db = await database;
+    var result = await db.update(
+        _chatTable,
+        {
+          'most_recent_message_contents': mostRecentMessage.contents ?? '',
+          'most_recent_message_time':
+              mostRecentMessage.time.toString() ?? DateTime.now().toString(),
+          'most_recent_message_is_seen':
+              mostRecentMessage.isSeen.toString() ?? 'false',
+          'most_recent_message_sender_email':
+              mostRecentMessage.senderEmail ?? '',
+          'most_recent_message_recipient_email':
+              mostRecentMessage.recipientEmail ?? '',
+        },
+        where: '$_colId = ?',
+        whereArgs: [chatId],
+        conflictAlgorithm: ConflictAlgorithm.replace);
+    print(result);
     return result;
   }
 

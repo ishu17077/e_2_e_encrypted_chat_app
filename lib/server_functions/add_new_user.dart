@@ -53,8 +53,8 @@ class AddNewUser {
       var collectionBetichod = await collection
           .where('email_address', isEqualTo: signedInUser?.email)
           .get();
-      ;
       collection.doc(collectionBetichod.docs.first.id).update(user.toJson());
+
       print("User already Exists");
     }
 
@@ -71,7 +71,7 @@ class AddNewUser {
     //? Create a new credential
     final credential = GoogleAuthProvider.credential(
       accessToken: googleSignInAuthentication?.accessToken,
-      idToken: googleSignInAuthentication?.idTo ken,
+      idToken: googleSignInAuthentication?.idToken,
     );
 
     //! Once signed in returning the UserCredential
@@ -79,8 +79,8 @@ class AddNewUser {
     final UserCredential user = await _auth.signInWithCredential(credential);
     final publicKeyJwb = await EncryptionMethods.generateAndStoreKeysJwk();
     my_user.User userDatabase = my_user.User(
-        emailAddress: user.user!.email,
-        publicKeyJwb: publicKeyJwb ?? '',
+        emailAddress: user.user!.email!,
+        publicKeyJwb: publicKeyJwb!,
         username: user.user!.displayName,
         photoUrl: user.user?.photoURL ??
             'https://marmelab.com/images/blog/ascii-art-converter/homer.png',
@@ -100,8 +100,8 @@ class AddNewUser {
       );
       final publicKeyJwb = await EncryptionMethods.generateAndStoreKeysJwk();
       my_user.User userDatabase = my_user.User(
-          emailAddress: credential.user!.email,
-          username: credential.user!.displayName,
+          emailAddress: credential.user!.email!,
+          username: name,
           publicKeyJwb: publicKeyJwb!,
           photoUrl: credential.user?.photoURL ??
               'https://marmelab.com/images/blog/ascii-art-converter/homer.png',

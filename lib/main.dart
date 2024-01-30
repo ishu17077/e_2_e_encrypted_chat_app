@@ -5,13 +5,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_page.dart';
+import 'package:flutter/services.dart';
 
 final user = AddNewUser.signedInUser;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await FirebaseApi().initNotifications();
-  
+
   runApp(const MyApp());
 }
 
@@ -33,6 +34,8 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Ishu\'s Chat App',
