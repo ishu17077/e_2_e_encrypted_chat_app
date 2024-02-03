@@ -11,8 +11,9 @@ final user = AddNewUser.signedInUser;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  await FirebaseApi().initNotifications();
-
+  if (user != null) {
+    await FirebaseApi().initNotifications();
+  } //? initialize notification for them
   runApp(const MyApp());
 }
 

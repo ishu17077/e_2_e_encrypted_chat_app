@@ -264,16 +264,16 @@ class _EmailAndPasswordAuthenticationState
                                         _nameController.text,
                                         _emailController.text.toLowerCase(),
                                         _passwordController.text)
-                                    .then((value) => Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const ChatPage())))
+                                    .then((value) =>
+                                        Navigator.pushAndRemoveUntil(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const ChatPage()),(route) => false,))
                                     .onError((error, stackTrace) =>
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(const SnackBar(
-                                                content:
-                                                    Text("Dekho email kahin already registered toh nhi ya toh net off kiye ho!!"))));
+                                                content: Text("Dekho email kahin already registered toh nhi ya toh net off kiye ho!!"))));
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(

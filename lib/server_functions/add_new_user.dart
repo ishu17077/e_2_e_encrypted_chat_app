@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_2_e_encrypted_chat_app/encryption/encryption_methods.dart';
+import 'package:e_2_e_encrypted_chat_app/notifications/firebase_api.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -32,22 +33,15 @@ class AddNewUser {
   }
 
   static Future<String?> addUserToDatabase(my_user.User user) async {
-    String _error = '';
+    String _error = 'Success';
 
     final QuerySnapshot checkExists = await _firestore
         .collection('users')
-        .where('email_address', isEqualTo: signedInUser?.email)
+        .where('email_address', isEqualTo: signedInUser!.email)
         .get();
     final List<DocumentSnapshot> exists = checkExists.docs;
     if (exists.isEmpty) {
-      await _firestore
-          .collection('users')
-          .add(user.toJson())
-          .onError((error, stackTrace) {
-        print(error.toString());
-        _error = error.toString();
-        throw Exception();
-      });
+      await _firestore.collection('users').add(user.toJson());
     } else {
       var collection = _firestore.collection('users');
       var collectionBetichod = await collection
@@ -57,7 +51,9 @@ class AddNewUser {
 
       print("User already Exists");
     }
-
+    if (user != null) {
+      await FirebaseApi().initNotifications();
+    } //? initialize notification for them
     return _error;
   }
 

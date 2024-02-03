@@ -70,19 +70,21 @@ class _SignUpPageState extends State<SignUpPage> {
                       if (user == null) {
                         UserCredential userCredential =
                             await _addNewUser.signInWithGoogle.then((value) {
-                          Navigator.pushReplacement(
+                          Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const ChatPage(),
-                              ));
+                                  builder: (context) => const ChatPage()),
+                              (route) => false);
                           return value;
                         }).onError((error, stackTrace) {
                           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                               content: Text(
                                   'Ya toh net kharab ha ya toh dimag ya toh Google ka server')));
-                          setState(() {
+                       FirebaseAuth.instance.signOut();   
+                       setState(() {
                             isLoadingWithGoogle = false;
                           });
+                          
                           throw Exception();
                         });
                         print(userCredential.user?.displayName);
@@ -123,7 +125,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   heightImage: 32.0,
                   widthImage: 32.0,
                   onPressed: () {
-                    if (!isLoadingWithGoogle || !isLoadingWithFacebook) {
+                    if (!isLoadingWithGoogle && !isLoadingWithFacebook) {
                       setState(() {
                         isLoadingWithFacebook = true;
                       });
@@ -152,7 +154,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   heightImage: 31.7,
                   widthImage: 31.7,
                   onPressed: () {
-                    if (!isLoadingWithGoogle || !isLoadingWithFacebook) {
+                    if (!isLoadingWithGoogle && !isLoadingWithFacebook) {
                       Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) =>
                             const EmailAndPasswordAuthentication(),

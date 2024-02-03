@@ -88,6 +88,6 @@ Future<String> decryptedMessage(
     return decryptedMessage;
   } catch (e) {
     print("Cannot decrypt message");
-    return '';
+    return 'This message cannot be decrypted';
   }
 }

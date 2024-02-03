@@ -14,15 +14,33 @@
       "name": "e_2_e_encrypted_chat_app (profile mode)",
       "request": "launch",
       "type": "dart",
-      "flutterMode": "profile",
-      "args": ["-vv"]
+      "flutterMode": "profile"
     },
     {
       "name": "e_2_e_encrypted_chat_app (release mode)",
       "request": "launch",
       "type": "dart",
-      "flutterMode": "release",
-      "args": ["-vv"]
+      "flutterMode": "release"
+    },
+    {
+      "name": "webcrypto-0.5.3",
+      "cwd": "webcrypto-0.5.3",
+      "request": "launch",
+      "type": "dart"
+    },
+    {
+      "name": "webcrypto-0.5.3 (profile mode)",
+      "cwd": "webcrypto-0.5.3",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "profile"
+    },
+    {
+      "name": "webcrypto-0.5.3 (release mode)",
+      "cwd": "webcrypto-0.5.3",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release"
     }
   ]
 }
