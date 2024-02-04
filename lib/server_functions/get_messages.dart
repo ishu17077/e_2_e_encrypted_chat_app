@@ -8,6 +8,7 @@ import 'package:e_2_e_encrypted_chat_app/models/chat_store.dart';
 import 'package:e_2_e_encrypted_chat_app/models/message_store.dart';
 import 'package:e_2_e_encrypted_chat_app/models/user.dart';
 import 'package:e_2_e_encrypted_chat_app/models/message.dart';
+import 'package:e_2_e_encrypted_chat_app/public_key_store_methods/public_key_store_and_retrieve.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_chat.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:flutter/foundation.dart';
@@ -25,9 +26,10 @@ class GetMessages {
 
   static Future<Map<String, List<int>>> getEncryptedKeysForAllUsers() async {
     final String privateKey = (await EncryptionMethods.getPrivateKeyJwk())!;
-    FirebaseFirestore _firestore = FirebaseFirestore.instance;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-    var docs = (await _firestore
+    var docs = (await firestore
             .collection('users')
             .where('email_address',
                 isNotEqualTo: AddNewUser.signedInUser!.email!)
@@ -39,6 +41,8 @@ class GetMessages {
       Map<String, dynamic> userMap = element.data()! as Map<String, dynamic>;
       // print(userMap['public_key_jwb']);
       final User user = User.fromJson(userMap);
+      PublicKeyStoreAndRetrieve.savePublicKeyForUserEmail(prefs,
+          email_address: user.emailAddress, publicKey: user.publicKeyJwb!);
       final List<int> deriveKeyForEmail =
           await deriveKey(privateKey!, user.publicKeyJwb!);
       userEmailsAndTheirDerviedKeyWithUs
@@ -56,6 +60,7 @@ class GetMessages {
       required ChatDatabaseHelper chatDatabaseHelper,
       required Map<String, List<int>> derivedBitsKey}) {
     FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
     var firestoreMessageCollection = _firestore.collection('messages');
 
     return firestoreMessageCollection

@@ -8,11 +8,13 @@ class ChatStore {
   String? name;
   String? photoUrl;
   MessageStore? mostRecentMessage;
+  // String? publicKeyJwk;
 
   ChatStore({
     required this.belongsToEmail,
     required this.photoUrl,
     required this.mostRecentMessage,
+    // required this.publicKeyJwk,
     this.name,
   });
   ChatStore.withId(
@@ -21,11 +23,13 @@ class ChatStore {
     required this.name,
     required this.photoUrl,
     required this.mostRecentMessage,
+    // required this.publicKeyJwk,
   });
 
   toJson() => {
         'belongs_to_email': belongsToEmail,
         'photo_url': photoUrl,
+        // 'public_key_jwb': publicKeyJwk,
         'most_recent_message_contents': mostRecentMessage?.contents ?? '',
         'most_recent_message_time':
             mostRecentMessage?.time.toString() ?? DateTime.now().toString(),
@@ -54,6 +58,7 @@ class ChatStore {
       belongsToEmail: chatStoreMap['belongs_to_email'],
       photoUrl: chatStoreMap['photo_url'],
       name: chatStoreMap['name'],
+      // publicKeyJwk: chatStoreMap['public_key_jwb'],
     );
     return chatStore;
     //! Map.castFrom(... as Map); see if it works instead of most_recent_message_.....
