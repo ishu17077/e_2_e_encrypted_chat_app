@@ -241,3 +241,71 @@ create_cxx_tasks
   [gap of 23ms]
 create_cxx_tasks completed in 283ms
 
+# C/C++ build system timings
+create_cxx_tasks
+  create-initial-cxx-model
+    create-module-model
+      create-cmake-model 36ms
+    create-module-model completed in 45ms
+    create-ARMEABI_V7A-model 13ms
+    create-module-model
+      create-cmake-model 36ms
+    create-module-model completed in 43ms
+    create-ARMEABI_V7A-model 13ms
+    create-X86-model 13ms
+    create-X86_64-model 10ms
+    create-module-model
+      create-cmake-model 44ms
+    create-module-model completed in 49ms
+    [gap of 22ms]
+    create-X86-model 12ms
+    [gap of 10ms]
+  create-initial-cxx-model completed in 264ms
+  [gap of 19ms]
+create_cxx_tasks completed in 283ms
+
+# C/C++ build system timings
+create_cxx_tasks
+  create-initial-cxx-model
+    create-module-model
+      create-cmake-model 37ms
+    create-module-model completed in 41ms
+    create-module-model
+      create-cmake-model 36ms
+    create-module-model completed in 40ms
+    create-module-model
+      create-cmake-model 36ms
+    create-module-model completed in 39ms
+    [gap of 20ms]
+    create-X86-model 10ms
+  create-initial-cxx-model completed in 220ms
+  [gap of 40ms]
+create_cxx_tasks completed in 260ms
+
+# C/C++ build system timings
+create_cxx_tasks
+  create-initial-cxx-model
+    create-module-model
+      [gap of 11ms]
+      create-cmake-model 45ms
+    create-module-model completed in 57ms
+    create-ARMEABI_V7A-model 12ms
+    create-ARM64_V8A-model 16ms
+    create-X86-model 12ms
+    create-X86_64-model 13ms
+    create-module-model
+      create-cmake-model 59ms
+    create-module-model completed in 68ms
+    create-ARMEABI_V7A-model 10ms
+    [gap of 16ms]
+    create-X86_64-model 11ms
+    create-module-model
+      create-cmake-model 51ms
+    create-module-model completed in 54ms
+    [gap of 12ms]
+    create-ARM64_V8A-model 10ms
+    create-X86-model 14ms
+  create-initial-cxx-model completed in 334ms
+  [gap of 41ms]
+create_cxx_tasks completed in 376ms
+

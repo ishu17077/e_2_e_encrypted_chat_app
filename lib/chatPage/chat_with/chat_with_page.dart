@@ -7,7 +7,6 @@ import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/components/mesure_si
 import 'package:e_2_e_encrypted_chat_app/databases/chat_database_helper.dart';
 import 'package:e_2_e_encrypted_chat_app/databases/message_database_helper.dart';
 import 'package:e_2_e_encrypted_chat_app/encryption/encryption.dart';
-import 'package:e_2_e_encrypted_chat_app/encryption/encryption_methods.dart';
 import 'package:e_2_e_encrypted_chat_app/models/chat_store.dart';
 import 'package:e_2_e_encrypted_chat_app/models/message_store.dart';
 import 'package:e_2_e_encrypted_chat_app/models/user.dart' as my_user;
@@ -26,26 +25,27 @@ import 'package:sqflite/sqflite.dart';
 final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
 class ChatWithPage extends StatefulWidget {
+  static final GlobalKey<_ChatWithPageState> globalKey = GlobalKey();
+
   ChatStore chatStore;
   bool chatExists;
   Map<String, List<int>> derivedKey;
-  StreamSubscription chatStream;
+
   Function updateChatsView;
 
   ChatWithPage({
-    super.key,
     this.chatExists = true,
     required this.chatStore,
-    required this.chatStream,
     required this.derivedKey,
     required this.updateChatsView,
-  });
+  }) : super(key: globalKey);
 
   @override
   State<ChatWithPage> createState() => _ChatWithPageState();
 }
 
-class _ChatWithPageState extends State<ChatWithPage> {
+class _ChatWithPageState extends State<ChatWithPage>
+    with WidgetsBindingObserver {
   late User? signedInUser;
   double heightOfTextField = 0;
   int count = 0;
@@ -65,6 +65,7 @@ class _ChatWithPageState extends State<ChatWithPage> {
   // final GlobalKey stickeyKey = GlobalKey();
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     chatId = widget.chatStore.id;
     signedInUser = AddNewUser.signedInUser;
     if (signedInUser == null) {
@@ -75,12 +76,12 @@ class _ChatWithPageState extends State<ChatWithPage> {
     // _iv = Uint8List.fromList(widget.chatStore.chatId.codeUnits);
     // _scrollController.position.maxScrollExtent;
 
-    _messageStream = GetMessages.messageStream(
-        updateMessagesListView: () => updateListView(widget.chatStore),
-        updateChatsListView: () {},
-        messageDatabaseHelper: messageDatabaseHelper,
-        chatDatabaseHelper: _chatDatabaseHelper,
-        derivedBitsKey: widget.derivedKey);
+    // _messageStream = GetMessages.messageStream(
+    //     updateMessagesListView: () => updateListView(widget.chatStore),
+    //     updateChatsListView: () {},
+    //     messageDatabaseHelper: messageDatabaseHelper,
+    //     chatDatabaseHelper: _chatDatabaseHelper,
+    //     derivedBitsKey: widget.derivedKey);
     //! _mystream was seperately assigned as it was changing with everytime something happens like a keyboard pop up lol
     super.initState();
   }
@@ -102,7 +103,6 @@ class _ChatWithPageState extends State<ChatWithPage> {
         if (didPop) {
           return;
         }
-        widget.chatStream.resume();
         widget.updateChatsView();
         Navigator.pop(context);
       },
@@ -117,7 +117,6 @@ class _ChatWithPageState extends State<ChatWithPage> {
                 color: Colors.white70,
               ),
               onPressed: () {
-                widget.chatStream.resume();
                 widget.updateChatsView();
                 Navigator.pop(context);
               }),

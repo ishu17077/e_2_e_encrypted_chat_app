@@ -1,15 +1,20 @@
 import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/sign_up_page.dart';
 import 'package:e_2_e_encrypted_chat_app/notifications/firebase_api.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
+import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-
 import 'package:e_2_e_encrypted_chat_app/chatPage/chat_page.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 final user = AddNewUser.signedInUser;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  FlutterLocalNotificationsPlugin localNotificationsPlugin =
+      await FlutterLocalNotificationsPlugin();
+  localNotificationsPlugin.cancelAll();
   await Firebase.initializeApp();
   if (user != null) {
     await FirebaseApi().initNotifications();
@@ -38,6 +43,7 @@ class MyApp extends StatelessWidget {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     return MaterialApp(
+      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       title: 'Ishu\'s Chat App',
       theme: ThemeData(
@@ -46,7 +52,7 @@ class MyApp extends StatelessWidget {
           buttonColor: Color(0xff0cf3e1),
         ),
       ),
-      home: user != null ? const ChatPage() : SignUpPage(),
+      home: user != null ? ChatPage() : SignUpPage(),
     );
   }
 }

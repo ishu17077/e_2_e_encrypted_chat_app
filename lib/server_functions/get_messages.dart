@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_2_e_encrypted_chat_app/chatPage/chat_page.dart';
+import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/chat_with_page.dart';
 import 'package:e_2_e_encrypted_chat_app/databases/chat_database_helper.dart';
 import 'package:e_2_e_encrypted_chat_app/databases/message_database_helper.dart';
 import 'package:e_2_e_encrypted_chat_app/encryption/encryption.dart';
@@ -8,7 +11,7 @@ import 'package:e_2_e_encrypted_chat_app/models/chat_store.dart';
 import 'package:e_2_e_encrypted_chat_app/models/message_store.dart';
 import 'package:e_2_e_encrypted_chat_app/models/user.dart';
 import 'package:e_2_e_encrypted_chat_app/models/message.dart';
-import 'package:e_2_e_encrypted_chat_app/public_key_store_methods/public_key_store_and_retrieve.dart';
+import 'package:e_2_e_encrypted_chat_app/saving_data/saving_and_retrieving_non_trivial_data.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_chat.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:flutter/foundation.dart';
@@ -41,7 +44,7 @@ class GetMessages {
       Map<String, dynamic> userMap = element.data()! as Map<String, dynamic>;
       // print(userMap['public_key_jwb']);
       final User user = User.fromJson(userMap);
-      PublicKeyStoreAndRetrieve.savePublicKeyForUserEmail(prefs,
+      SavingAndRetrievingNonTrivialData.savePublicKeyForUserEmail(prefs,
           email_address: user.emailAddress, publicKey: user.publicKeyJwb!);
       final List<int> deriveKeyForEmail =
           await deriveKey(privateKey!, user.publicKeyJwb!);
@@ -54,34 +57,34 @@ class GetMessages {
 
   static StreamSubscription messageStream(
       //? MY SECOND LOVELY PIECE of sh*t inefficient code
-      {required VoidCallback updateMessagesListView,
-      required VoidCallback updateChatsListView,
-      required MessageDatabaseHelper messageDatabaseHelper,
+      {required MessageDatabaseHelper messageDatabaseHelper,
+      required VoidCallback updateChatView,
       required ChatDatabaseHelper chatDatabaseHelper,
+      // required SharedPreferences prefs,
       required Map<String, List<int>> derivedBitsKey}) {
     FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
     var firestoreMessageCollection = _firestore.collection('messages');
-
+    bool doesChatExist = false;
     return firestoreMessageCollection
         .where('recipient_email', isEqualTo: AddNewUser.signedInUser!.email!)
         .orderBy('time', descending: true)
         .snapshots()
         .listen((querySnapshot) {
-      querySnapshot.docChanges.forEach((documentSnapshot) {
-        if (documentSnapshot.type == DocumentChangeType.added) {
+      List<DocumentChange> docChanges = querySnapshot.docChanges;
+      for (DocumentChange documentChange in docChanges) {
+        if (documentChange.type == DocumentChangeType.added) {
           Map<String, dynamic> docs =
-              documentSnapshot.doc.data()! as Map<String, dynamic>;
+              documentChange.doc.data()! as Map<String, dynamic>;
           final Message message = Message.fromJson(docs);
           print(message.senderEmail);
-          message.id = documentSnapshot.doc.id;
+          message.id = documentChange.doc.id;
           decryptedMessage(
                   iv: message.iv,
                   encryptedMessageContents: message.contents,
                   deriveKey: derivedBitsKey[message.senderEmail!]!)
               .then((decryptedMessageContent) {
             chatDatabaseHelper.getChatsList().then((value) {
-              bool doesChatExist = false;
               int? chatId;
               for (var element in value) {
                 if (element.belongsToEmail == message.senderEmail) {
@@ -135,8 +138,13 @@ class GetMessages {
                               .doc(message.id!)
                               .delete()
                               .ignore();
-                          updateChatsListView();
-                          updateMessagesListView();
+                          ChatWithPage.globalKey.currentState?.mounted == true
+                              ? ChatWithPage.globalKey.currentState
+                                  ?.updateListView(ChatWithPage
+                                      .globalKey.currentState!.widget.chatStore)
+                              : () {};
+
+                          updateChatView();
                         });
                       });
                     });
@@ -162,8 +170,13 @@ class GetMessages {
                           .doc(message.id!)
                           .delete()
                           .ignore();
-                      updateChatsListView();
-                      updateMessagesListView();
+                      ChatWithPage.globalKey.currentState?.mounted == true
+                          ? ChatWithPage.globalKey.currentState?.updateListView(
+                              ChatWithPage
+                                  .globalKey.currentState!.widget.chatStore)
+                          : () {};
+
+                      updateChatView();
                     });
                   });
                 }
@@ -180,22 +193,24 @@ class GetMessages {
                     .insertMessage(messageStore)
                     .then((value) async {
                   // chatStore.mostRecentMessage = messageStore;
+                  firestoreMessageCollection.doc(message.id!).delete().ignore();
                   chatDatabaseHelper
                       .updateChatMessages(messageStore, chatId!)
                       .then((_) {
-                    firestoreMessageCollection
-                        .doc(message.id!)
-                        .delete()
-                        .ignore();
-                    updateChatsListView();
-                    updateMessagesListView();
+                    
+                    ChatWithPage.globalKey.currentState?.mounted == true
+                        ? ChatWithPage.globalKey.currentState?.updateListView(
+                            ChatWithPage
+                                .globalKey.currentState!.widget.chatStore)
+                        : () {};
+                    updateChatView();
                   });
                 });
               }
             });
           });
         }
-      });
+      }
     });
   }
 

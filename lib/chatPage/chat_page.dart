@@ -15,18 +15,21 @@ import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/get_messages.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 final _firestore = FirebaseFirestore.instance;
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({super.key});
-
+  // ignore: library_private_types_in_public_api
+  // static final GlobalKey<_ChatPageState> globalKey = GlobalKey();
+  // ChatPage()
+  // : super(key: globalKey);
   @override
   State<ChatPage> createState() => _ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
+class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   // final ScrollController _scrollController = ScrollController();
   // CollectionReference<Map<String, dynamic>>? _collectionLastMessages;
   List<ChatStore>? chatList;
@@ -37,6 +40,7 @@ class _ChatPageState extends State<ChatPage> {
   // ignore: non_constant_identifier_names
   StreamSubscription? _chatStream;
   ChatDatabaseHelper chatDatabaseHelper = ChatDatabaseHelper();
+  MessageDatabaseHelper messageDatabaseHelper = MessageDatabaseHelper();
 
   final signedInUser = AddNewUser.signedInUser;
   @override
@@ -45,14 +49,23 @@ class _ChatPageState extends State<ChatPage> {
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => SignUpPage()));
     }
-    MessageDatabaseHelper messageDatabaseHelper = MessageDatabaseHelper();
+    SharedPreferences.getInstance().then((prefs) {
+      final keys = prefs.getKeys();
+      for (String key in keys) {
+        if (key.contains('Labadaba')) {
+          prefs.remove(key);
+        }
+      }
+    });
+
+    WidgetsBinding.instance.addObserver(this);
+
     messageDatabaseHelper.initializeDatabase();
     GetMessages.getEncryptedKeysForAllUsers().then((value) {
       derivedKeyForAllEmailAddress = value;
       _chatStream = GetMessages.messageStream(
-          updateChatsListView: () => updateListView(),
+          updateChatView: () => updateListView(),
           messageDatabaseHelper: messageDatabaseHelper,
-          updateMessagesListView: () {},
           chatDatabaseHelper: chatDatabaseHelper,
           derivedBitsKey: value!);
 
@@ -64,6 +77,47 @@ class _ChatPageState extends State<ChatPage> {
 
     // print(json.encode(value));
     super.initState();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        print('AppCycleState resumed');
+        _chatStream?.resume();
+        _chatStream?.resume();
+        _chatStream?.resume();
+        _chatStream?.resume();
+        _chatStream?.resume();
+        _chatStream?.resume();
+        updateListView();
+        SharedPreferences.getInstance().then((prefs) {
+          final keys = prefs.getKeys();
+          for (String key in keys) {
+            if (key.contains('Labadaba')) {
+              prefs.remove(key);
+            }
+          }
+        });
+        break;
+      case AppLifecycleState.inactive:
+        print('AppCycleState inactive');
+
+        break;
+      case AppLifecycleState.paused:
+        print('AppCycleState paused');
+        _chatStream?.pause();
+        break;
+      case AppLifecycleState.detached:
+        print('AppCycleState detached');
+        // _chatStream?.pause();
+        break;
+      case AppLifecycleState.hidden:
+        print('AppCycleState hidden');
+        _chatStream?.pause();
+        // _chatStream?.pause();
+        break;
+    }
   }
 
   @override
@@ -155,15 +209,13 @@ class _ChatPageState extends State<ChatPage> {
                                         ],
                                       ),
                                       onPressed: () {
-                                        _chatStream?.pause();
                                         Navigator.push(
                                             context,
                                             MaterialPageRoute(
                                                 builder: (context) => ChatAdd(
                                                     derivedKeyForAllEmailAddress!,
-                                                    _chatStream!,
                                                     updateListView),
-                                                maintainState: false));
+                                                maintainState: true));
                                       },
                                     ),
                                   ],
@@ -258,11 +310,9 @@ class _ChatPageState extends State<ChatPage> {
       //           : const SizedBox(),
       // ),
       onTap: () {
-        _chatStream?.pause();
         Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => ChatWithPage(
             chatStore: chatStore,
-            chatStream: _chatStream!,
             derivedKey: derivedKeyForAllEmailAddress!,
             chatExists: true,
             updateChatsView: updateListView,

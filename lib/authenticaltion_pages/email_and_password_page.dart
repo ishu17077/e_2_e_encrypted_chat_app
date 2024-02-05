@@ -269,7 +269,7 @@ class _EmailAndPasswordAuthenticationState
                                             context,
                                             MaterialPageRoute(
                                                 builder: (context) =>
-                                                    const ChatPage()),(route) => false,))
+                                                     ChatPage()),(route) => false,))
                                     .onError((error, stackTrace) =>
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(const SnackBar(

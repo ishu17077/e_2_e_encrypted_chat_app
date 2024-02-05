@@ -16,10 +16,9 @@ import 'package:flutter/material.dart';
 // ignore: camel_case_types
 class ChatAdd extends StatefulWidget {
   final Map<String, List<int>> derivdedKeys;
-  final StreamSubscription chatStream;
+
   final Function updateChatsView;
-  const ChatAdd(this.derivdedKeys, this.chatStream, this.updateChatsView,
-      {super.key});
+  const ChatAdd(this.derivdedKeys, this.updateChatsView, {super.key});
 
   @override
   State<ChatAdd> createState() => _ChatAddState();
@@ -146,7 +145,6 @@ class _ChatAddState extends State<ChatAdd> {
                             MaterialPageRoute(
                                 builder: (context) => ChatWithPage(
                                       chatStore: chatStore!,
-                                      chatStream: widget.chatStream,
                                       chatExists: snapshot.data as bool,
                                       derivedKey: widget.derivdedKeys,
                                       updateChatsView: widget.updateChatsView,

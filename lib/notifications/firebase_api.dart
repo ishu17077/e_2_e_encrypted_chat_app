@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_2_e_encrypted_chat_app/databases/chat_database_helper.dart';
 import 'package:e_2_e_encrypted_chat_app/databases/message_database_helper.dart';
@@ -5,181 +7,166 @@ import 'package:e_2_e_encrypted_chat_app/encryption/encryption.dart';
 import 'package:e_2_e_encrypted_chat_app/encryption/encryption_methods.dart';
 import 'package:e_2_e_encrypted_chat_app/models/chat_store.dart';
 import 'package:e_2_e_encrypted_chat_app/models/message.dart' as serverMessage;
-import 'package:e_2_e_encrypted_chat_app/models/message_store.dart';
 import 'package:e_2_e_encrypted_chat_app/models/user.dart';
 import 'package:e_2_e_encrypted_chat_app/notifications/local_notification_service.dart';
-import 'package:e_2_e_encrypted_chat_app/public_key_store_methods/public_key_store_and_retrieve.dart';
+import 'package:e_2_e_encrypted_chat_app/saving_data/saving_and_retrieving_non_trivial_data.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 @pragma('vm:entry-point')
-
-FirebaseFirestore _firestore = FirebaseFirestore.instance;
-final MessageDatabaseHelper _messageDatabaseHelper = MessageDatabaseHelper();
-final ChatDatabaseHelper _chatDatabaseHelper = ChatDatabaseHelper();
-final LocalNotificationService _localNotificationService =
-    LocalNotificationService();
-Future<String?> futurePrivateKeyJwk = EncryptionMethods.getPrivateKeyJwk();
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print('In firebaseMessagingBackgroundHandler');
   await Firebase.initializeApp();
+  int _id = Random().nextInt(9999998) + 1111111;
+  FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   final String privateKeyJwk = (await futurePrivateKeyJwk)!;
   final SharedPreferences prefs = await SharedPreferences.getInstance();
-  final QuerySnapshot value = (await _firestore
+
+  _localNotificationService.showNotificationChecker(
+      title: 'SecuChat', body: 'Securing your world for you.....', id: 9999999);
+  QuerySnapshot documentSnapshot = await _firestore
       .collection('messages')
       .where('recipient_email', isEqualTo: AddNewUser.signedInUser!.email!)
-      .get());
+      .orderBy('time', descending: true)
+      .get();
+  String messageNotif = "";
+  for (QueryDocumentSnapshot queryDocumentSnapshot in documentSnapshot.docs) {
+    var data = queryDocumentSnapshot.data()!;
+    final serverMessage.Message message =
+        serverMessage.Message.fromJson(data as Map<String, dynamic>);
+    print(message.senderEmail);
+    String publicKeyJwk =
+        await SavingAndRetrievingNonTrivialData.retrievePublicKeyForUserEmail(
+                prefs,
+                email_address: message.senderEmail) ??
+            (await _firestore
+                .collection('users')
+                .where('email_address', isEqualTo: message.recipientEmail)
+                .get()
+                .then((snapshot) {
+              User user = User.fromJson(snapshot.docs.first.data());
+              return user.publicKeyJwb!;
+            }));
+    message.id = queryDocumentSnapshot.id;
 
-  for (DocumentChange change in value.docChanges) {
-    if (change.type == DocumentChangeType.added) {
-      var data = change.doc.data()!;
-      final serverMessage.Message message =
-          serverMessage.Message.fromJson(data as Map<String, dynamic>);
-      print(message.senderEmail);
-      String publicKeyJwk =
-          await PublicKeyStoreAndRetrieve.retrievePublicKeyForUserEmail(prefs,
-                  email_address: message.senderEmail) ??
-              (await _firestore
-                  .collection('users')
-                  .where('email_address', isEqualTo: message.recipientEmail)
-                  .get()
-                  .then((snapshot) {
-                User user = User.fromJson(snapshot.docs.first.data());
-                return user.publicKeyJwb!;
-              }));
-      message.id = change.doc.id;
+    var deriveKey2 = await deriveKey(privateKeyJwk, publicKeyJwk);
+    decryptedMessage(
+      iv: message.iv,
+      encryptedMessageContents: message.contents,
+      deriveKey: deriveKey2,
+    ).then((decryptedMessageContents) {
+      _chatDatabaseHelper.getChatsList().then((value) {
+        bool doesChatExist = false;
+        for (var element in value) {
+          if (element.belongsToEmail == message.senderEmail) {
+            doesChatExist = true;
 
-      decryptedMessage(
-        iv: message.iv,
-        encryptedMessageContents: message.contents,
-        deriveKey: await deriveKey(privateKeyJwk, publicKeyJwk),
-      ).then((decryptedMessageContent) {
-        _chatDatabaseHelper.getChatsList().then((value) {
-          bool doesChatExist = false;
-          int? chatId;
-          for (var element in value) {
-            if (element.belongsToEmail == message.senderEmail) {
-              doesChatExist = true;
-              chatId = element.id;
-              break;
-            }
+            break;
           }
-          ChatStore chatStore = ChatStore(
-              //! name parameter missing
-              belongsToEmail: message.senderEmail,
-              photoUrl:
-                  'https://www.shutterstock.com/image-photo/red-text-any-questions-paper-600nw-2312396111.jpg',
-              mostRecentMessage: null);
+        }
+        ChatStore chatStore = ChatStore(
+            //! name parameter missing
+            belongsToEmail: message.senderEmail,
+            photoUrl:
+                'https://www.shutterstock.com/image-photo/red-text-any-questions-paper-600nw-2312396111.jpg',
+            mostRecentMessage: null);
+        if (!doesChatExist) {
+          _chatDatabaseHelper.getChatsList().then((value) {
+            for (var element in value) {
+              if (element.belongsToEmail == message.senderEmail) {
+                doesChatExist = true;
+
+                break;
+              }
+            }
+          });
           if (!doesChatExist) {
-            _chatDatabaseHelper.getChatsList().then((value) {
-              for (var element in value) {
-                if (element.belongsToEmail == message.senderEmail) {
-                  doesChatExist = true;
-                  chatId = element.id;
-                  break;
+            _firestore
+                .collection('users')
+                .where('email_address', isEqualTo: message.senderEmail)
+                .get()
+                .then((value) {
+              final User newUserFromWhomWeGotMessage = User.fromJson(
+                  value.docs.first.data()! as Map<String, dynamic>);
+              chatStore.name = newUserFromWhomWeGotMessage.username!;
+              chatStore.photoUrl = newUserFromWhomWeGotMessage.photoUrl!;
+              // chatStore.mostRecentMessage = messageStore;
+              SavingAndRetrievingNonTrivialData.retrieveEmailNotifId(
+                      prefs: prefs, email_address: message.senderEmail)
+                  .then((notifId) {
+                if (notifId != null) {
+                  _localNotificationService.showNotificationMessage(
+                      id: notifId,
+                      title: chatStore.name ?? 'Anonymous',
+                      body: messageNotif ?? '');
+                } else {
+                  _localNotificationService.showNotificationMessage(
+                      id: _id,
+                      title: chatStore.name ?? 'Anonymous',
+                      body: messageNotif ?? '');
+
+                  SavingAndRetrievingNonTrivialData.saveEmailsAsNotifId(
+                      prefs: prefs,
+                      id: _id,
+                      email_address: message.senderEmail);
                 }
+              });
+            });
+          } else {
+            //? Double chatExists checks because an instance occured where my chat was registered twice
+
+            // chatStore.mostRecentMessage = messageStore;
+
+            SavingAndRetrievingNonTrivialData.retrieveEmailNotifId(
+                    prefs: prefs, email_address: message.senderEmail)
+                .then((notifId) {
+              if (notifId != null) {
+                _localNotificationService.showNotificationMessage(
+                    id: notifId,
+                    title: chatStore.name ?? 'Anonymous',
+                    body: messageNotif ?? '');
+              } else {
+                _localNotificationService.showNotificationMessage(
+                    id: _id,
+                    title: chatStore.name ?? 'Anonymous',
+                    body: messageNotif ?? '');
+
+                SavingAndRetrievingNonTrivialData.saveEmailsAsNotifId(
+                    prefs: prefs, id: _id, email_address: message.senderEmail);
               }
             });
-            if (!doesChatExist) {
-              _firestore
-                  .collection('users')
-                  .where('email_address', isEqualTo: message.senderEmail)
-                  .get()
-                  .then((value) {
-                final User newUserFromWhomWeGotMessage = User.fromJson(
-                    value.docs.first.data()! as Map<String, dynamic>);
-                chatStore.name = newUserFromWhomWeGotMessage.username!;
-                chatStore.photoUrl = newUserFromWhomWeGotMessage.photoUrl!;
-                _chatDatabaseHelper.insertChat(chatStore).then((thisChatId) {
-                  MessageStore messageStore = MessageStore(
-                      recipientEmail: message.recipientEmail,
-                      chatId: thisChatId,
-                      contents: decryptedMessageContent ?? '',
-                      isSeen: message.isSeen,
-                      senderEmail: message.senderEmail,
-                      time: message.time);
-                  _messageDatabaseHelper
-                      .insertMessage(messageStore)
-                      .then((value) {
-                    // chatStore.mostRecentMessage = messageStore;
-                    _chatDatabaseHelper
-                        .updateChatMessages(messageStore, thisChatId)
-                        .then((value) {
-                      _localNotificationService.showNotification(
-                          title: chatStore.name! ?? 'Anonymous',
-                          body: decryptedMessageContent);
-                      _firestore
-                          .collection('messages')
-                          .doc(message.id!)
-                          .delete()
-                          .ignore();
-                    });
-                  });
-                });
-              });
-            } else {
-              //? Double chatExists checks because an instance occured where my chat was registered twice
-              MessageStore messageStore = MessageStore(
-                  recipientEmail: message.recipientEmail,
-                  chatId: chatId!,
-                  contents: decryptedMessageContent ?? '',
-                  isSeen: message.isSeen,
-                  senderEmail: message.senderEmail,
-                  time: message.time);
-
-              _messageDatabaseHelper
-                  .insertMessage(messageStore)
-                  .then((value) async {
-                // chatStore.mostRecentMessage = messageStore;
-                _chatDatabaseHelper
-                    .updateChatMessages(messageStore, chatId!)
-                    .then((_) {
-                  _localNotificationService.showNotification(
-                      title: chatStore.name! ?? 'Anonymous',
-                      body: decryptedMessageContent);
-                  _firestore
-                      .collection('messages')
-                      .doc(message.id!)
-                      .delete()
-                      .ignore();
-                });
-              });
-            }
-            _localNotificationService.showNotification(
-                title: chatStore.name ?? 'Anonymous',
-                body: decryptedMessageContent ?? '');
-          } else {
-            MessageStore messageStore = MessageStore(
-                recipientEmail: message.recipientEmail,
-                chatId: chatId!,
-                contents: decryptedMessageContent ?? '',
-                isSeen: message.isSeen,
-                senderEmail: message.senderEmail,
-                time: message.time);
-
-            _messageDatabaseHelper
-                .insertMessage(messageStore)
-                .then((value) async {
-              // chatStore.mostRecentMessage = messageStore;
-              _chatDatabaseHelper
-                  .updateChatMessages(messageStore, chatId!)
-                  .then((_) {
-                _firestore
-                    .collection('messages')
-                    .doc(message.id!)
-                    .delete()
-                    .ignore();
-              });
-            });
           }
-          _localNotificationService.showNotification(
-              title: chatStore.name ?? 'Anonymous',
-              body: decryptedMessageContent);
-        });
+        } else {
+          // chatStore.mostRecentMessage = messageStore;
+
+          messageNotif = "$decryptedMessageContents\n$messageNotif";
+          SavingAndRetrievingNonTrivialData.retrieveEmailNotifId(
+                  prefs: prefs, email_address: message.senderEmail)
+              .then((notifId) {
+            if (notifId != null) {
+              _localNotificationService.showNotificationMessage(
+                  id: notifId,
+                  title: chatStore.name ?? 'Anonymous',
+                  body: messageNotif ?? '');
+            } else {
+              _localNotificationService.showNotificationMessage(
+                  id: _id,
+                  title: chatStore.name ?? 'Anonymous',
+                  body: messageNotif ?? '');
+
+              SavingAndRetrievingNonTrivialData.saveEmailsAsNotifId(
+                  prefs: prefs, id: _id, email_address: message.senderEmail);
+            }
+          });
+        }
       });
-    }
+    });
   }
+  _localNotificationService.dismissNotification(9999999);
+
   // debugPrint("Handling a background message: ${message.messageId}");
   // debugPrint("Title: ${message.notification?.title}");
   // debugPrint("Body: ${message.notification?.body}");
@@ -187,10 +174,16 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // return;
 }
 
+// final MessageDatabaseHelper _messageDatabaseHelper = MessageDatabaseHelper();
+Map<String, List<String?>> mapMessages = {};
+Map<String?, int> mapMessageIdToEmail = {};
+final ChatDatabaseHelper _chatDatabaseHelper = ChatDatabaseHelper();
+final LocalNotificationService _localNotificationService =
+    LocalNotificationService();
+Future<String?> futurePrivateKeyJwk = EncryptionMethods.getPrivateKeyJwk();
+
 Future<void> onMessageRecieved(RemoteMessage message) async {
-  // debugPrint('Title: ${message.notification!.title}');
-  // debugPrint('Body: ${message.notification!.body}');
-  // debugPrint('Payload: ${message.data}');
+  print('Hi');
 }
 
 class FirebaseApi {
@@ -210,10 +203,10 @@ class FirebaseApi {
     final fCMToken = await _firebaseMessaging.getToken();
     print(fCMToken);
     // GetMessages().setData(fCMTokenRegisteredName, fCMToken!);
-    _messageDatabaseHelper.initializeDatabase();
+    // _messageDatabaseHelper.initializeDatabase();
     _chatDatabaseHelper.initializeDatabase();
     _localNotificationService.initialize();
     FirebaseMessaging.onMessage.listen(onMessageRecieved);
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   }
 }

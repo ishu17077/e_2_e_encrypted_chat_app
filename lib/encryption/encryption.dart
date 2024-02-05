@@ -56,7 +56,8 @@ Future<String> encryptMessage(
   final aesGcmSecretKey = await AesGcmSecretKey.importRawKey(deriveKey);
 
   //? Converting message into bytes
-  final messageContentsBytes = Uint8List.fromList(messageContents.codeUnits);
+  final messageContentsBytes = Uint8List.fromList(utf8.encode(
+      messageContents)); //! messageContents.codeunits instead of utf8.encode(messageContents) was there i am checking if it fixes the emoji problem
 
   //?Encrypting the message
   final encryptedMessageContentsBytes =
@@ -85,7 +86,7 @@ Future<String> decryptedMessage(
     //? Converting decrypted message into string
     final decryptedMessage =
         String.fromCharCodes(decryptedMessageContenrsBytes);
-    return decryptedMessage;
+    return utf8.decode(decryptedMessage.codeUnits);
   } catch (e) {
     print("Cannot decrypt message");
     return 'This message cannot be decrypted';

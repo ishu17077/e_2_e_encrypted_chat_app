@@ -172,7 +172,7 @@ class _SignInPageState extends State<SignInPage> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const ChatPage()));
+                                  builder: (context) => ChatPage()));
                         });
                       }
                     })),

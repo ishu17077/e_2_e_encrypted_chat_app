@@ -73,18 +73,18 @@ class _SignUpPageState extends State<SignUpPage> {
                           Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const ChatPage()),
+                                  builder: (context) => ChatPage()),
                               (route) => false);
                           return value;
                         }).onError((error, stackTrace) {
                           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                               content: Text(
                                   'Ya toh net kharab ha ya toh dimag ya toh Google ka server')));
-                       FirebaseAuth.instance.signOut();   
-                       setState(() {
+                          FirebaseAuth.instance.signOut();
+                          setState(() {
                             isLoadingWithGoogle = false;
                           });
-                          
+
                           throw Exception();
                         });
                         print(userCredential.user?.displayName);
@@ -93,7 +93,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const ChatPage(),
+                              builder: (context) => ChatPage(),
                             ));
                         print("You are already logged in asshole!!");
                         print(user.displayName);

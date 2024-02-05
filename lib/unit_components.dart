@@ -22,3 +22,5 @@ final RegExp emailRegExp = RegExp(
 final RegExp nameRegExp = RegExp(r"^[A-Za-z\s]{1,}[]{0,1}[A-Za-z]{0,}$");
 const String fCMTokenRegisteredName = 'FCM_Token';
 final Future<Directory> directory = getApplicationDocumentsDirectory();
+final GlobalKey<NavigatorState> navigatorKey =
+    GlobalKey(debugLabel: "Main Navigator");
