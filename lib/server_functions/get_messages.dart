@@ -60,38 +60,40 @@ class GetMessages {
       {required MessageDatabaseHelper messageDatabaseHelper,
       required VoidCallback updateChatView,
       required ChatDatabaseHelper chatDatabaseHelper,
-      // required SharedPreferences prefs,
       required Map<String, List<int>> derivedBitsKey}) {
     FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
     var firestoreMessageCollection = _firestore.collection('messages');
-    bool doesChatExist = false;
+
     return firestoreMessageCollection
         .where('recipient_email', isEqualTo: AddNewUser.signedInUser!.email!)
         .orderBy('time', descending: true)
         .snapshots()
-        .listen((querySnapshot) {
+        .listen((querySnapshot) async {
       List<DocumentChange> docChanges = querySnapshot.docChanges;
+
       for (DocumentChange documentChange in docChanges) {
+        bool doesChatExist = true;
+        int? chatId;
         if (documentChange.type == DocumentChangeType.added) {
           Map<String, dynamic> docs =
               documentChange.doc.data()! as Map<String, dynamic>;
           final Message message = Message.fromJson(docs);
           print(message.senderEmail);
           message.id = documentChange.doc.id;
-          decryptedMessage(
+          await decryptedMessage(
                   iv: message.iv,
                   encryptedMessageContents: message.contents,
                   deriveKey: derivedBitsKey[message.senderEmail!]!)
-              .then((decryptedMessageContent) {
-            chatDatabaseHelper.getChatsList().then((value) {
-              int? chatId;
+              .then((decryptedMessageContent) async{
+           await chatDatabaseHelper.getChatsList().then((value) async {
               for (var element in value) {
                 if (element.belongsToEmail == message.senderEmail) {
-                  doesChatExist = true;
                   chatId = element.id;
-                  break;
                 }
+              }
+              if (chatId == null) {
+                doesChatExist = false;
               }
               ChatStore chatStore = ChatStore(
                   //! name parameter missing
@@ -99,88 +101,55 @@ class GetMessages {
                   photoUrl:
                       'https://www.shutterstock.com/image-photo/red-text-any-questions-paper-600nw-2312396111.jpg',
                   mostRecentMessage: null);
-              if (!doesChatExist) {
-                chatDatabaseHelper.getChatsList().then((value) {
-                  for (var element in value) {
-                    if (element.belongsToEmail == message.senderEmail) {
-                      doesChatExist = true;
-                      chatId = element.id;
-                      break;
-                    }
-                  }
-                });
-                if (!doesChatExist) {
-                  _firestore
-                      .collection('users')
-                      .where('email_address', isEqualTo: message.senderEmail)
-                      .get()
-                      .then((value) {
-                    final User newUserFromWhomWeGotMessage = User.fromJson(
-                        value.docs.first.data()! as Map<String, dynamic>);
-                    chatStore.name = newUserFromWhomWeGotMessage.username!;
-                    chatStore.photoUrl = newUserFromWhomWeGotMessage.photoUrl!;
-                    chatDatabaseHelper.insertChat(chatStore).then((thisChatId) {
-                      MessageStore messageStore = MessageStore(
-                          recipientEmail: message.recipientEmail,
-                          chatId: thisChatId,
-                          contents: decryptedMessageContent ?? '',
-                          isSeen: message.isSeen,
-                          senderEmail: message.senderEmail,
-                          time: message.time);
-                      messageDatabaseHelper
-                          .insertMessage(messageStore)
-                          .then((value) {
-                        // chatStore.mostRecentMessage = messageStore;
-                        chatDatabaseHelper
-                            .updateChatMessages(messageStore, thisChatId)
-                            .then((value) {
-                          firestoreMessageCollection
-                              .doc(message.id!)
-                              .delete()
-                              .ignore();
-                          ChatWithPage.globalKey.currentState?.mounted == true
-                              ? ChatWithPage.globalKey.currentState
-                                  ?.updateListView(ChatWithPage
-                                      .globalKey.currentState!.widget.chatStore)
-                              : () {};
 
-                          updateChatView();
-                        });
+              if (!doesChatExist) {
+                await _firestore
+                    .collection('users')
+                    .where('email_address', isEqualTo: message.senderEmail)
+                    .get()
+                    .then((value) async {
+                  final User newUserFromWhomWeGotMessage = User.fromJson(
+                      value.docs.first.data()! as Map<String, dynamic>);
+                  chatStore.name = newUserFromWhomWeGotMessage.username!;
+                  chatStore.photoUrl = newUserFromWhomWeGotMessage.photoUrl!;
+                  await chatDatabaseHelper
+                      .insertChat(chatStore)
+                      .then((thisChatId) {
+                    chatId = thisChatId;
+                    MessageStore messageStore = MessageStore(
+                        recipientEmail: message.recipientEmail,
+                        chatId: thisChatId,
+                        contents: decryptedMessageContent ?? '',
+                        isSeen: message.isSeen,
+                        senderEmail: message.senderEmail,
+                        time: message.time);
+                    messageDatabaseHelper
+                        .insertMessage(messageStore)
+                        .then((value) {
+                      // chatStore.mostRecentMessage = messageStore;
+                      chatDatabaseHelper
+                          .updateChatMessages(messageStore, thisChatId)
+                          .then((value) {
+                        doesChatExist = true;
+                        firestoreMessageCollection
+                            .doc(message.id!)
+                            .delete()
+                            .ignore();
+                        ChatWithPage.globalKey.currentState?.mounted == true
+                            ? ChatWithPage.globalKey.currentState
+                                ?.updateListView(ChatWithPage
+                                    .globalKey.currentState!.widget.chatStore)
+                            : () {};
+
+                        updateChatView();
                       });
                     });
                   });
-                } else {
-                  //? Double chatExists checks because an instance occured where my chat was registered twice
-                  MessageStore messageStore = MessageStore(
-                      recipientEmail: message.recipientEmail,
-                      chatId: chatId!,
-                      contents: decryptedMessageContent ?? '',
-                      isSeen: message.isSeen,
-                      senderEmail: message.senderEmail,
-                      time: message.time);
-
-                  messageDatabaseHelper
-                      .insertMessage(messageStore)
-                      .then((value) async {
-                    // chatStore.mostRecentMessage = messageStore;
-                    chatDatabaseHelper
-                        .updateChatMessages(messageStore, chatId!)
-                        .then((_) {
-                      firestoreMessageCollection
-                          .doc(message.id!)
-                          .delete()
-                          .ignore();
-                      ChatWithPage.globalKey.currentState?.mounted == true
-                          ? ChatWithPage.globalKey.currentState?.updateListView(
-                              ChatWithPage
-                                  .globalKey.currentState!.widget.chatStore)
-                          : () {};
-
-                      updateChatView();
-                    });
-                  });
-                }
+                }).onError((error, stackTrace) {
+                  doesChatExist = false;
+                });
               } else {
+                //? Double chatExists checks because an instance occured where my chat was registered twice
                 MessageStore messageStore = MessageStore(
                     recipientEmail: message.recipientEmail,
                     chatId: chatId!,
@@ -193,16 +162,19 @@ class GetMessages {
                     .insertMessage(messageStore)
                     .then((value) async {
                   // chatStore.mostRecentMessage = messageStore;
-                  firestoreMessageCollection.doc(message.id!).delete().ignore();
                   chatDatabaseHelper
                       .updateChatMessages(messageStore, chatId!)
                       .then((_) {
-                    
+                    firestoreMessageCollection
+                        .doc(message.id!)
+                        .delete()
+                        .ignore();
                     ChatWithPage.globalKey.currentState?.mounted == true
                         ? ChatWithPage.globalKey.currentState?.updateListView(
                             ChatWithPage
                                 .globalKey.currentState!.widget.chatStore)
                         : () {};
+
                     updateChatView();
                   });
                 });

@@ -63,7 +63,6 @@ class LocalNotificationService {
       'Checking New Messages',
       playSound: false,
       autoCancel: true,
-
       // sound: RawResourceAndroidNotificationSound('notification'),
       importance: Importance.low,
       priority: Priority.low,

@@ -35,6 +35,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   String messageNotif = "";
   for (QueryDocumentSnapshot queryDocumentSnapshot in documentSnapshot.docs) {
     var data = queryDocumentSnapshot.data()!;
+    bool doesChatExist = false;
     final serverMessage.Message message =
         serverMessage.Message.fromJson(data as Map<String, dynamic>);
     print(message.senderEmail);
@@ -59,14 +60,13 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
       deriveKey: deriveKey2,
     ).then((decryptedMessageContents) {
       _chatDatabaseHelper.getChatsList().then((value) {
-        bool doesChatExist = false;
         for (var element in value) {
           if (element.belongsToEmail == message.senderEmail) {
             doesChatExist = true;
-
             break;
           }
         }
+
         ChatStore chatStore = ChatStore(
             //! name parameter missing
             belongsToEmail: message.senderEmail,
@@ -78,7 +78,9 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
             for (var element in value) {
               if (element.belongsToEmail == message.senderEmail) {
                 doesChatExist = true;
-
+                chatStore.name = element.name;
+                chatStore.photoUrl = element.photoUrl;
+                chatStore.belongsToEmail = element.belongsToEmail;
                 break;
               }
             }
@@ -88,12 +90,16 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
                 .collection('users')
                 .where('email_address', isEqualTo: message.senderEmail)
                 .get()
-                .then((value) {
+                .then((value) async {
               final User newUserFromWhomWeGotMessage = User.fromJson(
                   value.docs.first.data()! as Map<String, dynamic>);
               chatStore.name = newUserFromWhomWeGotMessage.username!;
               chatStore.photoUrl = newUserFromWhomWeGotMessage.photoUrl!;
+              chatStore.belongsToEmail =
+                  newUserFromWhomWeGotMessage.emailAddress;
               // chatStore.mostRecentMessage = messageStore;
+              await _chatDatabaseHelper.insertChat(chatStore);
+              messageNotif = "$decryptedMessageContents\n$messageNotif";
               SavingAndRetrievingNonTrivialData.retrieveEmailNotifId(
                       prefs: prefs, email_address: message.senderEmail)
                   .then((notifId) {
@@ -119,7 +125,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
             //? Double chatExists checks because an instance occured where my chat was registered twice
 
             // chatStore.mostRecentMessage = messageStore;
-
+            messageNotif = "$decryptedMessageContents\n$messageNotif";
             SavingAndRetrievingNonTrivialData.retrieveEmailNotifId(
                     prefs: prefs, email_address: message.senderEmail)
                 .then((notifId) {
@@ -149,12 +155,12 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
             if (notifId != null) {
               _localNotificationService.showNotificationMessage(
                   id: notifId,
-                  title: chatStore.name ?? 'Anonymous',
+                  title: chatStore.name ?? 'Anonymouse',
                   body: messageNotif ?? '');
             } else {
               _localNotificationService.showNotificationMessage(
                   id: _id,
-                  title: chatStore.name ?? 'Anonymous',
+                  title: chatStore.name ?? 'Anonymouse',
                   body: messageNotif ?? '');
 
               SavingAndRetrievingNonTrivialData.saveEmailsAsNotifId(

@@ -28,6 +28,7 @@ class JsonWebKeyPair {
 
 //? SendersJwk -> sender.privateKey
 //? ReceiverJwk -> receiver.publicKey
+
 Future<List<int>> deriveKey(String privateKeyJwk, String publicKey) async {
   //? Sender's Key
   final senderPrivateKey = json.decode(privateKeyJwk);
@@ -57,7 +58,7 @@ Future<String> encryptMessage(
 
   //? Converting message into bytes
   final messageContentsBytes = Uint8List.fromList(utf8.encode(
-      messageContents)); //! messageContents.codeunits instead of utf8.encode(messageContents) was there i am checking if it fixes the emoji problem
+      messageContents)); //! messageContents.codeunits instead of utf8.encode(messageContents) was there i am checking if it fixes the emoji problem!! Dare i say it did fix it
 
   //?Encrypting the message
   final encryptedMessageContentsBytes =
