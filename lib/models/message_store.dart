@@ -26,7 +26,6 @@ class MessageStore {
     required this.senderEmail,
     required this.time,
   });
-
   toJson() => {
         'chat_id': chatId,
         'contents': contents,
