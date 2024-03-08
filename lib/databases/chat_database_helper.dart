@@ -61,6 +61,11 @@ class ChatDatabaseHelper {
     return result;
   }
 
+  Future<int> updateChat(ChatStore chatStore) async {
+    Database db = await database;
+    int result
+  }
+
   // Update Operation: Update a Note object and save it to database
   // Future<int> updateNote(Note note) async {
   // 	var db = await this.database;

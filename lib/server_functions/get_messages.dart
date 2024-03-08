@@ -63,7 +63,7 @@ class GetMessages {
       required Map<String, List<int>> derivedBitsKey}) {
     FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-    var firestoreMessageCollection = _firestore.collection('messages');
+    CollectionReference firestoreMessageCollection = _firestore.collection('messages');
 
     return firestoreMessageCollection
         .where('recipient_email', isEqualTo: AddNewUser.signedInUser!.email!)
@@ -75,6 +75,7 @@ class GetMessages {
       for (DocumentChange documentChange in docChanges) {
         bool doesChatExist = true;
         int? chatId;
+        //? async await issues pop up a lot, we need to await for every result for make this happen
         if (documentChange.type == DocumentChangeType.added) {
           Map<String, dynamic> docs =
               documentChange.doc.data()! as Map<String, dynamic>;
@@ -114,7 +115,7 @@ class GetMessages {
                   chatStore.photoUrl = newUserFromWhomWeGotMessage.photoUrl!;
                   await chatDatabaseHelper
                       .insertChat(chatStore)
-                      .then((thisChatId) {
+                      .then((thisChatId) async {
                     chatId = thisChatId;
                     MessageStore messageStore = MessageStore(
                         recipientEmail: message.recipientEmail,
@@ -123,11 +124,11 @@ class GetMessages {
                         isSeen: message.isSeen,
                         senderEmail: message.senderEmail,
                         time: message.time);
-                    messageDatabaseHelper
+                  await  messageDatabaseHelper
                         .insertMessage(messageStore)
-                        .then((value) {
+                        .then((value) async{
                       // chatStore.mostRecentMessage = messageStore;
-                      chatDatabaseHelper
+                    await chatDatabaseHelper
                           .updateChatMessages(messageStore, thisChatId)
                           .then((value) {
                         doesChatExist = true;
@@ -150,6 +151,8 @@ class GetMessages {
                 });
               } else {
                 //? Double chatExists checks because an instance occured where my chat was registered twice
+                //! Because on improper await of statements 
+                //* First chat can be slow and it will stay speedy the other times.
                 MessageStore messageStore = MessageStore(
                     recipientEmail: message.recipientEmail,
                     chatId: chatId!,
@@ -158,11 +161,11 @@ class GetMessages {
                     senderEmail: message.senderEmail,
                     time: message.time);
 
-                messageDatabaseHelper
+              await messageDatabaseHelper
                     .insertMessage(messageStore)
                     .then((value) async {
                   // chatStore.mostRecentMessage = messageStore;
-                  chatDatabaseHelper
+                 await chatDatabaseHelper
                       .updateChatMessages(messageStore, chatId!)
                       .then((_) {
                     firestoreMessageCollection

@@ -40,6 +40,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
         serverMessage.Message.fromJson(data as Map<String, dynamic>);
     print(message.senderEmail);
     String publicKeyJwk =
+    
         await SavingAndRetrievingNonTrivialData.retrievePublicKeyForUserEmail(
                 prefs,
                 email_address: message.senderEmail) ??
@@ -113,7 +114,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
                       id: _id,
                       title: chatStore.name ?? 'Anonymous',
                       body: messageNotif ?? '');
-
+                  
                   SavingAndRetrievingNonTrivialData.saveEmailsAsNotifId(
                       prefs: prefs,
                       id: _id,
