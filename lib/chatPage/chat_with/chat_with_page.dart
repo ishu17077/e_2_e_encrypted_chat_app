@@ -82,7 +82,7 @@ class _ChatWithPageState extends State<ChatWithPage>
     //     messageDatabaseHelper: messageDatabaseHelper,
     //     chatDatabaseHelper: _chatDatabaseHelper,
     //     derivedBitsKey: widget.derivedKey);
-    //! _mystream was seperately assigned as it was changing with everytime something happens like a keyboard pop up lol
+    //! _mystream was seperately assigned as it was changing with everytime something happens like a keyboard pop up lol, and that was bad like horrible, we need bloc
     super.initState();
   }
 

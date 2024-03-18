@@ -34,7 +34,7 @@ if (keystorePropertiesFile.exists()) {
 }
 android {
     namespace 'com.example.e_2_e_encrypted_chat_app'
-    compileSdkVersion 33
+    compileSdk 34
     ndkVersion "25.1.8937393"
 
     compileOptions {

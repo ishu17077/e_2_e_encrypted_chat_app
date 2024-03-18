@@ -61,10 +61,10 @@ class ChatDatabaseHelper {
     return result;
   }
 
-  Future<int> updateChat(ChatStore chatStore) async {
-    Database db = await database;
-    int result
-  }
+  //? Future<int> updateChat(int id,ChatStore chatStore) async {
+  //?   Database db = await database;
+  //?   int result
+  //? } //? Future implementation 
 
   // Update Operation: Update a Note object and save it to database
   // Future<int> updateNote(Note note) async {

@@ -97,6 +97,7 @@ class GetMessages {
                 doesChatExist = false;
               }
               ChatStore chatStore = ChatStore(
+                
                   //! name parameter missing
                   belongsToEmail: message.senderEmail,
                   photoUrl:
