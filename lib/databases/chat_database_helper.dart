@@ -12,6 +12,7 @@ class ChatDatabaseHelper {
   final String _colBelongsToEmail = 'belongs_to_email';
   final String _colPhotoUrl = 'photo_url';
   final String _colName = 'name';
+  final String _colUserIdFromServer = 'user_id_from_server';
   final String _colMostRecentMessageContents = 'most_recent_message_contents';
   final String _colMostRecentMessageTime = 'most_recent_message_time';
   final String _colMostRecentMessageIsSeen = 'most_recent_message_is_seen';
@@ -41,7 +42,7 @@ class ChatDatabaseHelper {
 
   void _createDb(Database db, int newVersion) async {
     await db.execute(
-        'CREATE TABLE $_chatTable ($_colId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, $_colBelongsToEmail TINYTEXT, $_colPhotoUrl TEXT, $_colName VARCHAR(50),$_colMostRecentMessageContents TEXT, $_colMostRecentMessageSenderEmail TINYTEXT, $_colMostRecentMessagerecipientEmail TINYTEXT, $_colMostRecentMessageTime VARCHAR(50), $_colMostRecentMessageIsSeen VARCHAR(5))');
+        'CREATE TABLE $_chatTable ($_colId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, $_colUserIdFromServer VARCHAR(50) NOT NULL,$_colBelongsToEmail TINYTEXT, $_colPhotoUrl TEXT, $_colName VARCHAR(50),$_colMostRecentMessageContents TEXT, $_colMostRecentMessageSenderEmail TINYTEXT, $_colMostRecentMessagerecipientEmail TINYTEXT, $_colMostRecentMessageTime VARCHAR(50), $_colMostRecentMessageIsSeen VARCHAR(5))');
   }
 
   // Fetch Operation: Get all note objects from database
@@ -64,7 +65,7 @@ class ChatDatabaseHelper {
   //? Future<int> updateChat(int id,ChatStore chatStore) async {
   //?   Database db = await database;
   //?   int result
-  //? } //? Future implementation 
+  //? } //? Future implementation
 
   // Update Operation: Update a Note object and save it to database
   // Future<int> updateNote(Note note) async {

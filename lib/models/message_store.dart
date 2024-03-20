@@ -5,6 +5,7 @@ class MessageStore {
   int chatId;
   DateTime time;
   String senderEmail;
+  String? messageIdFromServer;
   String contents;
   bool isSeen;
 
@@ -26,12 +27,22 @@ class MessageStore {
     required this.senderEmail,
     required this.time,
   });
+  MessageStore.withMessageServerId({
+    required this.chatId,
+    required this.contents,
+    required this.isSeen,
+    required this.messageIdFromServer,
+    required this.recipientEmail,
+    required this.senderEmail,
+    required this.time,
+  });
   toJson() => {
         'chat_id': chatId,
         'contents': contents,
         'is_seen': isSeen.toString() ?? 'false',
         'sender_email': senderEmail,
         'time': time.toString(),
+        'message_id_from_server': messageIdFromServer,
         'recipient_email': recipientEmail,
       };
   factory MessageStore.fromJson(Map<String, dynamic> messageStoreMap) {

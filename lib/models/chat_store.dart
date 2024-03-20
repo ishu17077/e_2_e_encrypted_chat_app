@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_2_e_encrypted_chat_app/models/message_store.dart';
 
 class ChatStore {
@@ -7,7 +6,7 @@ class ChatStore {
   String belongsToEmail;
   String? name;
   String? photoUrl;
-  int? userId;
+  String? userIdFromServer;
   MessageStore? mostRecentMessage;
   // String? publicKeyJwk;
 
@@ -15,7 +14,7 @@ class ChatStore {
     required this.belongsToEmail,
     required this.photoUrl,
     required this.mostRecentMessage,
-    this.userId,
+
     // required this.publicKeyJwk,
     this.name,
   });
@@ -23,15 +22,22 @@ class ChatStore {
     this._id, {
     required this.belongsToEmail,
     this.name,
-    this.userId,
     required this.photoUrl,
     required this.mostRecentMessage,
     // required this.publicKeyJwk,
+  });
+  ChatStore.withUserServerIdSetter({
+    required this.userIdFromServer,
+    required this.belongsToEmail,
+    required this.mostRecentMessage,
+    required this.name,
+    required this.photoUrl,
   });
 
   toJson() => {
         'belongs_to_email': belongsToEmail,
         'photo_url': photoUrl,
+        'user_id_from_server': userIdFromServer,
         // 'public_key_jwb': publicKeyJwk,
         'most_recent_message_contents': mostRecentMessage?.contents ?? '',
         'most_recent_message_time':
@@ -43,7 +49,6 @@ class ChatStore {
         'most_recent_message_recipient_email':
             mostRecentMessage?.recipientEmail ?? '',
         'name': name,
-        
       };
 
   factory ChatStore.fromJson(Map<String, dynamic> chatStoreMap) {

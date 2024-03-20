@@ -165,15 +165,21 @@ class _SignInPageState extends State<SignInPage> {
                       _formKey.currentState?.save();
                       if (_formKey.currentState!.validate()) {
                         FirebaseAuth.instance.signOut();
-                        ExistingUser.signInExistingUserWithEmailandPassword(
-                                _emailController.text.toLowerCase(),
-                                _passwordController.text)
-                            .then((value) {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ChatPage()));
-                        });
+                        try {
+                          ExistingUser.signInExistingUserWithEmailandPassword(
+                                  _emailController.text.toLowerCase(),
+                                  _passwordController.text)
+                              .then((value) {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ChatPage()));
+                          });
+                        } catch (e) {
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(const SnackBar(content: Text("Ganda aadmi galtiyan karta ha")));
+                        
+                        }
                       }
                     })),
                   ],

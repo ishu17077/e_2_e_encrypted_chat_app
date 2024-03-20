@@ -3,6 +3,7 @@ import 'package:e_2_e_encrypted_chat_app/encryption/encryption_methods.dart';
 import 'package:e_2_e_encrypted_chat_app/main.dart';
 import 'package:e_2_e_encrypted_chat_app/models/user.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide User;
+import 'package:flutter/material.dart';
 
 mixin ExistingUser {
   static Future<User> signInExistingUserWithEmailandPassword(
@@ -14,6 +15,7 @@ mixin ExistingUser {
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         print('No user found for that email.');
+        
       } else if (e.code == 'wrong-password') {
         print('Wrong password provided for that user.');
       }

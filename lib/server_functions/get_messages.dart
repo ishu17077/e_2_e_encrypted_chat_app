@@ -63,7 +63,8 @@ class GetMessages {
       required Map<String, List<int>> derivedBitsKey}) {
     FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-    CollectionReference firestoreMessageCollection = _firestore.collection('messages');
+    CollectionReference firestoreMessageCollection =
+        _firestore.collection('messages');
 
     return firestoreMessageCollection
         .where('recipient_email', isEqualTo: AddNewUser.signedInUser!.email!)
@@ -86,8 +87,8 @@ class GetMessages {
                   iv: message.iv,
                   encryptedMessageContents: message.contents,
                   deriveKey: derivedBitsKey[message.senderEmail!]!)
-              .then((decryptedMessageContent) async{
-           await chatDatabaseHelper.getChatsList().then((value) async {
+              .then((decryptedMessageContent) async {
+            await chatDatabaseHelper.getChatsList().then((value) async {
               for (var element in value) {
                 if (element.belongsToEmail == message.senderEmail) {
                   chatId = element.id;
@@ -97,7 +98,7 @@ class GetMessages {
                 doesChatExist = false;
               }
               ChatStore chatStore = ChatStore(
-                
+
                   //! name parameter missing
                   belongsToEmail: message.senderEmail,
                   photoUrl:
@@ -113,6 +114,7 @@ class GetMessages {
                   final User newUserFromWhomWeGotMessage = User.fromJson(
                       value.docs.first.data()! as Map<String, dynamic>);
                   chatStore.name = newUserFromWhomWeGotMessage.username!;
+                  chatStore.userIdFromServer = newUserFromWhomWeGotMessage.id;
                   chatStore.photoUrl = newUserFromWhomWeGotMessage.photoUrl!;
                   await chatDatabaseHelper
                       .insertChat(chatStore)
@@ -125,11 +127,11 @@ class GetMessages {
                         isSeen: message.isSeen,
                         senderEmail: message.senderEmail,
                         time: message.time);
-                  await  messageDatabaseHelper
+                    await messageDatabaseHelper
                         .insertMessage(messageStore)
-                        .then((value) async{
+                        .then((value) async {
                       // chatStore.mostRecentMessage = messageStore;
-                    await chatDatabaseHelper
+                      await chatDatabaseHelper
                           .updateChatMessages(messageStore, thisChatId)
                           .then((value) {
                         doesChatExist = true;
@@ -152,7 +154,7 @@ class GetMessages {
                 });
               } else {
                 //? Double chatExists checks because an instance occured where my chat was registered twice
-                //! Because on improper await of statements 
+                //! Because on improper await of statements
                 //* First chat can be slow and it will stay speedy the other times.
                 MessageStore messageStore = MessageStore(
                     recipientEmail: message.recipientEmail,
@@ -162,11 +164,11 @@ class GetMessages {
                     senderEmail: message.senderEmail,
                     time: message.time);
 
-              await messageDatabaseHelper
+                await messageDatabaseHelper
                     .insertMessage(messageStore)
                     .then((value) async {
                   // chatStore.mostRecentMessage = messageStore;
-                 await chatDatabaseHelper
+                  await chatDatabaseHelper
                       .updateChatMessages(messageStore, chatId!)
                       .then((_) {
                     firestoreMessageCollection
