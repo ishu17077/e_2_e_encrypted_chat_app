@@ -61,6 +61,7 @@ class _ChatAddState extends State<ChatAdd> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      
         appBar: AppBar(
           backgroundColor: kBackgroundColor,
           leading: AppBackButton(onPressed: () => Navigator.pop(context)),
@@ -126,6 +127,7 @@ class _ChatAddState extends State<ChatAdd> {
                     }
                     return ListTile(
                       tileColor: kBackgroundColor,
+                      splashColor: kSexyTealColor.withOpacity(0.2),
                       leading: CircleAvatar(
                         backgroundColor: kSexyTealColor,
                         backgroundImage: NetworkImage(user.photoUrl ??
@@ -140,11 +142,10 @@ class _ChatAddState extends State<ChatAdd> {
                         style: const TextStyle(color: Colors.white70),
                       ),
                       onTap: () {
-                        // ignore: use_build_context_synchronously
-
                         Navigator.push(
                             context,
                             MaterialPageRoute(
+                              
                                 builder: (context) => ChatWithPage(
                                       chatStore: chatStore!,
                                       chatExists: snapshot.data as bool,
