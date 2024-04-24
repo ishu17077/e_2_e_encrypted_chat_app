@@ -13,4 +13,4 @@ A few resources to get you started if you want to build this app yourself.
 - [Lab: SecuChat](https://docs.flutter.dev/)
 - [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-We expect nothing less than respectful criticization while actively working on OUR APP.
+We expect nothing less than respectful criticization while actively working on OUR(which includes but NOT LIMITED TO EVERYONE USING OR WORKING on it) APP.
