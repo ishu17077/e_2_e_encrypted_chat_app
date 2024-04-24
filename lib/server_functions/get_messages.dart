@@ -98,7 +98,7 @@ class GetMessages {
                 doesChatExist = false;
               }
               ChatStore chatStore = ChatStore(
-
+                  userIdFromServer: 'dskdjskd',
                   //! name parameter missing
                   belongsToEmail: message.senderEmail,
                   photoUrl:
@@ -114,7 +114,7 @@ class GetMessages {
                   final User newUserFromWhomWeGotMessage = User.fromJson(
                       value.docs.first.data()! as Map<String, dynamic>);
                   chatStore.name = newUserFromWhomWeGotMessage.username!;
-                  chatStore.userIdFromServer = newUserFromWhomWeGotMessage.id;
+                  chatStore.userIdFromServer = newUserFromWhomWeGotMessage.id!;
                   chatStore.photoUrl = newUserFromWhomWeGotMessage.photoUrl!;
                   await chatDatabaseHelper
                       .insertChat(chatStore)

@@ -15,6 +15,7 @@ class MessageDatabaseHelper {
   final String _colSenderEmail = 'sender_email';
   final String _colContents = 'contents';
   final String _colIsSeen = 'is_seen';
+  final String _colMessageIdFromServer = 'message_id_from_server';
 
   MessageDatabaseHelper._createInstance();
 
@@ -28,14 +29,23 @@ class MessageDatabaseHelper {
 
   Future<Database> initializeDatabase() async {
     String path = "${(await directory).path}/databases/messages.db";
-    Database messageDatabase =
-        await openDatabase(path, onCreate: _createDb, version: 1);
+    Database messageDatabase = await openDatabase(
+      path,
+      onCreate: _createDb,
+      version: 2,
+      onUpgrade: _onUpgrade,
+    ); //! We have to configure onUpgrade function
     return messageDatabase;
   }
 
   void _createDb(Database db, int newVersion) async {
     db.execute(
-        'CREATE TABLE $_messagesTable ($_colId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, $_colrecipientEmail TINYTEXT NOT NULL, $_colChatId TEXT NOT NULL, $_colTime VARCHAR(50), $_colSenderEmail TEXT, $_colContents TEXT, $_colIsSeen VARCHAR(5))');
+        'CREATE TABLE $_messagesTable ($_colId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, $_colrecipientEmail TINYTEXT NOT NULL, $_colChatId TEXT NOT NULL, $_colTime VARCHAR(50), $_colSenderEmail TEXT, $_colContents TEXT, $_colIsSeen VARCHAR(5), $_colMessageIdFromServer VARCHAR(50))');
+  }
+
+  void _onUpgrade(Database db, int newVer, int oldVer) {
+    db.execute(
+        'ALTER TABLE $_messagesTable ADD $_colMessageIdFromServer VARCHAR(50)');
   }
 
   Future<List<Map<String, dynamic>>> _getMessageMapList(ChatStore chatStore,
@@ -50,6 +60,7 @@ class MessageDatabaseHelper {
 
   Future<int> insertMessage(MessageStore messageStore) async {
     Database db = await database;
+    //*  print(messageStore.toJson().toString());
     int result = await db.insert(_messagesTable, messageStore.toJson());
     return result;
   }

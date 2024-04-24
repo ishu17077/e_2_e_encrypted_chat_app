@@ -7,7 +7,7 @@ class ChatDatabaseHelper {
   static ChatDatabaseHelper? _chatDatabaseHelper;
   static Database? _database;
 
-  final String _chatTable = 'chats_db';
+  final String _chatsTable = 'chats_db';
   final String _colId = 'id';
   final String _colBelongsToEmail = 'belongs_to_email';
   final String _colPhotoUrl = 'photo_url';
@@ -35,21 +35,26 @@ class ChatDatabaseHelper {
     // Get the directory path for both Android and iOS to store database.
 
     String path = "${(await directory).path}/databases/chats.db";
-    var chatsDatabase =
-        await openDatabase(path, onCreate: _createDb, version: 1);
+    var chatsDatabase = await openDatabase(path,
+        onCreate: _createDb, version: 1, onUpgrade: _onUpgrade);
     return chatsDatabase;
   }
 
   void _createDb(Database db, int newVersion) async {
     await db.execute(
-        'CREATE TABLE $_chatTable ($_colId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, $_colUserIdFromServer VARCHAR(50) NOT NULL,$_colBelongsToEmail TINYTEXT, $_colPhotoUrl TEXT, $_colName VARCHAR(50),$_colMostRecentMessageContents TEXT, $_colMostRecentMessageSenderEmail TINYTEXT, $_colMostRecentMessagerecipientEmail TINYTEXT, $_colMostRecentMessageTime VARCHAR(50), $_colMostRecentMessageIsSeen VARCHAR(5))');
+        'CREATE TABLE $_chatsTable ($_colId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, $_colUserIdFromServer VARCHAR(50) NOT NULL,$_colBelongsToEmail TINYTEXT, $_colPhotoUrl TEXT, $_colName VARCHAR(50),$_colMostRecentMessageContents TEXT, $_colMostRecentMessageSenderEmail TINYTEXT, $_colMostRecentMessagerecipientEmail TINYTEXT, $_colMostRecentMessageTime VARCHAR(50), $_colMostRecentMessageIsSeen VARCHAR(5))');
+  }
+
+  void _onUpgrade(Database db, int newVer, int oldVer) {
+    db.execute(
+        'ALTER TABLE $_chatsTable ADD $_colUserIdFromServer VARCHAR(50)');
   }
 
   // Fetch Operation: Get all note objects from database
   Future<List<Map<String, dynamic>>> _getChatMapList() async {
     Database db = await database;
 //		var result = await db.rawQuery('SELECT * FROM $noteTable order by $colPriority ASC');
-    var result = await db.query(_chatTable,
+    var result = await db.query(_chatsTable,
         orderBy:
             '$_colMostRecentMessageTime DESC'); //? We have to do a left join here
     return result;
@@ -57,7 +62,7 @@ class ChatDatabaseHelper {
 
   Future<int> insertChat(ChatStore chatStore) async {
     Database db = await database;
-    int result = await db.insert(_chatTable, chatStore.toJson(),
+    int result = await db.insert(_chatsTable, chatStore.toJson(),
         conflictAlgorithm: ConflictAlgorithm.replace);
     return result;
   }
@@ -77,14 +82,14 @@ class ChatDatabaseHelper {
   Future<int> deleteChat(ChatStore chatStore) async {
     Database db = await database;
     int result = await db
-        .delete(_chatTable, where: '$_colId = ?', whereArgs: [chatStore.id]);
+        .delete(_chatsTable, where: '$_colId = ?', whereArgs: [chatStore.id]);
     return result;
   }
 
   Future<int> getChatsCount() async {
     Database db = await database;
     List<Map<String, dynamic>> x =
-        await db.query('SELECT COUNT (*) FROM $_chatTable');
+        await db.query('SELECT COUNT (*) FROM $_chatsTable');
     int result = Sqflite.firstIntValue(x) ?? 0;
     return result;
   }
@@ -93,7 +98,7 @@ class ChatDatabaseHelper {
   Future<int> updateChat(ChatStore chatStore, int id) async {
     //? Chatstore doesn't have setter for id
     var db = await database;
-    var result = await db.update(_chatTable, chatStore.toJson(),
+    var result = await db.update(_chatsTable, chatStore.toJson(),
         where: '$_colId = ?',
         whereArgs: [id],
         conflictAlgorithm: ConflictAlgorithm.replace);
@@ -105,7 +110,7 @@ class ChatDatabaseHelper {
     //? Chatstore doesn't have setter for id
     var db = await database;
     var result = await db.update(
-        _chatTable,
+        _chatsTable,
         {
           'most_recent_message_contents': mostRecentMessage.contents ?? '',
           'most_recent_message_time':

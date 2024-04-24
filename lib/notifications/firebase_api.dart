@@ -40,7 +40,6 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
         serverMessage.Message.fromJson(data as Map<String, dynamic>);
     print(message.senderEmail);
     String publicKeyJwk =
-    
         await SavingAndRetrievingNonTrivialData.retrievePublicKeyForUserEmail(
                 prefs,
                 email_address: message.senderEmail) ??
@@ -73,7 +72,9 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
             belongsToEmail: message.senderEmail,
             photoUrl:
                 'https://www.shutterstock.com/image-photo/red-text-any-questions-paper-600nw-2312396111.jpg',
+            userIdFromServer: 'wdddwd',
             mostRecentMessage: null);
+
         if (!doesChatExist) {
           _chatDatabaseHelper.getChatsList().then((value) {
             for (var element in value) {
@@ -82,6 +83,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
                 chatStore.name = element.name;
                 chatStore.photoUrl = element.photoUrl;
                 chatStore.belongsToEmail = element.belongsToEmail;
+                chatStore.userIdFromServer = element.userIdFromServer;
                 break;
               }
             }
@@ -96,6 +98,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
                   value.docs.first.data()! as Map<String, dynamic>);
               chatStore.name = newUserFromWhomWeGotMessage.username!;
               chatStore.photoUrl = newUserFromWhomWeGotMessage.photoUrl!;
+              chatStore.userIdFromServer = newUserFromWhomWeGotMessage.id!;
               chatStore.belongsToEmail =
                   newUserFromWhomWeGotMessage.emailAddress;
               // chatStore.mostRecentMessage = messageStore;
@@ -114,7 +117,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
                       id: _id,
                       title: chatStore.name ?? 'Anonymous',
                       body: messageNotif ?? '');
-                  
+
                   SavingAndRetrievingNonTrivialData.saveEmailsAsNotifId(
                       prefs: prefs,
                       id: _id,

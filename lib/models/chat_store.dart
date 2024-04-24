@@ -6,7 +6,7 @@ class ChatStore {
   String belongsToEmail;
   String? name;
   String? photoUrl;
-  String? userIdFromServer;
+  String userIdFromServer;
   MessageStore? mostRecentMessage;
   // String? publicKeyJwk;
 
@@ -14,7 +14,7 @@ class ChatStore {
     required this.belongsToEmail,
     required this.photoUrl,
     required this.mostRecentMessage,
-
+    required this.userIdFromServer,
     // required this.publicKeyJwk,
     this.name,
   });
@@ -22,6 +22,7 @@ class ChatStore {
     this._id, {
     required this.belongsToEmail,
     this.name,
+    required this.userIdFromServer,
     required this.photoUrl,
     required this.mostRecentMessage,
     // required this.publicKeyJwk,
@@ -54,6 +55,7 @@ class ChatStore {
   factory ChatStore.fromJson(Map<String, dynamic> chatStoreMap) {
     final ChatStore chatStore = ChatStore.withId(
       chatStoreMap['id'],
+      userIdFromServer: chatStoreMap['user_id_from_server'],
       mostRecentMessage: MessageStore(
         chatId: chatStoreMap['id'],
         contents: chatStoreMap['most_recent_message_contents'] ?? '',

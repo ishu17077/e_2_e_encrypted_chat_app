@@ -18,7 +18,7 @@ void main() async {
     time: DateTime.now(),
     iv: _iv,
     senderEmail: 'anon@testmail.com',
-    contents: 'Hey?? How you doing',
+    contents: 'Hey?? How you doing💩💩💩💩💩💩💩💩💩💩💩💩💩💩💩',
     isSeen: false,
   );
   final messageSendJson = message.toJson();

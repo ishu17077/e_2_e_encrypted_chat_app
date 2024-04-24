@@ -94,6 +94,7 @@ class _ChatAddState extends State<ChatAdd> {
                 photoUrl: user.photoUrl ??
                     'https://marmelab.com/images/blog/ascii-art-converter/homer.png',
                 belongsToEmail: user.emailAddress!,
+                userIdFromServer: user.id ?? '',
                 name: user.username ?? '**No Name**',
                 mostRecentMessage: null,
               );
@@ -101,6 +102,7 @@ class _ChatAddState extends State<ChatAdd> {
                 if (value != null) {
                   chatStore = ChatStore.withId(
                     value,
+                    userIdFromServer: documentSnapshot.id,
                     photoUrl: user.photoUrl ??
                         'https://marmelab.com/images/blog/ascii-art-converter/homer.png',
                     belongsToEmail: user.emailAddress!,
