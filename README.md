@@ -1,16 +1,16 @@
 # e_2_e_encrypted_chat_app
 
-A new Flutter project.
+SecuChat
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+The Project was made to improve the current privacy fiasco of chat apps. 
 
-A few resources to get you started if this is your first Flutter project:
+We opened the source code so that you can audit our app and request for merge while making you in control of what we store about you.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
+A few resources to get you started if you want to build this app yourself.
+
+- [Lab: SecuChat](https://docs.flutter.dev/)
 - [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+We expect nothing less than respectful criticization while actively working on OUR APP.
