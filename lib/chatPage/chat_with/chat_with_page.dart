@@ -162,7 +162,7 @@ class _ChatWithPageState extends State<ChatWithPage>
                             MessageStore messageStore = messageStoreList[index];
                             // bool noMarginRequired = messageStore.senderEmail ==
                             //     (previousMessageStore?.senderEmail ??
-                            //         ''); //? for some weird reason when previousMessageStore is null it actually returns false
+                            //         ''); //? for some weird reason when previousMessageStore is null it actually returns true
 
                             return ChatPill(
                               text: messageStore.contents,
@@ -263,7 +263,7 @@ class _ChatWithPageState extends State<ChatWithPage>
         time: message.time,
       );
       if (chatId != null) {
-        _chatDatabaseHelper.updateChatMessages(messageStore, chatId!);
+        _chatDatabaseHelper.updateChatMostRecentMessage(messageStore, chatId!);
       }
       message.contents = await encryptMessage(
           iv: message!.iv!,

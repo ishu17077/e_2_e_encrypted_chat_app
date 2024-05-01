@@ -31,7 +31,7 @@ class MessageStore {
     required this.chatId,
     required this.contents,
     required this.isSeen,
-    this.messageIdFromServer,
+    required this.messageIdFromServer,
     required this.recipientEmail,
     required this.senderEmail,
     required this.time,

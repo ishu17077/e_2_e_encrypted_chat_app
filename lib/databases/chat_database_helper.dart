@@ -47,7 +47,7 @@ class ChatDatabaseHelper {
 
   void _onUpgrade(Database db, int newVer, int oldVer) {
     db.execute(
-        'ALTER TABLE $_chatsTable ADD $_colUserIdFromServer VARCHAR(50)');
+        'ALTER TABLE $_chatsTable ADD $_colUserIdFromServer VARCHAR(50);');
   }
 
   // Fetch Operation: Get all note objects from database
@@ -105,7 +105,7 @@ class ChatDatabaseHelper {
     return result;
   }
 
-  Future<int> updateChatMessages(
+  Future<int> updateChatMostRecentMessage(
       MessageStore mostRecentMessage, int chatId) async {
     //? Chatstore doesn't have setter for id
     var db = await database;

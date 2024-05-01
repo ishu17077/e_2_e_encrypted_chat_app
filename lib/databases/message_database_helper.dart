@@ -45,7 +45,7 @@ class MessageDatabaseHelper {
 
   void _onUpgrade(Database db, int newVer, int oldVer) {
     db.execute(
-        'ALTER TABLE $_messagesTable ADD $_colMessageIdFromServer VARCHAR(50)');
+        'ALTER TABLE $_messagesTable ADD $_colMessageIdFromServer VARCHAR(50);');
   }
 
   Future<List<Map<String, dynamic>>> _getMessageMapList(ChatStore chatStore,
