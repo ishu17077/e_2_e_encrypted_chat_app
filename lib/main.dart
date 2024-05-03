@@ -47,7 +47,6 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Ishu\'s Chat App',
       theme: ThemeData(
-        useMaterial3: false,
         primarySwatch: greenAndroid,
         buttonTheme: const ButtonThemeData(
           buttonColor: Color(0xff0cf3e1),

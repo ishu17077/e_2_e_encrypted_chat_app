@@ -51,148 +51,149 @@ class GetMessages {
     return userEmailsAndTheirDerviedKeyWithUs;
   }
 
-  static StreamSubscription messageStreamUnoptimized(
-      //? MY SECOND LOVELY PIECE of sh*t inefficient code
-      {required MessageDatabaseHelper messageDatabaseHelper,
-      required VoidCallback updateChatView,
-      required ChatDatabaseHelper chatDatabaseHelper,
-      required Map<String, List<int>> derivedBitsKey}) {
-    FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  // static StreamSubscription messageStreamUnoptimized(
+  //     //? MY SECOND LOVELY PIECE of sh*t inefficient code
+  //     {required MessageDatabaseHelper messageDatabaseHelper,
+  //     required VoidCallback updateChatView,
+  //     required ChatDatabaseHelper chatDatabaseHelper,
+  //     required Map<String, List<int>> derivedBitsKey}) {
+  //   FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-    CollectionReference firestoreMessageCollection =
-        _firestore.collection('messages');
+  //   CollectionReference firestoreMessageCollection =
+  //       _firestore.collection('messages');
 
-    return firestoreMessageCollection
-        .where('recipient_email', isEqualTo: AddNewUser.signedInUser!.email!)
-        .orderBy('time', descending: true)
-        .snapshots()
-        .listen((querySnapshot) async {
-      List<DocumentChange> docChanges = querySnapshot.docChanges;
+  //   return firestoreMessageCollection
+  //       .where('recipient_email', isEqualTo: AddNewUser.signedInUser!.email!)
+  //       .orderBy('time', descending: true)
+  //       .snapshots()
+  //       .listen((querySnapshot) async {
+  //     List<DocumentChange> docChanges = querySnapshot.docChanges;
 
-      for (DocumentChange documentChange in docChanges) {
-        bool doesChatExist = true;
-        int? chatId;
-        //? async await issues pop up a lot, we need to await for every result for make this happen
-        if (documentChange.type == DocumentChangeType.added) {
-          Map<String, dynamic> docs =
-              documentChange.doc.data()! as Map<String, dynamic>;
-          final Message message = Message.fromJson(docs);
-          print(message.senderEmail);
-          message.id = documentChange.doc.id;
-          await decryptedMessage(
-                  iv: message.iv,
-                  encryptedMessageContents: message.contents,
-                  deriveKey: derivedBitsKey[message.senderEmail!]!)
-              .then((decryptedMessageContent) async {
-            await chatDatabaseHelper.getChatsList().then((value) async {
-              for (var element in value) {
-                if (element.belongsToEmail == message.senderEmail) {
-                  chatId = element.id;
-                }
-              }
-              if (chatId == null) {
-                doesChatExist = false;
-              }
-              ChatStore chatStore = ChatStore(
-                  userIdFromServer: 'dskdjskd',
-                  //! name parameter missing
-                  belongsToEmail: message.senderEmail,
-                  photoUrl:
-                      'https://www.shutterstock.com/image-photo/red-text-any-questions-paper-600nw-2312396111.jpg',
-                  mostRecentMessage: null);
+  //     for (DocumentChange documentChange in docChanges) {
+  //       bool doesChatExist = true;
+  //       int? chatId;
+  //       //? async await issues pop up a lot, we need to await for every result for make this happen
+  //       if (documentChange.type == DocumentChangeType.added) {
+  //         Map<String, dynamic> docs =
+  //             documentChange.doc.data()! as Map<String, dynamic>;
+  //         final Message message = Message.fromJson(docs);
+  //         print(message.senderEmail);
+  //         message.id = documentChange.doc.id;
+  //         await decryptedMessage(
+  //                 iv: message.iv,
+  //                 encryptedMessageContents: message.contents,
+  //                 deriveKey: derivedBitsKey[message.senderEmail!]!)
+  //             .then((decryptedMessageContent) async {
+  //           await chatDatabaseHelper.getChatsList().then((value) async {
+  //             for (var element in value) {
+  //               if (element.belongsToEmail == message.senderEmail) {
+  //                 chatId = element.id;
+  //               }
+  //             }
+  //             if (chatId == null) {
+  //               doesChatExist = false;
+  //             }
+  //             ChatStore chatStore = ChatStore(
+  //                 userIdFromServer: 'dskdjskd',
+  //                 //! name parameter missing
+  //                 belongsToEmail: message.senderEmail,
+  //                 photoUrl:
+  //                     'https://www.shutterstock.com/image-photo/red-text-any-questions-paper-600nw-2312396111.jpg',
+  //                 mostRecentMessage: null);
 
-              if (!doesChatExist) {
-                await _firestore
-                    .collection('users')
-                    .where('email_address', isEqualTo: message.senderEmail)
-                    .get()
-                    .then((value) async {
-                  final User newUserFromWhomWeGotMessage = User.fromJson(
-                      value.docs.first.data()! as Map<String, dynamic>);
-                  chatStore.name = newUserFromWhomWeGotMessage.username!;
-                  chatStore.userIdFromServer = newUserFromWhomWeGotMessage.id!;
-                  chatStore.photoUrl = newUserFromWhomWeGotMessage.photoUrl!;
-                  await chatDatabaseHelper
-                      .insertChat(chatStore)
-                      .then((thisChatId) async {
-                    chatId = thisChatId;
-                    MessageStore messageStore = MessageStore(
-                        recipientEmail: message.recipientEmail,
-                        chatId: thisChatId,
-                        contents: decryptedMessageContent ?? '',
-                        isSeen: message.isSeen,
-                        senderEmail: message.senderEmail,
-                        time: message.time);
-                    await messageDatabaseHelper
-                        .insertMessage(messageStore)
-                        .then((value) async {
-                      // chatStore.mostRecentMessage = messageStore;
-                      await chatDatabaseHelper
-                          .updateChatMostRecentMessage(messageStore, thisChatId)
-                          .then((value) {
-                        doesChatExist = true;
-                        firestoreMessageCollection
-                            .doc(message.id!)
-                            .delete()
-                            .ignore();
-                        ChatWithPage.globalKey.currentState?.mounted == true
-                            ? ChatWithPage.globalKey.currentState
-                                ?.updateListView(ChatWithPage
-                                    .globalKey.currentState!.widget.chatStore)
-                            : () {};
+  //             if (!doesChatExist) {
+  //               await _firestore
+  //                   .collection('users')
+  //                   .where('email_address', isEqualTo: message.senderEmail)
+  //                   .get()
+  //                   .then((value) async {
+  //                 final User newUserFromWhomWeGotMessage = User.fromJson(
+  //                     value.docs.first.data()! as Map<String, dynamic>);
+  //                 chatStore.name = newUserFromWhomWeGotMessage.username!;
+  //                 chatStore.userIdFromServer = newUserFromWhomWeGotMessage.id!;
+  //                 chatStore.photoUrl = newUserFromWhomWeGotMessage.photoUrl!;
+  //                 await chatDatabaseHelper
+  //                     .insertChat(chatStore)
+  //                     .then((thisChatId) async {
+  //                   chatId = thisChatId;
+  //                   MessageStore messageStore = MessageStore(
+  //                       recipientEmail: message.recipientEmail,
+  //                       chatId: thisChatId,
+  //                       contents: decryptedMessageContent ?? '',
+  //                       isSeen: message.isSeen,
+  //                       senderEmail: message.senderEmail,
+  //                       time: message.time);
+  //                   await messageDatabaseHelper
+  //                       .insertMessage(messageStore)
+  //                       .then((value) async {
+  //                     // chatStore.mostRecentMessage = messageStore;
+  //                     await chatDatabaseHelper
+  //                         .updateChatMostRecentMessage(messageStore, thisChatId)
+  //                         .then((value) {
+  //                       doesChatExist = true;
+  //                       firestoreMessageCollection
+  //                           .doc(message.id!)
+  //                           .delete()
+  //                           .ignore();
+  //                       ChatWithPage.globalKey.currentState?.mounted == true
+  //                           ? ChatWithPage.globalKey.currentState
+  //                               ?.updateListView(ChatWithPage
+  //                                   .globalKey.currentState!.widget.chatStore)
+  //                           : () {};
 
-                        updateChatView();
-                      });
-                    });
-                  });
-                }).onError((error, stackTrace) {
-                  doesChatExist = false;
-                });
-              } else {
-                //? Double chatExists checks because an instance occured where my chat was registered twice
-                //! Because on improper await of statements
-                //* First chat can be slow and it will stay speedy the other times.
-                MessageStore messageStore = MessageStore(
-                    recipientEmail: message.recipientEmail,
-                    chatId: chatId!,
-                    contents: decryptedMessageContent ?? '',
-                    isSeen: message.isSeen,
-                    senderEmail: message.senderEmail,
-                    time: message.time);
+  //                       updateChatView();
+  //                     });
+  //                   });
+  //                 });
+  //               }).onError((error, stackTrace) {
+  //                 doesChatExist = false;
+  //               });
+  //             } else {
+  //               //? Double chatExists checks because an instance occured where my chat was registered twice
+  //               //! Because on improper await of statements
+  //               //* First chat can be slow and it will stay speedy the other times.
+  //               MessageStore messageStore = MessageStore(
+  //                   recipientEmail: message.recipientEmail,
+  //                   chatId: chatId!,
+  //                   contents: decryptedMessageContent ?? '',
+  //                   isSeen: message.isSeen,
+  //                   senderEmail: message.senderEmail,
+  //                   time: message.time);
 
-                await messageDatabaseHelper
-                    .insertMessage(messageStore)
-                    .then((value) async {
-                  // chatStore.mostRecentMessage = messageStore;
-                  await chatDatabaseHelper
-                      .updateChatMostRecentMessage(messageStore, chatId!)
-                      .then((_) {
-                    firestoreMessageCollection
-                        .doc(message.id!)
-                        .delete()
-                        .ignore();
-                    ChatWithPage.globalKey.currentState?.mounted == true
-                        ? ChatWithPage.globalKey.currentState?.updateListView(
-                            ChatWithPage
-                                .globalKey.currentState!.widget.chatStore)
-                        : () {};
+  //               await messageDatabaseHelper
+  //                   .insertMessage(messageStore)
+  //                   .then((value) async {
+  //                 // chatStore.mostRecentMessage = messageStore;
+  //                 await chatDatabaseHelper
+  //                     .updateChatMostRecentMessage(messageStore, chatId!)
+  //                     .then((_) {
+  //                   firestoreMessageCollection
+  //                       .doc(message.id!)
+  //                       .delete()
+  //                       .ignore();
+  //                   ChatWithPage.globalKey.currentState?.mounted == true
+  //                       ? ChatWithPage.globalKey.currentState?.updateListView(
+  //                           ChatWithPage
+  //                               .globalKey.currentState!.widget.chatStore)
+  //                       : () {};
 
-                    updateChatView();
-                  });
-                });
-              }
-            });
-          });
-        }
-      }
-    });
-  }
+  //                   updateChatView();
+  //                 });
+  //               });
+  //             }
+  //           });
+  //         });
+  //       }
+  //     }
+  //   });
+  // }
 
   static StreamSubscription messageStream(
       {required MessageDatabaseHelper messageDatabaseHelper,
       required VoidCallback updateChatView,
       required ChatDatabaseHelper chatDatabaseHelper,
       required Map<String, List<int>> derivedBitsKey}) {
+    //? Apparently more effecient code
     FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
     CollectionReference firestoreMessageCollection =
@@ -215,7 +216,7 @@ class GetMessages {
               iv: message.iv,
               encryptedMessageContents: message.contents,
               deriveKey: derivedBitsKey[message.senderEmail]!);
-          chatDatabaseHelper
+          await chatDatabaseHelper
               .getChatsList()
               .then((List<ChatStore> chatList) async {
             for (ChatStore chat in chatList) {
@@ -253,8 +254,7 @@ class GetMessages {
                           isSeen: message.isSeen,
                           senderEmail: message.senderEmail,
                           time: message.time);
-
-                  await messageDatabaseHelper
+                  messageDatabaseHelper
                       .insertMessage(newMessageStore)
                       .then((_) {
                     chatStoreNewUser.mostRecentMessage = newMessageStore;
@@ -299,6 +299,7 @@ class GetMessages {
                     .updateChatMostRecentMessage(newMessage, chatId!)
                     .then((_) {
                   updateChatView();
+                  firestoreMessageCollection.doc(message.id!).delete().ignore();
                 });
               });
             }
