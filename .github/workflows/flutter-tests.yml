@@ -1,4 +1,4 @@
-# This workflow uses actions that are not certified by GitHub.
+gi# This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support
 # documentation.
@@ -24,7 +24,7 @@ jobs:
       # - uses: dart-lang/setup-dart@v1
       - uses: subosito/flutter-action@v2
         with:
-            flutter-version: '3.19.3'
+            flutter-version: '3.24.0'
             channel: 'stable'
       - name: Flutter get version
         run: flutter --version
