@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
-      title: 'Ishu\'s Chat App',
+      title: 'SecuChat',
       theme: ThemeData(
         primarySwatch: greenAndroid,
         buttonTheme: const ButtonThemeData(
