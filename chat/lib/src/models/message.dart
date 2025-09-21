@@ -3,7 +3,7 @@ class Message {
 
   final String from;
   final String to;
-  final String contents;
+  String contents;
   final DateTime time;
   late String _id;
 

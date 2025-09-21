@@ -1,8 +1,9 @@
 class User {
   String get id => _id;
   final String name;
+  final String username;
   final String email;
-  final String photoUrl;
+  final String? photoUrl;
   late String _id;
   final bool active;
   final DateTime lastSeen;
@@ -10,6 +11,7 @@ class User {
   User({
     required this.name,
     required this.email,
+    required this.username,
     required this.photoUrl,
     required this.lastSeen,
     this.active = false,
@@ -17,6 +19,7 @@ class User {
 
   toJSON() => {
     "name": name,
+    "username": username,
     "email": email,
     "photo_url": photoUrl,
     "last_seen": lastSeen,
@@ -25,11 +28,12 @@ class User {
 
   factory User.fromJSON(Map<String, dynamic> map) {
     User user = User(
-      name: map["name"],
+      username: map["username"],
+      name: map["name"] ?? "Anonymous",
       email: map["email"],
-      lastSeen: map["last_seen"],
+      lastSeen: map["last_seen"] ?? DateTime(1997),
       photoUrl: map["photo_url"],
-      active: map["active"],
+      active: map["active"] ?? false,
     );
     user._id = map["id"];
 

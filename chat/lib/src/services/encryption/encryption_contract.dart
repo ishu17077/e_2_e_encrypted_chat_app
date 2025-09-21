@@ -1,4 +1,4 @@
 abstract class IEncryption {
-  Future<String> encrypt(String text);
-  Future<String> decrypt(String encryptedText);
+  String encrypt(String text);
+  String decrypt(String encryptedText);
 }
