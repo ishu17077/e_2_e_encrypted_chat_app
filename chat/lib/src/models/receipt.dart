@@ -29,7 +29,7 @@ class Receipt {
   toJSON() => {
     "message_id": messageId,
     "recipient_id": recipientId,
-    "status": status,
+    "status": status.value(),
     "time": time,
   };
 
@@ -37,7 +37,7 @@ class Receipt {
     Receipt receipt = Receipt(
       messageId: map["message_id"]!,
       recipientId: map["recipient_id"],
-      status: ReceiptStatusParsing.fromString(map["status"] ?? 'sent'),
+      status: ReceiptStatusParsing.fromString(map["status"] ?? "sent"),
       time: map["time"],
     );
     receipt._id = map["id"];
