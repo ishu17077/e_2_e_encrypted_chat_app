@@ -33,3 +33,10 @@ final Map<String, dynamic> receiptMap = {
   "status": "sent",
   "time": DateTime.now(),
 };
+
+final Map<String, dynamic> typingEventMap = {
+  "id": "sdhasjhdhksajdjhlas",
+  "to": "dasdsd",
+  "from": "sdhichaskjchzak",
+  "event": "start",
+};

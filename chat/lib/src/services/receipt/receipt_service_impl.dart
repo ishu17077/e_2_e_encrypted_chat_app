@@ -4,12 +4,13 @@ import 'package:chat/src/models/receipt.dart';
 import 'package:chat/src/models/user.dart';
 import 'package:chat/src/services/receipt/receipt_service_contract.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 
 class ReceiptService implements IReceiptService {
   final FirebaseFirestore _firebaseFirestore;
   final StreamController<Receipt> _controller =
       StreamController<Receipt>.broadcast();
-  StreamSubscription? _changeFeed;
+  late final StreamSubscription? _changeFeed;
 
   ReceiptService(this._firebaseFirestore);
 
@@ -52,6 +53,9 @@ class ReceiptService implements IReceiptService {
             return;
           });
         });
+    _changeFeed?.onError((error) {
+      debugPrint(error);
+    });
     return _controller.stream;
   }
 

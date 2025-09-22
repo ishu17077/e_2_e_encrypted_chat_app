@@ -4,6 +4,7 @@ import 'package:chat/src/models/user.dart';
 import 'package:chat/src/services/encryption/encryption_contract.dart';
 import 'package:chat/src/services/message/message_service_contract.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 
 class MessageService implements IMessageService {
   final FirebaseFirestore _firestore;
@@ -58,6 +59,10 @@ class MessageService implements IMessageService {
             return;
           });
         });
+
+    _changeFeed?.onError((error) {
+      debugPrint(error);
+    });
   }
 
   Message _messageFromFeed(Map<String, dynamic> messageMap) {

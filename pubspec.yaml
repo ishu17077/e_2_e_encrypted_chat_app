@@ -30,8 +30,10 @@ environment:
 dependencies:
   animated_text_kit: ^4.2.2
   boxy: ^2.0.9
+  build_runner: ^2.8.0
   cloud_firestore: ^4.8.0
   cupertino_icons: ^1.0.2
+  encrypt: ^5.0.3
   encrypted_shared_preferences: ^3.0.1
   firebase_auth: ^4.2.5
   firebase_core: ^2.15.0
@@ -44,6 +46,7 @@ dependencies:
   google_sign_in: ^6.1.0
   http: ^1.1.0
   image_picker: ^1.0.7
+  mockito: ^5.5.1
   path_provider: ^2.1.2
   shared_preferences: ^2.2.2
   sqflite: ^2.3.0

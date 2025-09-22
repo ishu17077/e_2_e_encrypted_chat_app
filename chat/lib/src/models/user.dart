@@ -5,8 +5,8 @@ class User {
   final String email;
   final String? photoUrl;
   late String _id;
-  final bool active;
-  final DateTime lastSeen;
+  bool active;
+  DateTime lastSeen;
 
   User({
     required this.name,

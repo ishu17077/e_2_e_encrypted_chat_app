@@ -41,8 +41,15 @@ class ChatDatabaseHelper {
   }
 
   void _createDb(Database db, int newVersion) async {
-    await db.execute(
-        'CREATE TABLE $_chatsTable ($_colId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, $_colUserIdFromServer VARCHAR(50) NOT NULL,$_colBelongsToEmail TINYTEXT, $_colPhotoUrl TEXT, $_colName VARCHAR(50),$_colMostRecentMessageContents TEXT, $_colMostRecentMessageSenderEmail TINYTEXT, $_colMostRecentMessagerecipientEmail TINYTEXT, $_colMostRecentMessageTime VARCHAR(50), $_colMostRecentMessageIsSeen VARCHAR(5))');
+    await db.execute("""CREATE TABLE $_chatsTable (
+        $_colId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+        $_colUserIdFromServer VARCHAR(50) NOT NULL,
+        $_colBelongsToEmail TINYTEXT, $_colPhotoUrl TEXT, 
+        $_colName VARCHAR(50),$_colMostRecentMessageContents TEXT, 
+        $_colMostRecentMessageSenderEmail TINYTEXT, 
+        $_colMostRecentMessagerecipientEmail TINYTEXT, 
+        $_colMostRecentMessageTime VARCHAR(50), 
+        $_colMostRecentMessageIsSeen VARCHAR(5))""");
   }
 
   void _onUpgrade(Database db, int newVer, int oldVer) {

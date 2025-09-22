@@ -1,7 +1,5 @@
 import 'package:chat/chat.dart';
-import 'package:chat/src/services/encryption/encryption_contract.dart';
 import 'package:chat/src/services/encryption/encryption_service.dart';
-import 'package:chat/src/services/message/message_service_contract.dart';
 import 'package:chat/src/services/message/message_service_impl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:encrypt/encrypt.dart';
@@ -20,7 +18,6 @@ void main() {
   late final MockQuery query;
   late final MockDocumentChange documentChange;
   late final MockQueryDocumentSnapshot documentSnapshot;
-
 
   setUpAll(() {
     firebaseFirestore = MockFirebaseFirestore();

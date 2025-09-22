@@ -1,5 +1,4 @@
 import 'package:chat/chat.dart';
-import 'package:chat/src/models/receipt.dart';
 import 'package:chat/src/services/receipt/receipt_service_contract.dart';
 import 'package:chat/src/services/receipt/receipt_service_impl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -41,7 +40,7 @@ void main() {
   group("Should send and recieve receipts", () {
     test("Should send receipt", () async {
       final Receipt receipt = await sut.send(Receipt.fromJSON(receiptMap));
-
+      
       verify(
         collectionRef.add(Receipt.fromJSON(receiptMap).toJSON()),
       ).called(1);
