@@ -129,6 +129,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
+  chat:
+    dependency: "direct main"
+    description:
+      path: chat
+      relative: true
+    source: path
+    version: "0.0.1"
   checked_yaml:
     dependency: transitive
     description:

@@ -47,7 +47,7 @@ class ReceiptService implements IReceiptService {
                 );
 
                 _controller.sink.add(receipt);
-                _removeDelieveredReceipt(receipt);
+                _removeDeliveredReceipt(receipt);
               default:
             }
             return;
@@ -63,7 +63,7 @@ class ReceiptService implements IReceiptService {
     return Receipt.fromJSON({"id": id, ...(receipt.toJSON())});
   }
 
-  void _removeDelieveredReceipt(Receipt receipt) {
+  void _removeDeliveredReceipt(Receipt receipt) {
     _firebaseFirestore.collection("receipts").doc(receipt.id).delete();
   }
 }

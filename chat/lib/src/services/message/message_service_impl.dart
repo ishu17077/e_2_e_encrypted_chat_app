@@ -53,7 +53,7 @@ class MessageService implements IMessageService {
                 }
                 final Message message = _messageFromFeed(element.doc.data()!);
                 _controller.sink.add(message);
-                _removeDelieveredMessage(message);
+                _removeDeliveredMessage(message);
               default:
             }
             return;
@@ -72,7 +72,7 @@ class MessageService implements IMessageService {
     return message;
   }
 
-  void _removeDelieveredMessage(Message message) {
+  void _removeDeliveredMessage(Message message) {
     _firestore.collection("messages").doc(message.id).delete();
   }
 

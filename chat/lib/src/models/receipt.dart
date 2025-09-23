@@ -1,4 +1,4 @@
-enum ReceiptStatus { sent, delievered, seen }
+enum ReceiptStatus { sent, delivered, seen }
 
 extension ReceiptStatusParsing on ReceiptStatus {
   String value() => this.name;

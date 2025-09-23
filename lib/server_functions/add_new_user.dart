@@ -60,7 +60,7 @@ class AddNewUser {
   Future<UserCredential> get signInWithGoogle async {
     //! Trigger the authentication flow
     final GoogleSignInAccount? googleSignInAccount =
-        await GoogleSignIn().signIn();
+        await GoogleSignIn.instance.authenticate();
     //! Obtain the auth details from the request
     final GoogleSignInAuthentication? googleSignInAuthentication =
         await googleSignInAccount?.authentication;
