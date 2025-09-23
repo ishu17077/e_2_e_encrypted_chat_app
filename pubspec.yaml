@@ -31,19 +31,19 @@ dependencies:
   animated_text_kit: ^4.2.2
   boxy: ^2.0.9
   build_runner: ^2.8.0
-  cloud_firestore: ^4.8.0
+  cloud_firestore: ^6.0.2
   cupertino_icons: ^1.0.2
   encrypt: ^5.0.3
   encrypted_shared_preferences: ^3.0.1
-  firebase_auth: ^4.2.5
-  firebase_core: ^2.15.0
-  firebase_database: ^10.0.9
-  firebase_messaging: ^14.7.8
+  firebase_auth: ^6.1.0
+  firebase_core: ^4.1.1
+  firebase_database: ^12.0.2
+  firebase_messaging: ^16.0.2
   flutter:
     sdk: flutter
-  flutter_facebook_auth: ^6.0.0
-  flutter_local_notifications: ^16.2.0
-  google_sign_in: ^6.1.0
+  flutter_facebook_auth: ^7.1.2
+  flutter_local_notifications: ^19.4.2
+  google_sign_in: ^7.2.0
   http: ^1.1.0
   image_picker: ^1.0.7
   mockito: ^5.5.1
@@ -54,7 +54,7 @@ dependencies:
     path: ./webcrypto-0.5.3
 
 dev_dependencies:
-  flutter_lints: ^2.0.0
+  flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
 

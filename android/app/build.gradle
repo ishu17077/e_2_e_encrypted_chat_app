@@ -1,9 +1,11 @@
 plugins{
-    id 'com.google.gms.google-services' version '4.4.3' apply false
+    id 'com.google.gms.google-services' version '4.4.3'
     id 'kotlin-android'
     id 'com.android.application'
-    id "dev.flutter.flutter-gradle-plugin" apply false
+    id "dev.flutter.flutter-gradle-plugin"
 }
+
+
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
@@ -11,8 +13,6 @@ if (localPropertiesFile.exists()) {
         localProperties.load(reader)
     }
 }
-
-
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
     flutterVersionCode = '1'
@@ -32,8 +32,8 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace 'com.example.e_2_e_encrypted_chat_app'
-    compileSdk 34
+    namespace 'com.developerik.secuchat'
+    compileSdk flutter.compileSdkVersion
     ndkVersion "25.1.8937393"
 
     compileOptions {
@@ -52,12 +52,12 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "com.example.e_2_e_encrypted_chat_app"
+        applicationId "com.developerik.secuchat"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         minSdkVersion 21
         multiDexEnabled true
-        targetSdkVersion targetSdkVersion
+        targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
@@ -75,7 +75,6 @@ android {
             // Signing with the debug keys for now, so `flutter run --release` works.
             // minifyEnabled true
             // useProguard true
-
             // proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro' 
             signingConfig signingConfigs.release
         }
@@ -84,19 +83,12 @@ android {
 
 
 
+
 dependencies {
-        // Import the Firebase BoM
-    implementation(platform("com.google.firebase:firebase-bom:34.2.0"))
-    implementation('androidx.window:window:1.0.0')
-    implementation('androidx.window:window-java:1.0.0')
-
-        // When using the BoM, you don't specify versions in Firebase library dependencies
-
-        // TODO: Add the dependencies for Firebase products you want to use
-        // See https://firebase.google.com/docs/android/setup#available-libraries
-        // For example, add the dependencies for Firebase Authentication and Cloud Firestore
+    implementation(platform("com.google.firebase:firebase-bom:34.3.0"))
+    implementation('androidx.window:window:1.4.0')
+    implementation('androidx.window:window-java:1.4.0')
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
-
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
 }
