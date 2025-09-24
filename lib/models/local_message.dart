@@ -14,6 +14,9 @@ class LocalMessage {
         MessageTable.colChatId: chatId,
         MessageTable.colSender: message.from,
         MessageTable.colRecipient: message.to,
+        MessageTable.colContents: message.contents,
+        //TODO: Impl
+        // MessageTable.colCreatedAt
         MessageTable.colReceipt: receipt.value(),
         MessageTable.colExecutedAt: message.time.toString(),
       };

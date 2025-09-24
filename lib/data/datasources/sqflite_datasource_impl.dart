@@ -1,4 +1,4 @@
-import 'package:chat/src/models/receipt.dart';
+import 'package:chat/chat.dart';
 import 'package:e_2_e_encrypted_chat_app/data/constants/table_names.dart';
 import 'package:e_2_e_encrypted_chat_app/data/datasources/datasource_contract.dart';
 import 'package:e_2_e_encrypted_chat_app/models/chat.dart';
@@ -75,26 +75,62 @@ class SqfliteDatasource implements IDataSource {
   }
 
   @override
-  Future<Chat> findChat(String chatId) {
-    // TODO: implement findChat
-    throw UnimplementedError();
+  Future<Chat?> findChat(String chatId) {
+    return _db.transaction((txn) async {
+      final listOfChatMaps = await txn.query(
+        ChatTable.chatsTable,
+        where: "${ChatTable.colId} = ?",
+        whereArgs: [chatId],
+        limit: 1,
+      );
+      if (listOfChatMaps.isEmpty) {
+        return null;
+      }
+      final unread = Sqflite.firstIntValue(await txn.rawQuery(
+          "SELECT COUNT(*) FROM ${MessageTable.messagesTable} WHERE ${MessageTable.colChatId} = ? AND ${MessageTable.colReceipt} = ?",
+          [chatId, ReceiptStatus.delivered.value()]));
+      final mostRecentMessage = await txn.query(
+        MessageTable.messagesTable,
+        where: "${MessageTable.colChatId}  = ?",
+        orderBy: "${MessageTable.colExecutedAt} DESC",
+        limit: 1,
+        whereArgs: [chatId],
+      );
+      final chat = Chat.fromJSON(listOfChatMaps.first);
+      chat.unread = unread ?? 0;
+      chat.mostRecent = LocalMessage.fromJSON(mostRecentMessage.first);
+      return chat;
+    });
   }
 
   @override
   Future<List<LocalMessage>> findMessages(String chatId) {
-    // TODO: implement findMessages
-    throw UnimplementedError();
+    return _db.transaction((txn) async {
+      final messages = await txn.query(
+        MessageTable.messagesTable,
+        where: "${MessageTable.colChatId} = ?",
+        orderBy: "${MessageTable.colExecutedAt} DESC",
+        whereArgs: [chatId],
+      );
+
+      return messages
+          .map((messageMap) => LocalMessage.fromJSON(messageMap))
+          .toList();
+    });
   }
 
   @override
-  Future<void> updateMessage() {
-    // TODO: implement updateMessage
-    throw UnimplementedError();
+  Future<void> updateMessage(LocalMessage message) async {
+    await _db.update(MessageTable.messagesTable, message.toJSON(),
+        where: "id = ?", whereArgs: [message.message.id]);
   }
 
   @override
-  Future<void> updateMessageReceipt(String messageId, ReceiptStatus status) {
-    // TODO: implement updateMessageReceipt
-    throw UnimplementedError();
+  Future<void> updateMessageReceipt(
+      String messageId, ReceiptStatus status) async {
+    await _db.update(MessageTable.messagesTable, {"receipt": status.value()},
+        where: "${MessageTable.colId} = ?",
+        whereArgs: [messageId],
+        conflictAlgorithm: ConflictAlgorithm.replace);
   }
 }

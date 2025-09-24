@@ -181,7 +181,7 @@ class _EmailAndPasswordAuthenticationState
                       suffixIcon: _isPhoneValid
                           ? greenCheckMark
                           : int.tryParse(_phoneController.text.isEmpty
-                                      ? '69'
+                                      ? '0'
                                       : _passwordController.text) ==
                                   69
                               ? null
@@ -193,7 +193,7 @@ class _EmailAndPasswordAuthenticationState
                       keyBoardType: TextInputType.emailAddress,
                       onFocusChanged: (value) => value
                           ? formFieldSelector = 2
-                          : print(value.toString()),
+                          : debugPrint(value.toString()),
                       formField: 2,
                       prefixIcon: Icons.mail_outline,
                       onPressed: () => setState(() {
@@ -259,21 +259,22 @@ class _EmailAndPasswordAuthenticationState
                         onPressed: () async {
                           _formKey.currentState?.save();
                           if (_formKey.currentState!.validate()) {
-                            final myUser.User? user =
-                                await AddNewUser.createUserWithEmailandPassword(
+                            final myUser.User? user = await AddNewUser
+                                    .createUserWithEmailandPassword(
                                         _nameController.text,
                                         _emailController.text.toLowerCase(),
                                         _passwordController.text)
-                                    .then((value) =>
-                                        Navigator.pushAndRemoveUntil(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                     ChatPage()),(route) => false,))
-                                    .onError((error, stackTrace) =>
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(const SnackBar(
-                                                content: Text("Dekho email kahin already registered toh nhi ya toh net off kiye ho!!"))));
+                                .then((value) => Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => ChatPage()),
+                                      (route) => false,
+                                    ))
+                                .onError((error, stackTrace) => ScaffoldMessenger
+                                        .of(context)
+                                    .showSnackBar(const SnackBar(
+                                        content: Text(
+                                            "Dekho email kahin already registered toh nhi ya toh net off kiye ho!!"))));
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(

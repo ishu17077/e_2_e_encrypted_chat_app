@@ -1,4 +1,3 @@
-import 'package:e_2_e_encrypted_chat_app/chatPage/chat_page.dart';
 import 'package:flutter/material.dart';
 
 class AppBackButton extends StatelessWidget {

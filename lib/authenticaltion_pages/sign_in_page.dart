@@ -30,8 +30,6 @@ class _SignInPageState extends State<SignInPage> {
   late final GlobalKey<FormState> _formKey = GlobalKey();
   @override
   void initState() {
-    // TODO: implement initState
-
     _emailController.addListener(() {
       _validateEmail(_emailController.text);
     });
@@ -40,7 +38,6 @@ class _SignInPageState extends State<SignInPage> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
