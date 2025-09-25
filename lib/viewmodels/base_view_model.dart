@@ -12,13 +12,12 @@ abstract class BaseViewModel {
   @protected
   Future<void> addMessage(LocalMessage message) async {
     if (!await _isExistingChat(message.chatId)) {
-      final User user = await _userService.fetch(message.message.from) ??
-          User(
-              name: 'Not Found!',
-              email: "notfound@notfound.com",
-              username: "notFound",
-              photoUrl: null,
-              lastSeen: DateTime.now());
+      final User? user = await _userService.fetch(message.message.from);
+      if (user == null) {
+        debugPrint("Cannot find user for id ${message.message.from}");
+        return;
+      }
+      await _createNewUser(user);
       await _createNewChat(message.chatId, user);
     }
   }
@@ -27,8 +26,12 @@ abstract class BaseViewModel {
     return await _dataSource.findChat(chatId) != null;
   }
 
-  Future<void> _createNewChat(String chatId, User from) async {
-    Chat chat = Chat(chatId, from);
+  Future<void> _createNewChat(String userId, User from) async {
+    Chat chat = Chat(userId);
     await _dataSource.addChat(chat);
+  }
+
+  Future<void> _createNewUser(User user) async {
+    await _dataSource.addUser(user);
   }
 }

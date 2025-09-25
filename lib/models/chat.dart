@@ -3,35 +3,29 @@ import 'package:e_2_e_encrypted_chat_app/data/constants/table_names.dart';
 import 'package:e_2_e_encrypted_chat_app/models/local_message.dart';
 
 class Chat {
-  final String id;
+  String get() => _id;
+  late String _id;
+  final String userId;
   int unread = 0;
   List<LocalMessage> messages = [];
 
   LocalMessage? mostRecent;
 
-  final User from;
+  User? from;
 
-  Chat(this.id, this.from, {List<LocalMessage>? messages, this.mostRecent})
+  Chat(this.userId, {List<LocalMessage>? messages, this.mostRecent})
       : messages = messages ?? [];
 
   Map<String, String?> toJSON() => {
-        ChatTable.colId: id,
-        ChatTable.colEmail: from.email,
-        ChatTable.colName: from.name,
-        ChatTable.colPhotoUrl: from.photoUrl,
-        ChatTable.colUserIdFromServer: from.id,
+        ChatTable.colCreatedAt: DateTime.now().toString(),
+        ChatTable.colUserId: userId,
       };
 
   factory Chat.fromJSON(Map<String, dynamic> chatMap) {
-    return Chat(
-      chatMap["id"],
-      User(
-        email: chatMap[ChatTable.colEmail],
-        lastSeen: DateTime(1997),
-        name: chatMap[ChatTable.colName],
-        username: chatMap[ChatTable.colUsername],
-        photoUrl: chatMap[ChatTable.colPhotoUrl],
-      ),
+    final chat = Chat(
+      chatMap[ChatTable.colUserId],
     );
+    chat._id = chatMap["id"];
+    return chat;
   }
 }

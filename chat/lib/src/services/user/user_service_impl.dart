@@ -18,7 +18,7 @@ class UserService implements IUserService {
 
     await docRef.update(userMap);
 
-    return _mapIdToUser(docRef.id, user);
+    return _mapIdToUser(docRef.id, userMap);
   }
 
   @override
@@ -45,7 +45,7 @@ class UserService implements IUserService {
       debugPrint("Unable to find user");
     }
     if (doc.data() == null) return null;
-    return User.fromJSON(doc.data()!);
+    return _mapIdToUser(id, doc.data()!);
   }
 
   @override
@@ -56,21 +56,13 @@ class UserService implements IUserService {
         .get();
 
     List<User> users = userDocs.docChanges.map((element) {
-      return User.fromJSON(
-        element.doc.data() ??
-            {
-              "id": "Cannot_find_id",
-              "name": "Name not found",
-              "username": "Not found",
-              "email": "N/A",
-            },
-      );
+      return _mapIdToUser(element.doc.id, element.doc.data()!);
     }).toList();
 
     return users;
   }
 
-  User _mapIdToUser(String id, User user) {
-    return User.fromJSON({"id": id, ...user.toJSON()});
+  User _mapIdToUser(String id, Map<String, dynamic> userMap) {
+    return User.fromJSON({"id": id, ...userMap});
   }
 }

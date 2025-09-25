@@ -31,25 +31,22 @@ class LocalDatabaseFactory {
   Future<void> populateDb(Database db, int version) async {
     await _createChatTable(db);
     await _createMessageTable(db);
+    await _createUserTable(db);
   }
 
   Future<void> _createChatTable(Database db) async {
-    await db.execute("""CREATE TABLE ${ChatTable.chatsTable} (
+    await db.execute("""CREATE TABLE ${ChatTable.tableName} (
         ${ChatTable.colId} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
-        ${ChatTable.colName} VARCHAR(100),
-        ${ChatTable.colEmail} VARCHAR(255) NOT NULL, 
-        ${ChatTable.colPhotoUrl} TEXT, 
-        ${ChatTable.colUsername} TINYTEXT,
-        ${ChatTable.colUserIdFromServer} VARCHAR(50) NOT NULL,
+        ${ChatTable.colUserId} TEXT NOT NULL,
         ${ChatTable.colCreatedAt} TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL""").then((_) {
-      debugPrint("Successfully created ${ChatTable.chatsTable} Table");
+      debugPrint("Successfully created ${ChatTable.tableName} Table");
     }).catchError((e) {
-      debugPrint(" ${ChatTable.chatsTable} table creation failed: $e");
+      debugPrint(" ${ChatTable.tableName} table creation failed: $e");
     });
   }
 
   Future<void> _createMessageTable(Database db) async {
-    await db.execute("""CREATE TABLE ${MessageTable.messagesTable}(
+    await db.execute("""CREATE TABLE ${MessageTable.tableName}(
     ${MessageTable.colId} INTEGER PRIMARY KEY NOT NULL AUTOINCREMENT,
     ${MessageTable.colChatId} TEXT NOT NULL,
     ${MessageTable.colSender} TEXT NOT NULL,
@@ -59,9 +56,22 @@ class LocalDatabaseFactory {
     ${MessageTable.colCreatedAt} TIMESTAMP DEFAULT CUTRRENT_TIMESTAMP NOT NULL,
     ${MessageTable.colExecutedAt} TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
     )""").then((_) {
-      debugPrint("Successfully created ${MessageTable.messagesTable} table");
+      debugPrint("Successfully created ${MessageTable.tableName} table");
     }).catchError((e) {
-      debugPrint("${MessageTable.messagesTable} table creation failed");
+      debugPrint("${MessageTable.tableName} table creation failed");
+    });
+  }
+
+  Future<void> _createUserTable(Database db) async {
+    await db.execute("""CREATE TABLE ${UserTable.tableName}(
+      ${UserTable.colId} TEXT PRIMARY KEY NOT NULL,
+      ${UserTable.colEmail} TINYTEXT NOT NULL,
+      ${UserTable.colUsername} TINYTEXT NOT NULL,
+      ${UserTable.photoUrl} TEXT NOT NULL,
+    )""").then((_) {
+      debugPrint("Successfully created ${UserTable.tableName} table");
+    }).catchError((error) {
+      debugPrint("${UserTable.tableName} table creation failed");
     });
   }
 }
