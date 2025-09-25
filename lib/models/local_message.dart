@@ -2,9 +2,9 @@ import 'package:e_2_e_encrypted_chat_app/data/constants/table_names.dart';
 import 'package:chat/chat.dart';
 
 class LocalMessage {
-  final String chatId;
-  String get id => _id;
-  late String _id;
+  String? chatId;
+  String get id => _id!;
+  String? _id;
   Message message;
   ReceiptStatus receipt;
 

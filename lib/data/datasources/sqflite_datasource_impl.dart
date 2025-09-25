@@ -80,12 +80,17 @@ class SqfliteDatasource implements IDataSource {
   }
 
   @override
-  Future<Chat?> findChat(String chatId) {
+  Future<Chat?> findChat({String? chatId, String? userId}) {
+    assert(chatId != null || userId != null,
+        "Either chatId of userId must be present");
     return _db.transaction((txn) async {
+      final selectedId = chatId ?? userId;
+      final selectedIdColumn =
+          chatId != null ? ChatTable.colId : ChatTable.colUserId;
       final listOfChatMaps = await txn.query(
         ChatTable.tableName,
-        where: "${ChatTable.colId} = ?",
-        whereArgs: [chatId],
+        where: "$selectedIdColumn = ?",
+        whereArgs: [selectedId],
         limit: 1,
       );
       if (listOfChatMaps.isEmpty) {

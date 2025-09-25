@@ -4,7 +4,6 @@ import 'package:e_2_e_encrypted_chat_app/models/local_message.dart';
 import 'package:e_2_e_encrypted_chat_app/viewmodels/base_view_model.dart';
 
 class ChatViewModel extends BaseViewModel {
-  String get chatId => _chatId ?? '';
   String? _chatId;
   final IDataSource _dataSource;
   final IUserService _userService;
@@ -20,8 +19,7 @@ class ChatViewModel extends BaseViewModel {
   }
 
   Future<void> sentMessage(Message message) async {
-    LocalMessage localMessage =
-        LocalMessage(message.to, message, ReceiptStatus.sent);
+    LocalMessage localMessage = LocalMessage(null, message, ReceiptStatus.sent);
     if (_chatId != null) return await _dataSource.addMessage(localMessage);
     //TODO: Transition from chat_id to user_id
     _chatId = localMessage.chatId;
@@ -30,10 +28,10 @@ class ChatViewModel extends BaseViewModel {
 
   Future<void> recieveMessage(Message message) async {
     LocalMessage localMessage =
-        LocalMessage(message.from, message, ReceiptStatus.delivered);
+        LocalMessage(null, message, ReceiptStatus.delivered);
 
     _chatId ??= localMessage.chatId;
-    if (localMessage.chatId != chatId) {
+    if (localMessage.chatId != _chatId) {
       otherMessages++;
     }
     await addMessage(localMessage);
