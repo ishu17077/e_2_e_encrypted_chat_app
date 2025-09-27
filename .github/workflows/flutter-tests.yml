@@ -42,12 +42,12 @@ jobs:
       - name: Run tests
         run: flutter test
       ##
-    #  - name: Change working directory to chat module
-     #   run: cd ./chat
+      - name: Change working directory to chat module
+        run: cd ./chat
       
       - name: Install dependencies
         run: flutter pub get
-        working-directory: ./chat
+     #   working-directory: ./chat
       - name: Run Chat Module Tests
         run: flutter test
-        working-directory: ./chat
+       # working-directory: ./chat
