@@ -29,5 +29,5 @@ class _MessageReceived extends MessageEvent {
   final Message message;
   const _MessageReceived(this.message);
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [message];
 }

@@ -1,10 +1,10 @@
 class User {
-  String get id => _id;
+  String? get id => _id;
   final String name;
   final String username;
   final String email;
   final String? photoUrl;
-  late String _id;
+  String? _id;
   bool active;
   DateTime lastSeen;
 

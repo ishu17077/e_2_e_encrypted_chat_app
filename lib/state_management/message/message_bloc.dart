@@ -21,5 +21,16 @@ class MessageBloc extends Bloc<MessageEvent, MessageState> {
       final message = await _messageService.send(event.message);
       emit(MessageState.sent(message));
     });
+
+    on<_MessageReceived>((event, emit) {
+      emit(MessageState.received(event.message));
+    });
+  }
+  @override
+  Future<void> close() {
+    // TODO: implement close
+    _subscription?.cancel();
+    _messageService.dispose();
+    return super.close();
   }
 }

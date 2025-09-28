@@ -11,7 +11,9 @@ class UserService implements IUserService {
   @override
   Future<User> connect(User user) async {
     var userMap = user.toJSON();
-
+    if (user.id == null) {
+      return await _registerUserToDatabase(user);
+    }
     final DocumentReference docRef = _firebaseFirestore
         .collection("users")
         .doc(user.id);
@@ -64,5 +66,12 @@ class UserService implements IUserService {
 
   User _mapIdToUser(String id, Map<String, dynamic> userMap) {
     return User.fromJSON({"id": id, ...userMap});
+  }
+
+  Future<User> _registerUserToDatabase(User user) async {
+    DocumentReference docRef = await _firebaseFirestore
+        .collection("users")
+        .add(user.toJSON());
+    return _mapIdToUser(docRef.id, user.toJSON());
   }
 }
