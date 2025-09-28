@@ -30,6 +30,7 @@ class MessageService implements IMessageService {
 
   @override
   Future<Message> send(Message message) async {
+    assert(message.iv != null, "IV cannot be null");
     late final Message messageReturn;
     message.contents = _encryption.encrypt(message.contents);
     DocumentReference<Map<String, dynamic>> docRef = await _firestore
@@ -66,6 +67,7 @@ class MessageService implements IMessageService {
   }
 
   Message _messageFromFeed(Map<String, dynamic> messageMap) {
+    //TODO: impl of asymmetric encryption
     messageMap["contents"] = _encryption.decrypt((messageMap["contents"]));
 
     final Message message = Message.fromJSON(messageMap);

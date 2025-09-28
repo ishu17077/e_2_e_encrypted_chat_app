@@ -1,11 +1,11 @@
-import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/reusable_widgets/my_form_field.dart';
-import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/sign_in_page.dart';
-import 'package:e_2_e_encrypted_chat_app/chatPage/chat_page.dart';
-import 'package:e_2_e_encrypted_chat_app/models/user.dart' as myUser;
+import 'package:e_2_e_encrypted_chat_app/ui/pages/authentication_pages/reusable_widgets/my_form_field.dart';
+import 'package:e_2_e_encrypted_chat_app/ui/pages/authentication_pages/sign_in_page.dart';
+import 'package:e_2_e_encrypted_chat_app/ui/pages/chatPage/chat_page.dart';
+import 'package:chat/chat.dart' show User;
 import 'package:e_2_e_encrypted_chat_app/server_functions/get_messages.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide User;
 
 import 'package:flutter/material.dart';
 
@@ -259,7 +259,7 @@ class _EmailAndPasswordAuthenticationState
                         onPressed: () async {
                           _formKey.currentState?.save();
                           if (_formKey.currentState!.validate()) {
-                            final myUser.User? user = await AddNewUser
+                            final User? user = await AddNewUser
                                     .createUserWithEmailandPassword(
                                         _nameController.text,
                                         _emailController.text.toLowerCase(),

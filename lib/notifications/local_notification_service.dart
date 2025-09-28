@@ -1,5 +1,5 @@
-import 'package:e_2_e_encrypted_chat_app/chatPage/chat_page.dart';
-import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/chat_with_page.dart';
+import 'package:e_2_e_encrypted_chat_app/ui/pages/chatPage/chat_page.dart';
+import 'package:e_2_e_encrypted_chat_app/ui/pages/chatPage/chat_with/chat_with_page.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';

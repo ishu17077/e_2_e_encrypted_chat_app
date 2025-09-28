@@ -1,24 +1,27 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_2_e_encrypted_chat_app/data/constants/table_names.dart';
 import 'package:chat/chat.dart';
 
 class LocalMessage {
   String? chatId;
+  String? userId;
   String get id => _id!;
   String? _id;
   Message message;
-  ReceiptStatus receipt;
+  Receipt receipt;
 
-  LocalMessage(this.chatId, this.message, this.receipt);
+  LocalMessage(this.message, this.receipt, {this.chatId, this.userId})
+      : assert(chatId != null || userId != null,
+            "Both user_id and chat_id cannot be null");
 
   Map<String, dynamic> toJSON() => {
         MessageTable.colChatId: chatId,
         MessageTable.colSender: message.from,
         MessageTable.colRecipient: message.to,
         MessageTable.colContents: message.contents,
-        //TODO: Impl
-        // MessageTable.colCreatedAt
-        MessageTable.colReceipt: receipt.value(),
-        MessageTable.colExecutedAt: message.time.toString(),
+        MessageTable.colExecutedAt: Timestamp.fromDate(receipt.time),
+        MessageTable.colReceipt: receipt.status.value(),
+        MessageTable.colCreatedAt: message.time.toString(),
       };
 
   factory LocalMessage.fromJSON(Map<String, dynamic> messageMap) {
@@ -26,12 +29,14 @@ class LocalMessage {
       from: messageMap[MessageTable.colSender] ?? '',
       to: messageMap[MessageTable.colReceipt] ?? '',
       contents: messageMap[MessageTable.colContents] ?? '',
-      time: DateTime.parse(messageMap[MessageTable.colExecutedAt]),
+      time: DateTime.fromMillisecondsSinceEpoch(
+          (messageMap[MessageTable.colExecutedAt])),
     );
     final LocalMessage localMessage = LocalMessage(
-        messageMap[MessageTable.colChatId],
-        message,
-        ReceiptStatusParsing.fromString(messageMap["receipt"]));
+      message,
+      ReceiptStatusParsing.fromString(messageMap["receipt"]),
+      chatId: messageMap["chat_id"]!,
+    );
     localMessage._id = messageMap["id"];
     return localMessage;
   }

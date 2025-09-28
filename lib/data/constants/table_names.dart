@@ -2,6 +2,8 @@ class ChatTable {
   static const String tableName = 'chats';
   static const String colId = 'id';
   static const String colUserId = 'user_id';
+  //TODO: Future implementation of groups
+  static const String colGroupId = "group_id";
   static const String colCreatedAt = "created_at";
 }
 

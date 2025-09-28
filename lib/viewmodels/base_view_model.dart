@@ -11,19 +11,26 @@ abstract class BaseViewModel {
 
   @protected
   Future<void> addMessage(LocalMessage message) async {
-    if (!await _isExistingChat(message.message.from)) {
+    if (!await _isExistingChat(message.chatId, message.message.from, null)) {
       final User? user = await _userService.fetch(message.message.from);
       if (user == null) {
         debugPrint("Cannot find user for id ${message.message.from}");
         return;
       }
+      //TODO: Return chat id on successful chat creation in database
       await _createNewUser(user);
       await _createNewChat(message.message.from, user);
     }
   }
 
-  Future<bool> _isExistingChat(String userId) async {
-    return await _dataSource.findChat(userId: userId) != null;
+  Future<bool> _isExistingChat(
+      //TODO: Future impl groups
+      String? chatId,
+      String? userId,
+      String? groupId) async {
+    assert(chatId != null || userId != null || groupId != null,
+        "user_id and chat_id cannot be null");
+    return await _dataSource.findChat(chatId: chatId, userId: userId) != null;
   }
 
   Future<void> _createNewChat(String userId, User from) async {

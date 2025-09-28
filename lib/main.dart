@@ -1,10 +1,10 @@
-import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/sign_up_page.dart';
+import 'package:e_2_e_encrypted_chat_app/ui/pages/authentication_pages/sign_up_page.dart';
 import 'package:e_2_e_encrypted_chat_app/notifications/firebase_api.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:e_2_e_encrypted_chat_app/chatPage/chat_page.dart';
+import 'package:e_2_e_encrypted_chat_app/ui/pages/chatPage/chat_page.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 

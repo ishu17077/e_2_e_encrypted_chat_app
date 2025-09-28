@@ -1,7 +1,7 @@
-import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/reusable_widgets/app_back_button.dart';
-import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/reusable_widgets/my_form_field.dart';
-import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/sign_up_page.dart';
-import 'package:e_2_e_encrypted_chat_app/chatPage/chat_page.dart';
+import 'package:e_2_e_encrypted_chat_app/ui/pages/authentication_pages/reusable_widgets/app_back_button.dart';
+import 'package:e_2_e_encrypted_chat_app/ui/pages/authentication_pages/reusable_widgets/my_form_field.dart';
+import 'package:e_2_e_encrypted_chat_app/ui/pages/authentication_pages/sign_up_page.dart';
+import 'package:e_2_e_encrypted_chat_app/ui/pages/chatPage/chat_page.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/existing_user.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';

@@ -19,17 +19,32 @@ class ChatViewModel extends BaseViewModel {
   }
 
   Future<void> sentMessage(Message message) async {
-    LocalMessage localMessage = LocalMessage(null, message, ReceiptStatus.sent);
+    LocalMessage localMessage = LocalMessage(
+        message,
+        Receipt(
+          messageId: message.id,
+          recipientId: message.to,
+          status: ReceiptStatus.sent,
+          time: DateTime.now(),
+        ),
+        userId: message.from);
     if (_chatId != null) return await _dataSource.addMessage(localMessage);
     //TODO: Transition from chat_id to user_id
-    _chatId = localMessage.chatId;
     await addMessage(localMessage);
   }
 
   Future<void> recieveMessage(Message message) async {
-    LocalMessage localMessage =
-        LocalMessage(null, message, ReceiptStatus.delivered);
-
+    LocalMessage localMessage = LocalMessage(
+      message,
+      Receipt(
+        messageId: message.id,
+        recipientId: message.to,
+        status: ReceiptStatus.sent,
+        time: DateTime.now(),
+      ),
+      userId: message.from,
+    );
+    //! CAUTION: Rare conflict if chatId is null, but shouldn't be the case
     _chatId ??= localMessage.chatId;
     if (localMessage.chatId != _chatId) {
       otherMessages++;

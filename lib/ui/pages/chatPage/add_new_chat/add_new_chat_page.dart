@@ -1,10 +1,10 @@
 // ignore_for_file: must_be_immutable
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/reusable_widgets/app_back_button.dart';
-import 'package:e_2_e_encrypted_chat_app/authenticaltion_pages/sign_up_page.dart';
-import 'package:e_2_e_encrypted_chat_app/chatPage/chat_page.dart';
-import 'package:e_2_e_encrypted_chat_app/chatPage/chat_with/chat_with_page.dart';
+import 'package:e_2_e_encrypted_chat_app/ui/pages/authentication_pages/reusable_widgets/app_back_button.dart';
+import 'package:e_2_e_encrypted_chat_app/ui/pages/authentication_pages/sign_up_page.dart';
+import 'package:e_2_e_encrypted_chat_app/ui/pages/chatPage/chat_page.dart';
+import 'package:e_2_e_encrypted_chat_app/ui/pages/chatPage/chat_with/chat_with_page.dart';
 import 'package:e_2_e_encrypted_chat_app/databases/chat_database_helper.dart';
 import 'package:e_2_e_encrypted_chat_app/models/chat_store.dart';
 import 'package:e_2_e_encrypted_chat_app/models/message_store.dart';

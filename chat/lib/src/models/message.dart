@@ -1,10 +1,12 @@
+import 'package:encrypt/encrypt.dart';
+
 class Message {
   String get id => _id;
-
   final String from;
   final String to;
   String contents;
   final DateTime time;
+  final IV? iv;
   late String _id;
 
   Message({
@@ -12,12 +14,20 @@ class Message {
     required this.to,
     required this.contents,
     required this.time,
+    this.iv,
   });
 
-  toJSON() => {"from": from, "to": to, "contents": contents, "time": time};
+  toJSON() => {
+    "from": from,
+    "to": to,
+    "contents": contents,
+    "time": time,
+    "iv": iv?.base64,
+  };
 
   factory Message.fromJSON(Map<String, dynamic> map) {
     Message message = Message(
+      iv: map["iv"] != null ? IV.fromBase64(map["iv"]!) : null,
       from: map["from"]!,
       to: map["to"]!,
       contents: map["contents"],

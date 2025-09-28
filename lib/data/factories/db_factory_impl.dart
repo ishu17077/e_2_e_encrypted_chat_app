@@ -32,13 +32,17 @@ class LocalDatabaseFactory {
     await _createChatTable(db);
     await _createMessageTable(db);
     await _createUserTable(db);
+    await _createIndices(db);
   }
 
   Future<void> _createChatTable(Database db) async {
     await db.execute("""CREATE TABLE ${ChatTable.tableName} (
         ${ChatTable.colId} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
-        ${ChatTable.colUserId} TEXT NOT NULL,
-        ${ChatTable.colCreatedAt} TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL""").then((_) {
+        ${ChatTable.colUserId} TEXT,
+        ${ChatTable.colGroupId} TEXT,
+        ${ChatTable.colCreatedAt} TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        CONSTRAINT CK_GroupOrUserPresent CHECK (${ChatTable.colUserId} IS NOT NULL OR ${ChatTable.colGroupId} IS NOT NULL)
+        """).then((_) {
       debugPrint("Successfully created ${ChatTable.tableName} Table");
     }).catchError((e) {
       debugPrint(" ${ChatTable.tableName} table creation failed: $e");
@@ -50,7 +54,7 @@ class LocalDatabaseFactory {
     ${MessageTable.colId} INTEGER PRIMARY KEY NOT NULL AUTOINCREMENT,
     ${MessageTable.colChatId} TEXT NOT NULL,
     ${MessageTable.colSender} TEXT NOT NULL,
-    ${MessageTable.colRecipient} TEXT NOT NULL,
+    ${MessageTable.colRecipient} TEXT,
     ${MessageTable.colReceipt} TEXT NOT NULL,
     ${MessageTable.colContents} TEXT NOT NULL,
     ${MessageTable.colCreatedAt} TIMESTAMP DEFAULT CUTRRENT_TIMESTAMP NOT NULL,
@@ -73,5 +77,16 @@ class LocalDatabaseFactory {
     }).catchError((error) {
       debugPrint("${UserTable.tableName} table creation failed");
     });
+  }
+
+  Future<void> _createIndices(Database db) async {
+    final batch = db.batch();
+    batch.execute(
+        "CREATE UNIQUE INDEX user_identify ON ${UserTable.tableName} (${UserTable.colId} , ${UserTable.colEmail}, ${UserTable.colUsername})");
+    batch.execute(
+        "CREATE UNIQUE INDEX chat_identify ON ${ChatTable.tableName} (${ChatTable.colId}, ${ChatTable.colUserId}, ${ChatTable.colGroupId})");
+    batch.execute(
+        "CREATE INDEX messages_index ON ${MessageTable.tableName} (${MessageTable.colChatId}, ${MessageTable.colExecutedAt}), ${MessageTable.colCreatedAt}, ${MessageTable.colReceipt}");
+    await batch.commit();
   }
 }
