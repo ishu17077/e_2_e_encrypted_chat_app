@@ -3,6 +3,8 @@ class User {
   final String name;
   final String username;
   final String email;
+  //TODO: Impl of publickey
+  // final String publicKey;
   final String? photoUrl;
   String? _id;
   bool active;
@@ -14,6 +16,7 @@ class User {
     required this.username,
     required this.photoUrl,
     required this.lastSeen,
+    // required this.publicKey,
     this.active = false,
   });
 
@@ -22,6 +25,7 @@ class User {
     "username": username,
     "email": email,
     "photo_url": photoUrl,
+    // "public_k"
     "last_seen": lastSeen,
     "active": active,
   };

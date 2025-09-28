@@ -3,9 +3,9 @@ part of 'receipt_bloc.dart';
 sealed class ReceiptState extends Equatable {
   const ReceiptState();
   factory ReceiptState.initial() => ReceiptInitial();
-  factory ReceiptState.sent(Receipt receipt) => ReceiptSentSucess(receipt);
+  factory ReceiptState.sent(Receipt receipt) => ReceiptSentSuccess(receipt);
   factory ReceiptState.received(Receipt receipt) =>
-      ReceiptRecievedSuccess(receipt);
+      ReceiptReceivedSuccess(receipt);
 
   @override
   List<Object?> get props => [];
@@ -13,17 +13,17 @@ sealed class ReceiptState extends Equatable {
 
 class ReceiptInitial extends ReceiptState {}
 
-class ReceiptSentSucess extends ReceiptState {
+class ReceiptSentSuccess extends ReceiptState {
   final Receipt receipt;
-  const ReceiptSentSucess(this.receipt);
+  const ReceiptSentSuccess(this.receipt);
 
   @override
   List<Object?> get props => [receipt];
 }
 
-class ReceiptRecievedSuccess extends ReceiptState {
+class ReceiptReceivedSuccess extends ReceiptState {
   final Receipt receipt;
-  const ReceiptRecievedSuccess(this.receipt);
+  const ReceiptReceivedSuccess(this.receipt);
 
   @override
   List<Object?> get props => [receipt];
