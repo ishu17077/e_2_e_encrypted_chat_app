@@ -5,7 +5,7 @@
 // import 'package:e_2_e_encrypted_chat_app/encryption/encryption.dart';
 // import 'package:e_2_e_encrypted_chat_app/models/message.dart';
 // import 'package:flutter_test/flutter_test.dart';
-
+void main() {}
 // void main() async {
 //   //? Dummy Message
 //   var random = Random.secure();
@@ -58,6 +58,3 @@
 //     expectLater(decryptedMessageContents, messageSend.contents);
 //   });
 // }
-
-
-
