@@ -8,8 +8,6 @@ import 'package:e_2_e_encrypted_chat_app/ui/pages/chatPage/chat_page.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-final user = AddNewUser.signedInUser;
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   FlutterLocalNotificationsPlugin localNotificationsPlugin =

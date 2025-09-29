@@ -1,95 +1,83 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
+import 'dart:io';
 
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:chat/chat.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_2_e_encrypted_chat_app/main.dart';
+import 'package:e_2_e_encrypted_chat_app/models/chat.dart';
+import 'package:e_2_e_encrypted_chat_app/state_management/home/chats_cubit.dart';
+import 'package:e_2_e_encrypted_chat_app/state_management/home/home_cubit.dart';
+import 'package:e_2_e_encrypted_chat_app/state_management/message/message_bloc.dart';
+import 'package:e_2_e_encrypted_chat_app/state_management/typing/typing_notif_bloc.dart';
 import 'package:e_2_e_encrypted_chat_app/ui/pages/authentication_pages/sign_up_page.dart';
 import 'package:e_2_e_encrypted_chat_app/ui/pages/chatPage/add_new_chat/add_new_chat_page.dart';
 
 import 'package:e_2_e_encrypted_chat_app/ui/pages/chatPage/chat_with/chat_with_page.dart';
-import 'package:e_2_e_encrypted_chat_app/databases/chat_database_helper.dart';
-import 'package:e_2_e_encrypted_chat_app/databases/message_database_helper.dart';
-import 'package:e_2_e_encrypted_chat_app/models/chat_store.dart';
-import 'package:e_2_e_encrypted_chat_app/models/message_store.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/get_messages.dart';
+import 'package:e_2_e_encrypted_chat_app/ui/pages/home/home_router.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 final _firestore = FirebaseFirestore.instance;
 
-class ChatPage extends StatefulWidget {
-
+class Home extends StatefulWidget {
+  final User me;
+  final IHomeRouter router;
+  const Home(this.me, this.router);
   @override
-  State<ChatPage> createState() => _ChatPageState();
+  State<Home> createState() => _HomeState();
 }
 
-class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
-
+class _HomeState extends State<Home>
+    with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
+  List<Chat> chats = [];
+  List<String> typingEvents = [];
   int count = 0;
   bool keepLoading = true;
   bool shouldHideTextField = false;
+  late User _user;
 
-
-  final signedInUser = AddNewUser.signedInUser;
   @override
   void initState() {
-    if (signedInUser == null) {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => SignUpPage()));
-    }
-    SharedPreferences.getInstance().then((prefs) {
-      final keys = prefs.getKeys();
-      for (String key in keys) {
-        if (key.contains('Labadaba')) {
-          prefs.remove(key);
-        }
-      }
-    });
-
-    WidgetsBinding.instance.addObserver(this);
-
-    messageDatabaseHelper.initializeDatabase();
-    GetMessages.getEncryptedKeysForAllUsers().then((value) {
-      derivedKeyForAllEmailAddress = value;
-      _chatStream = GetMessages.messageStream(
-          updateChatView: () => updateListView(),
-          messageDatabaseHelper: messageDatabaseHelper,
-          chatDatabaseHelper: chatDatabaseHelper,
-          derivedBitsKey: value!);
-
-      setState(() {
-        keepLoading = false;
-      });
-      updateListView();
-    });
-
-    // print(json.encode(value));
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _user = widget.me;
+    _initialSetup();
   }
 
+  void _initialSetup() async {
+    final user =
+        (!_user.active) ? await context.read<HomeCubit>().connect() : _user;
+    context.read<ChatsCubit>().chats();
+    context.read<HomeCubit>().activeUsers(user);
+    context.read<MessageBloc>().add(MessageEvent.subscribed(user));
+    _updateChatsOnMessageReceived();
+  }
+
+  @override
+  bool get wantKeepAlive => true;
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     switch (state) {
       case AppLifecycleState.resumed:
         print('AppCycleState resumed');
-        _chatStream?.resume();
-        _chatStream?.resume();
-        _chatStream?.resume();
-        _chatStream?.resume();
-        _chatStream?.resume();
-        _chatStream?.resume();
-        updateListView();
-        SharedPreferences.getInstance().then((prefs) {
-          final keys = prefs.getKeys();
-          for (String key in keys) {
-            if (key.contains('Labadaba')) {
-              prefs.remove(key);
-            }
-          }
-        });
+        // _chatStream?.resume();
+        // _chatStream?.resume();
+        // _chatStream?.resume();
+        // _chatStream?.resume();
+        // _chatStream?.resume();
+        // _chatStream?.resume();
+        // updateListView();
+
         break;
       case AppLifecycleState.inactive:
         print('AppCycleState inactive');
@@ -97,7 +85,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         break;
       case AppLifecycleState.paused:
         print('AppCycleState paused');
-        _chatStream?.pause();
+        // _chatStream?.pause();
         break;
       case AppLifecycleState.detached:
         print('AppCycleState detached');
@@ -105,7 +93,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         break;
       case AppLifecycleState.hidden:
         print('AppCycleState hidden');
-        _chatStream?.pause();
+        // _chatStream?.pause();
         // _chatStream?.pause();
         break;
     }
@@ -113,15 +101,15 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    _chatStream?.cancel();
+    // _chatStream?.cancel();
+
     super.dispose();
   }
 
   @override
   void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
-    _chatStream?.resume();
-    updateListView();
+    // _chatStream?.resume();
+    // updateListView();
 
     super.didChangeDependencies();
   }
@@ -129,160 +117,179 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   // List<Message> messages = [];
   @override
   Widget build(BuildContext context) {
-    _chatStream?.resume();
-
     return Scaffold(
-      resizeToAvoidBottomInset: true,
-      backgroundColor: kBackgroundColor,
-      body: SafeArea(
-        child: keepLoading
-            ? const Center(child: CircularProgressIndicator())
-            : keepLoading
-                ? const Center(child: CircularProgressIndicator())
-                : NestedScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    // controller: _scrollController,
-                    headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                      SliverAppBar(
-                        elevation: 0.0,
-                        leading: null,
-                        collapsedHeight: 60,
-                        backgroundColor: kBackgroundColor,
-                        flexibleSpace: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                    top: 10.0,
-                                    bottom: 0.0,
-                                    left: 8.0,
-                                    right: 11.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    const Text(
-                                      "Conversations",
-                                      style: TextStyle(
-                                        fontSize: 30,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    MaterialButton(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 0, horizontal: 10),
-                                      color: kSexyTealColor.withOpacity(0.8),
-                                      elevation: 5,
-                                      shape: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(20.0),
-                                        borderSide: BorderSide.none,
-                                      ),
-                                      child: const Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            Icons.add,
-                                            color: kBackgroundColor,
-                                          ),
-                                          Text(
-                                            'Add New',
-                                            style: TextStyle(
-                                                color: kBackgroundColor,
-                                                fontSize: 13),
-                                          ),
-                                        ],
-                                      ),
-                                      onPressed: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) => ChatAdd(
-                                                    derivedKeyForAllEmailAddress!,
-                                                    updateListView),
-                                                maintainState: true));
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            // SizedBox(height: MediaQuery.of(context).size.height * 0.010),
-                            // innerBoxIsScrolled
-                            //     ? Container()
-                            //     :
-                          ],
-                        ),
-                      )
-                    ],
-                    body: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              top: 5.0, bottom: 0.0, left: 8.0, right: 11.0),
-                          child: TextField(
-                            decoration: InputDecoration(
-                              contentPadding: EdgeInsets.zero,
-                              fillColor: kTextFieldColor,
-                              filled: true,
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(40),
-                                  borderSide: BorderSide.none),
-                              prefixIcon: const Icon(
-                                Icons.search_rounded,
-                                color: Colors.teal,
-                              ),
-                            ),
-                            style: const TextStyle(
-                              color: Colors.white,
-                            ),
-                            cursorColor: Colors.teal,
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        Expanded(
-                          child: ListView.builder(
-                            itemBuilder: (context, index) {
-                              return chatTile(chatList![index], context);
-                            },
-                            itemCount: count,
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
+        resizeToAvoidBottomInset: true,
+        backgroundColor: kBackgroundColor,
+        body: SafeArea(
+          child: BlocBuilder<ChatsCubit, List<Chat>>(builder: (context, chats) {
+            this.chats = chats;
+            if (this.chats.isEmpty) return Container();
+
+            context.read<TypingNotifBloc>().add(TypingNotifEvent.subscribed(
+                  widget.me,
+                  userWithChats: chats
+                      .map((chat) => chat.from?.id)
+                      .whereType<
+                          String>() //? Returns itearable of type string not string? which removes null
+                      .toList(),
+                ));
+            return _buildHome();
+          }),
+        ));
+  }
+
+  Widget _buildHome() {
+    return NestedScrollView(
+      physics: BouncingScrollPhysics(),
+      headerSliverBuilder: (context, innerBoxIsScrolled) => [_buildAppBar()],
+      body: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          _buildSearchBar(),
+          SizedBox(height: 5),
+          _buildListView(),
+        ],
       ),
     );
   }
 
-  Widget chatTile(ChatStore chatStore, BuildContext context) {
+  Widget _buildAppBar() {
+    return SliverAppBar(
+      elevation: 0.0,
+      leading: null,
+      collapsedHeight: 60,
+      backgroundColor: kBackgroundColor,
+      flexibleSpace: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Expanded(
+              child: Padding(
+            padding: const EdgeInsets.only(
+              top: 10,
+              bottom: 0,
+              left: 8.0,
+              right: 11.0,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  "Conversations",
+                  style: TextStyle(
+                    fontSize: 30,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                MaterialButton(
+                  padding:
+                      EdgeInsets.symmetric(vertical: 0.0, horizontal: 10.0),
+                  color: kSexyTealColor.withValues(alpha: 0.8),
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                    side: BorderSide.none,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.add,
+                        color: kBackgroundColor,
+                      ),
+                      Text(
+                        "Add New",
+                        style: TextStyle(color: kBackgroundColor, fontSize: 13),
+                      )
+                    ],
+                  ),
+                  onPressed: () {},
+                ),
+              ],
+            ),
+          ))
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return TextField(
+      showCursor: true,
+      decoration: InputDecoration(
+        contentPadding: EdgeInsets.zero,
+        fillColor: kTextFieldColor,
+        filled: true,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(40),
+          borderSide: BorderSide.none,
+        ),
+        prefixIcon: Icon(Icons.search_rounded, color: Colors.teal),
+        labelStyle: TextStyle(color: Colors.white),
+      ),
+      cursorColor: Colors.teal,
+      style: TextStyle(color: Colors.white),
+    );
+  }
+
+  Widget _buildListView() {
+    return Expanded(
+        child: ListView.builder(
+      itemBuilder: (context, index) {
+        return chatTile(chats[index], context);
+      },
+      itemCount: chats.length,
+    ));
+  }
+
+  Widget chatTile(Chat chat, BuildContext context) {
     return ListTile(
       tileColor: kBackgroundColor,
       splashColor: kSexyTealColor.withOpacity(0.2),
       leading: Hero(
-        tag: chatStore.id ?? '_',
+        tag: chat.id ?? '_',
         child: CircleAvatar(
-          backgroundImage: NetworkImage(chatStore.photoUrl ??
+          backgroundImage: NetworkImage(chat.from?.photoUrl ??
               'https://www.shutterstock.com/image-photo/red-text-any-questions-paper-600nw-2312396111.jpg'),
         ),
       ),
       title: Text(
-        chatStore.name ?? '',
+        chat.from?.name ?? '',
         style: const TextStyle(color: Colors.white),
       ),
-      subtitle: Text(
-        chatStore.mostRecentMessage?.contents ?? '',
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(color: Colors.white70),
+      subtitle: BlocBuilder<TypingNotifBloc, TypingNotifState>(
+        builder: (_, state) {
+          //TODO: This implementaion doesn't need to be so big work on this
+          if (state is TypingReceivedSuccess &&
+              state.typingEvent.event == Typing.start &&
+              state.typingEvent.from == chat.from?.id) {
+            this.typingEvents.add(state.typingEvent.from);
+          } else if (state is TypingReceivedSuccess &&
+              state.typingEvent.event == Typing.stop &&
+              state.typingEvent.from == chat.from?.id) {
+            this.typingEvents.remove(state.typingEvent.from);
+          }
+          if (this.typingEvents.contains(chat.from?.id)) {
+            return Text(
+              "typing...",
+              style:
+                  TextStyle(color: Colors.green, fontStyle: FontStyle.italic),
+            );
+          }
+
+          return Text(
+            chat.mostRecent?.message.contents ?? '',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(color: Colors.white70),
+          );
+        },
       ),
+
+      // trailing: ,
+      //TODO: Impl Receipt
       // trailing: Align(
       //   alignment: Alignment.centerLeft,
       //   child:
@@ -300,36 +307,25 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
       //                 )
       //           : const SizedBox(),
       // ),
-      onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => ChatWithPage(
-            chatStore: chatStore,
-            derivedKey: derivedKeyForAllEmailAddress!,
-            chatExists: true,
-            updateChatsView: updateListView,
-          ),
-        ));
+      onTap: () async {
+        await this.widget.router.onShowMessageThread(
+            context, chat.from, widget.me,
+            chatId: chat.id);
+        //TODO: Implement caching algo, refer to Notekeeper for that
+        await context.read<ChatsCubit>().chats();
       },
       enabled: true,
       enableFeedback: true,
     );
   }
 
-  void updateListView() async {
-    final Future<Database> dbFuture = chatDatabaseHelper.initializeDatabase();
-    dbFuture.then((value) {
-      chatDatabaseHelper.getChatsList().then((chatList) {
-        setState(() {
-          this.chatList = chatList;
-
-          count = chatList.length;
-        });
-      });
+  void _updateChatsOnMessageReceived() {
+    final chatsCubit = context.read<ChatsCubit>();
+    context.read<MessageBloc>().stream.listen((state) async {
+      if (state is MessageReceivedSuccess) {
+        chatsCubit.viewModel.receivedMessage(state.message.from, state.message);
+        chatsCubit.chats();
+      }
     });
-  }
-
-  bool _isMe(String sender, String signedInUserEmail) {
-    bool isMe = sender == signedInUserEmail ? true : false;
-    return isMe;
   }
 }

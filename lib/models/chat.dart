@@ -3,7 +3,7 @@ import 'package:e_2_e_encrypted_chat_app/data/constants/table_names.dart';
 import 'package:e_2_e_encrypted_chat_app/models/local_message.dart';
 
 class Chat {
-  String get() => _id;
+  String get id => _id;
   late String _id;
   final String userId;
   int unread = 0;
@@ -11,7 +11,7 @@ class Chat {
 
   LocalMessage? mostRecent;
 
-  User? from;
+  late User from;
 
   Chat(this.userId, {List<LocalMessage>? messages, this.mostRecent})
       : messages = messages ?? [];

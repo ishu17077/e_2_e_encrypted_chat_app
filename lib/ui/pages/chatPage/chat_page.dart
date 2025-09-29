@@ -21,17 +21,14 @@ import 'package:sqflite/sqflite.dart';
 final _firestore = FirebaseFirestore.instance;
 
 class ChatPage extends StatefulWidget {
-
   @override
   State<ChatPage> createState() => _ChatPageState();
 }
 
 class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
-
   int count = 0;
   bool keepLoading = true;
   bool shouldHideTextField = false;
-
 
   final signedInUser = AddNewUser.signedInUser;
   @override
@@ -40,14 +37,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => SignUpPage()));
     }
-    SharedPreferences.getInstance().then((prefs) {
-      final keys = prefs.getKeys();
-      for (String key in keys) {
-        if (key.contains('Labadaba')) {
-          prefs.remove(key);
-        }
-      }
-    });
 
     WidgetsBinding.instance.addObserver(this);
 
@@ -82,14 +71,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         _chatStream?.resume();
         _chatStream?.resume();
         updateListView();
-        SharedPreferences.getInstance().then((prefs) {
-          final keys = prefs.getKeys();
-          for (String key in keys) {
-            if (key.contains('Labadaba')) {
-              prefs.remove(key);
-            }
-          }
-        });
+
         break;
       case AppLifecycleState.inactive:
         print('AppCycleState inactive');

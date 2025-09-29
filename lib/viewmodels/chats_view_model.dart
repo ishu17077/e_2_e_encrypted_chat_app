@@ -1,6 +1,7 @@
 import 'package:chat/chat.dart';
 import 'package:e_2_e_encrypted_chat_app/data/datasources/datasource_contract.dart';
 import 'package:e_2_e_encrypted_chat_app/models/chat.dart';
+import 'package:e_2_e_encrypted_chat_app/models/local_message.dart';
 import 'package:e_2_e_encrypted_chat_app/viewmodels/base_view_model.dart';
 
 class ChatsViewModel extends BaseViewModel {
@@ -18,5 +19,17 @@ class ChatsViewModel extends BaseViewModel {
       }
     });
     return chats;
+  }
+
+  Future<void> receivedMessage(String userId, Message message) async {
+    LocalMessage localMessage = LocalMessage(
+        message,
+        Receipt(
+            messageId: '',
+            recipientId: '',
+            status: ReceiptStatus.delivered,
+            time: DateTime.now()),
+        userId: userId);
+    await addMessage(localMessage);
   }
 }

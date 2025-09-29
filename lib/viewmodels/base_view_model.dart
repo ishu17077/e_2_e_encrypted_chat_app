@@ -11,6 +11,8 @@ abstract class BaseViewModel {
 
   @protected
   Future<void> addMessage(LocalMessage message) async {
+    assert(message.chatId != null || message.userId != null,
+        "Both user_id and chat_id cannot be null");
     if (!await _isExistingChat(message.chatId, message.message.from, null)) {
       final User? user = await _userService.fetch(message.message.from);
       if (user == null) {
@@ -21,6 +23,7 @@ abstract class BaseViewModel {
       await _createNewUser(user);
       await _createNewChat(message.message.from, user);
     }
+    await _dataSource.addMessage(message);
   }
 
   Future<bool> _isExistingChat(

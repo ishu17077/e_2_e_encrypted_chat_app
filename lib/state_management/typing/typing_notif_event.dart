@@ -2,6 +2,11 @@ part of 'typing_notif_bloc.dart';
 
 sealed class TypingNotifEvent extends Equatable {
   const TypingNotifEvent();
+  factory TypingNotifEvent.subscribed(User user,
+          {required List<String> userWithChats}) =>
+      Subscribed(user, userWithChats: userWithChats);
+  factory TypingNotifEvent.sent(TypingEvent typingEvent) =>
+      TypingEventSent(typingEvent);
 
   @override
   List<Object?> get props => [];
@@ -9,7 +14,8 @@ sealed class TypingNotifEvent extends Equatable {
 
 class Subscribed extends TypingNotifEvent {
   final User user;
-  const Subscribed(this.user);
+  final List<String> userWithChats;
+  const Subscribed(this.user, {required this.userWithChats});
 
   @override
   List<Object?> get props => [user];
