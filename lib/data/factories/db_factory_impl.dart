@@ -18,7 +18,7 @@ class LocalDatabaseFactory {
 
   Database? _database;
 
-  Future<Database> createDatabase() async {
+  Future<Database> getDatabase() async {
     if (_database != null) {
       return _database!;
     }

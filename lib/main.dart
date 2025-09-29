@@ -1,6 +1,8 @@
+import 'package:e_2_e_encrypted_chat_app/composition_root.dart';
 import 'package:e_2_e_encrypted_chat_app/ui/pages/authentication_pages/sign_up_page.dart';
 import 'package:e_2_e_encrypted_chat_app/notifications/firebase_api.dart';
 import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
+import 'package:e_2_e_encrypted_chat_app/ui/pages/home/home.dart';
 import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -14,9 +16,10 @@ void main() async {
       await FlutterLocalNotificationsPlugin();
   localNotificationsPlugin.cancelAll();
   await Firebase.initializeApp();
-  if (user != null) {
-    await FirebaseApi().initNotifications();
-  } //? initialize notification for them
+  // if (user != null) {
+  //   await FirebaseApi().initNotifications();
+  // } //? initialize notification for them
+  CompositionRoot.configure();
   runApp(const MyApp());
 }
 
@@ -50,7 +53,7 @@ class MyApp extends StatelessWidget {
           buttonColor: Color(0xff0cf3e1),
         ),
       ),
-      home: user != null ? ChatPage() : SignUpPage(),
+      home: CompositionRoot.start(),
     );
   }
 }

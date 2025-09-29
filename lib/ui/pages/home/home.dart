@@ -55,11 +55,12 @@ class _HomeState extends State<Home>
   }
 
   void _initialSetup() async {
-    final user =
-        (!_user.active) ? await context.read<HomeCubit>().connect() : _user;
+    // final user =
+    //     (!_user.active) ? await context.read<HomeCubit>().connect() : _user;
     context.read<ChatsCubit>().chats();
-    context.read<HomeCubit>().activeUsers(user);
-    context.read<MessageBloc>().add(MessageEvent.subscribed(user));
+    context.read<HomeCubit>().activeUsers(widget.me);
+    //! me should be user from above comment
+    context.read<MessageBloc>().add(MessageEvent.subscribed(widget.me));
     _updateChatsOnMessageReceived();
   }
 

@@ -7,3 +7,8 @@ export './src/services/message/message_service_contract.dart';
 export './src/services/receipt/receipt_service_contract.dart';
 export './src/services/typing/typing_notification_service_contract.dart';
 export './src/services/user/user_service_contract.dart';
+export './src/services/encryption/encryption_service.dart';
+export './src/services/message/message_service_impl.dart';
+export './src/services/receipt/receipt_service_impl.dart';
+export './src/services/typing/typing_notification_impl.dart';
+export './src/services/user/user_service_impl.dart';

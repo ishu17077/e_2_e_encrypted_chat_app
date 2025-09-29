@@ -51,7 +51,7 @@ void main() {
 
   group("Should send and recieve typing events", () {
     test("Should send typing event", () async {
-      when(documentSnapshot.id).thenReturn(user.id);
+      when(documentSnapshot.id).thenReturn(user.id!);
       final bool isSent = await sut.send(TypingEvent.fromJSON(typingEventMap));
       verify(collectionReference.add(any)).called(1);
       expect(isSent, true);
