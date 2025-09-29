@@ -30,7 +30,8 @@ class MessageService implements IMessageService {
 
   @override
   Future<Message> send(Message message) async {
-    assert(message.iv != null, "IV cannot be null");
+    //TODO: Impl
+    // assert(message.iv != null, "IV cannot be null");
     late final Message messageReturn;
     message.contents = _encryption.encrypt(message.contents);
     DocumentReference<Map<String, dynamic>> docRef = await _firestore
