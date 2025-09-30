@@ -40,15 +40,15 @@ class SqfliteDatasource implements IDataSource {
     return _db.transaction((txn) async {
       final chatsWithLatestMessage =
           await txn.rawQuery("""SELECT ${MessageTable.tableName}.* FROM 
-      (SELECT chat_id, 
+      (SELECT ${MessageTable.colChatId},
+      ${MessageTable.colExecutedAt}, 
       MAX(created_at) AS created_at
-      FROM ${MessageTable.tableName} GROUP BY chat_id
-      ) AS latest_messages
+      FROM ${MessageTable.tableName} GROUP BY chat_id) AS latest_messages
       INNER JOIN ${MessageTable.tableName} 
       ON ${MessageTable.tableName}.${MessageTable.colChatId} = latest_messages.${MessageTable.colChatId}
       AND ${MessageTable.tableName}.${MessageTable.colExecutedAt} = latest_messages.${MessageTable.colExecutedAt}
       INNER JOIN ${ChatTable.tableName}
-      ON ${ChatTable.tableName}.${ChatTable.colId} = latest_messages.${MessageTable.tableName}.${MessageTable.colChatId}  
+      ON ${ChatTable.tableName}.${ChatTable.colId} = latest_messages.${MessageTable.colChatId}  
       INNER JOIN ${UserTable.tableName}
       ON ${UserTable.tableName}.${UserTable.colId} = ${ChatTable.tableName}.${ChatTable.colUserId}
       ORDER BY ${MessageTable.tableName}.${MessageTable.colExecutedAt} DESC""");

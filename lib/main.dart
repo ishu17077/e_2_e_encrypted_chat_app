@@ -11,7 +11,7 @@ import 'package:flutter/services.dart';
 // import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 void main() async {
-  // WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
   // FlutterLocalNotificationsPlugin localNotificationsPlugin =
   //     await FlutterLocalNotificationsPlugin();
   // localNotificationsPlugin.cancelAll();
@@ -19,7 +19,7 @@ void main() async {
   // if (user != null) {
   //   await FirebaseApi().initNotifications();
   // } //? initialize notification for them
-  CompositionRoot.configure();
+  await CompositionRoot.configure();
   runApp(const MyApp());
 }
 

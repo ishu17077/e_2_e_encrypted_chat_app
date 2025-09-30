@@ -63,7 +63,7 @@ class MessageService implements IMessageService {
         });
 
     _changeFeed?.onError((error) {
-      debugPrint(error);
+      debugPrint(error.toString());
     });
   }
 

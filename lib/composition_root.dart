@@ -5,6 +5,7 @@ import 'package:secuchat/data/datasources/datasource_contract.dart';
 import 'package:secuchat/data/datasources/sqflite_datasource_impl.dart';
 import 'package:secuchat/data/factories/db_factory_impl.dart';
 import 'package:secuchat/state_management/home/chats_cubit.dart';
+import 'package:secuchat/state_management/home/home_cubit.dart';
 import 'package:secuchat/state_management/message/message_bloc.dart';
 import 'package:secuchat/state_management/typing/typing_notif_bloc.dart';
 import 'package:secuchat/ui/pages/home/home.dart';
@@ -29,8 +30,9 @@ class CompositionRoot {
   static late MessageBloc _messageBloc;
   static late TypingNotifBloc _typingNotifBloc;
   static late ChatsCubit _chatsCubit;
+  static late HomeCubit _homeCubit;
 
-  static configure() async {
+  static Future<void> configure() async {
     await Firebase.initializeApp();
     _firebaseFirestore = FirebaseFirestore.instance;
     _userService = UserService(_firebaseFirestore);
@@ -46,6 +48,7 @@ class CompositionRoot {
     _typingNotifBloc = TypingNotifBloc(_typingNotification);
     final viewModel = ChatsViewModel(_dataSource, userService: _userService);
     _chatsCubit = ChatsCubit(viewModel);
+    _homeCubit = HomeCubit(_userService, _localCache);
   }
 
   static Widget start() {
@@ -59,6 +62,7 @@ class CompositionRoot {
         BlocProvider(create: (context) => _messageBloc),
         BlocProvider(create: (context) => _typingNotifBloc),
         //  BlocProvider(create: (context) => _cu,)
+        BlocProvider(create: (context) => _homeCubit),
       ],
       child: Home(
           User(

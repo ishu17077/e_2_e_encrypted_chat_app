@@ -8,6 +8,7 @@
       "name": "secuchat",
       "request": "launch",
       "type": "dart",
+      "program": "lib/main.dart",
       "args": [
         "-vv"
       ]

@@ -16,7 +16,7 @@ class LocalDatabaseFactory {
     return _localDatabaseFactory!;
   }
 
-  Database? _database;
+  static Database? _database;
 
   Future<Database> getDatabase() async {
     if (_database != null) {
@@ -24,11 +24,11 @@ class LocalDatabaseFactory {
     }
     String databasePath = await getDatabasesPath();
     String dbPath = join(databasePath, "secuchat.db");
-    _database = await openDatabase(dbPath, onCreate: populateDb, version: 1);
+    _database = await openDatabase(dbPath, onCreate: _populateDb, version: 1);
     return _database!;
   }
 
-  Future<void> populateDb(Database db, int version) async {
+  Future<void> _populateDb(Database db, int version) async {
     await _createChatTable(db);
     await _createMessageTable(db);
     await _createUserTable(db);
@@ -42,7 +42,7 @@ class LocalDatabaseFactory {
         ${ChatTable.colGroupId} TEXT,
         ${ChatTable.colCreatedAt} TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
         CONSTRAINT CK_GroupOrUserPresent CHECK (${ChatTable.colUserId} IS NOT NULL OR ${ChatTable.colGroupId} IS NOT NULL)
-        """).then((_) {
+        )""").then((_) {
       debugPrint("Successfully created ${ChatTable.tableName} Table");
     }).catchError((e) {
       debugPrint(" ${ChatTable.tableName} table creation failed: $e");
@@ -51,13 +51,13 @@ class LocalDatabaseFactory {
 
   Future<void> _createMessageTable(Database db) async {
     await db.execute("""CREATE TABLE ${MessageTable.tableName}(
-    ${MessageTable.colId} INTEGER PRIMARY KEY NOT NULL AUTOINCREMENT,
+    ${MessageTable.colId} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     ${MessageTable.colChatId} TEXT NOT NULL,
     ${MessageTable.colSender} TEXT NOT NULL,
     ${MessageTable.colRecipient} TEXT,
     ${MessageTable.colReceipt} TEXT NOT NULL,
     ${MessageTable.colContents} TEXT NOT NULL,
-    ${MessageTable.colCreatedAt} TIMESTAMP DEFAULT CUTRRENT_TIMESTAMP NOT NULL,
+    ${MessageTable.colCreatedAt} TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     ${MessageTable.colExecutedAt} TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
     )""").then((_) {
       debugPrint("Successfully created ${MessageTable.tableName} table");
@@ -69,9 +69,9 @@ class LocalDatabaseFactory {
   Future<void> _createUserTable(Database db) async {
     await db.execute("""CREATE TABLE ${UserTable.tableName}(
       ${UserTable.colId} TEXT PRIMARY KEY NOT NULL,
-      ${UserTable.colEmail} TINYTEXT NOT NULL,
-      ${UserTable.colUsername} TINYTEXT NOT NULL,
-      ${UserTable.photoUrl} TEXT NOT NULL,
+      ${UserTable.colEmail} VARCHAR(255) NOT NULL,
+      ${UserTable.colUsername} VARCHAR(255) NOT NULL,
+      ${UserTable.photoUrl} TEXT NOT NULL
     )""").then((_) {
       debugPrint("Successfully created ${UserTable.tableName} table");
     }).catchError((error) {
@@ -86,7 +86,7 @@ class LocalDatabaseFactory {
     batch.execute(
         "CREATE UNIQUE INDEX chat_identify ON ${ChatTable.tableName} (${ChatTable.colId}, ${ChatTable.colUserId}, ${ChatTable.colGroupId})");
     batch.execute(
-        "CREATE INDEX messages_index ON ${MessageTable.tableName} (${MessageTable.colChatId}, ${MessageTable.colExecutedAt}), ${MessageTable.colCreatedAt}, ${MessageTable.colReceipt}");
+        "CREATE INDEX messages_index ON ${MessageTable.tableName} (${MessageTable.colChatId}, ${MessageTable.colExecutedAt}, ${MessageTable.colCreatedAt}, ${MessageTable.colReceipt})");
     await batch.commit();
   }
 }

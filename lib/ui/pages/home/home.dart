@@ -1,31 +1,16 @@
 // ignore_for_file: use_build_context_synchronously
-
-import 'dart:async';
-import 'dart:convert';
-import 'dart:ffi';
-import 'dart:io';
-
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:chat/chat.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:secuchat/main.dart';
 import 'package:secuchat/models/chat.dart';
 import 'package:secuchat/state_management/home/chats_cubit.dart';
 import 'package:secuchat/state_management/home/home_cubit.dart';
 import 'package:secuchat/state_management/message/message_bloc.dart';
 import 'package:secuchat/state_management/typing/typing_notif_bloc.dart';
-import 'package:secuchat/ui/pages/authentication_pages/sign_up_page.dart';
-import 'package:secuchat/ui/pages/chatPage/add_new_chat/add_new_chat_page.dart';
-
-import 'package:secuchat/ui/pages/chatPage/chat_with/chat_with_page.dart';
-import 'package:secuchat/server_functions/add_new_user.dart';
-import 'package:secuchat/server_functions/get_messages.dart';
 import 'package:secuchat/ui/pages/home/home_router.dart';
 import 'package:secuchat/unit_components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite/sqflite.dart';
 
 final _firestore = FirebaseFirestore.instance;
 
@@ -124,7 +109,7 @@ class _HomeState extends State<Home>
         body: SafeArea(
           child: BlocBuilder<ChatsCubit, List<Chat>>(builder: (context, chats) {
             this.chats = chats;
-            if (this.chats.isEmpty) return Container();
+            if (this.chats.isEmpty) return _buildHome();
 
             context.read<TypingNotifBloc>().add(TypingNotifEvent.subscribed(
                   widget.me,
@@ -146,6 +131,7 @@ class _HomeState extends State<Home>
       body: Column(
         mainAxisSize: MainAxisSize.max,
         children: [
+          SizedBox(height: 10),
           _buildSearchBar(),
           SizedBox(height: 5),
           _buildListView(),
@@ -178,7 +164,7 @@ class _HomeState extends State<Home>
                 Text(
                   "Conversations",
                   style: TextStyle(
-                    fontSize: 30,
+                    fontSize: 35,
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
                   ),
@@ -188,9 +174,10 @@ class _HomeState extends State<Home>
                       EdgeInsets.symmetric(vertical: 0.0, horizontal: 10.0),
                   color: kSexyTealColor.withValues(alpha: 0.8),
                   elevation: 5,
-                  shape: RoundedRectangleBorder(
+                  shape: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(20.0),
-                    side: BorderSide.none,
+                    borderSide: BorderSide.none,
+                    gapPadding: 2.0,
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -203,7 +190,7 @@ class _HomeState extends State<Home>
                       Text(
                         "Add New",
                         style: TextStyle(color: kBackgroundColor, fontSize: 13),
-                      )
+                      ),
                     ],
                   ),
                   onPressed: () {},
@@ -217,27 +204,31 @@ class _HomeState extends State<Home>
   }
 
   Widget _buildSearchBar() {
-    return TextField(
-      showCursor: true,
-      decoration: InputDecoration(
-        contentPadding: EdgeInsets.zero,
-        fillColor: kTextFieldColor,
-        filled: true,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(40),
-          borderSide: BorderSide.none,
+    return Padding(
+      padding: EdgeInsetsGeometry.symmetric(horizontal: 10.0),
+      child: TextField(
+        showCursor: true,
+        decoration: InputDecoration(
+          contentPadding: EdgeInsets.zero,
+          fillColor: kTextFieldColor,
+          filled: true,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(40),
+            borderSide: BorderSide.none,
+          ),
+          prefixIcon: Icon(Icons.search_rounded, color: Colors.teal),
+          labelStyle: TextStyle(color: Colors.white),
         ),
-        prefixIcon: Icon(Icons.search_rounded, color: Colors.teal),
-        labelStyle: TextStyle(color: Colors.white),
+        cursorColor: Colors.teal,
+        style: TextStyle(color: Colors.white),
       ),
-      cursorColor: Colors.teal,
-      style: TextStyle(color: Colors.white),
     );
   }
 
   Widget _buildListView() {
     return Expanded(
         child: ListView.builder(
+      addAutomaticKeepAlives: true,
       itemBuilder: (context, index) {
         return chatTile(chats[index], context);
       },
