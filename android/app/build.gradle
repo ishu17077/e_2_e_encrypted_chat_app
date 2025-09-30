@@ -34,7 +34,7 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace 'com.developerik.secuchat'
     compileSdk flutter.compileSdkVersion
-    ndkVersion "25.1.8937393"
+    ndkVersion "29.0.13846066"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -55,7 +55,7 @@ android {
         applicationId "com.developerik.secuchat"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion 21
+        minSdkVersion flutter.minSdkVersion
         multiDexEnabled true
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
