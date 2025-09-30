@@ -8,7 +8,7 @@
 // import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
-// import 'package:e_2_e_encrypted_chat_app/main.dart';
+// import 'package:secuchat/main.dart';
 
 void main() {
   //? Maybe this is not a bug, but a feature

@@ -1,7 +1,7 @@
 #!/bin/sh
 # This is a generated file; do not edit or check into version control.
 export "FLUTTER_ROOT=/home/ishukumar5663/flutter"
-export "FLUTTER_APPLICATION_PATH=/home/ishukumar5663/AndroidStudioProjects/e_2_e_encrypted_chat_app/webcrypto-0.5.3/example"
+export "FLUTTER_APPLICATION_PATH=/home/ishukumar5663/AndroidStudioProjects/secuchat/webcrypto-0.5.3/example"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
 export "FLUTTER_TARGET=lib/main.dart"
 export "FLUTTER_BUILD_DIR=build"

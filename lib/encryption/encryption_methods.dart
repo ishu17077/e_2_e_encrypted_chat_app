@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:e_2_e_encrypted_chat_app/encryption/encryption.dart';
+import 'package:secuchat/encryption/encryption.dart';
 import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
 
 EncryptedSharedPreferences _encryptedSharedPreferences =

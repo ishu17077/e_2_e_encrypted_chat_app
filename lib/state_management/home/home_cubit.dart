@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:chat/chat.dart';
-import 'package:e_2_e_encrypted_chat_app/cache/local_cache.dart';
-import 'package:e_2_e_encrypted_chat_app/state_management/home/home_state.dart';
+import 'package:secuchat/cache/local_cache.dart';
+import 'package:secuchat/state_management/home/home_state.dart';
 
 class HomeCubit extends Cubit<HomeState> {
   final IUserService _userService;

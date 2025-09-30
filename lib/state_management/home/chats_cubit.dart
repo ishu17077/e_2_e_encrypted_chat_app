@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
-import 'package:e_2_e_encrypted_chat_app/models/chat.dart';
-import 'package:e_2_e_encrypted_chat_app/viewmodels/chats_view_model.dart';
+import 'package:secuchat/models/chat.dart';
+import 'package:secuchat/viewmodels/chats_view_model.dart';
 
 class ChatsCubit extends Cubit<List<Chat>> {
   final ChatsViewModel viewModel;

@@ -1,6 +1,6 @@
 {
-    "name": "e_2_e_encrypted_chat_app",
-    "short_name": "e_2_e_encrypted_chat_app",
+    "name": "secuchat",
+    "short_name": "secuchat",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

@@ -1,4 +1,4 @@
-import 'package:e_2_e_encrypted_chat_app/data/constants/table_names.dart';
+import 'package:secuchat/data/constants/table_names.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';

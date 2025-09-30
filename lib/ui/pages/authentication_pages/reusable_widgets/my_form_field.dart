@@ -1,4 +1,4 @@
-import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
+import 'package:secuchat/unit_components.dart';
 import 'package:flutter/material.dart';
 
 class MyFormField extends StatefulWidget {

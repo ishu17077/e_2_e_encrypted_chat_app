@@ -2,8 +2,8 @@
 // import 'dart:math';
 // import 'dart:typed_data';
 // import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:e_2_e_encrypted_chat_app/encryption/encryption.dart';
-// import 'package:e_2_e_encrypted_chat_app/models/message.dart';
+// import 'package:secuchat/encryption/encryption.dart';
+// import 'package:secuchat/models/message.dart';
 // import 'package:flutter_test/flutter_test.dart';
 void main() {}
 // void main() async {

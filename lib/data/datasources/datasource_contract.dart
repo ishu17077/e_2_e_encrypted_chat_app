@@ -1,6 +1,6 @@
 import 'package:chat/chat.dart';
-import 'package:e_2_e_encrypted_chat_app/models/chat.dart';
-import 'package:e_2_e_encrypted_chat_app/models/local_message.dart';
+import 'package:secuchat/models/chat.dart';
+import 'package:secuchat/models/local_message.dart';
 
 abstract class IDataSource {
   Future<void> addChat(Chat chat);

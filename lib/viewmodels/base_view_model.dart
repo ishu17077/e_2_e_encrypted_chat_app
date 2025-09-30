@@ -1,7 +1,7 @@
 import 'package:chat/chat.dart';
-import 'package:e_2_e_encrypted_chat_app/data/datasources/datasource_contract.dart';
-import 'package:e_2_e_encrypted_chat_app/models/chat.dart';
-import 'package:e_2_e_encrypted_chat_app/models/local_message.dart';
+import 'package:secuchat/data/datasources/datasource_contract.dart';
+import 'package:secuchat/models/chat.dart';
+import 'package:secuchat/models/local_message.dart';
 import 'package:flutter/material.dart';
 
 abstract class BaseViewModel {

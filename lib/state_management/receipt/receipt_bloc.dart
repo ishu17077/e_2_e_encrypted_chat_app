@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:chat/chat.dart';
-import 'package:e_2_e_encrypted_chat_app/data/datasources/datasource_contract.dart';
+import 'package:secuchat/data/datasources/datasource_contract.dart';
 import 'package:equatable/equatable.dart';
 
 part 'receipt_event.dart';

@@ -1,21 +1,21 @@
-import 'package:e_2_e_encrypted_chat_app/composition_root.dart';
-import 'package:e_2_e_encrypted_chat_app/ui/pages/authentication_pages/sign_up_page.dart';
-import 'package:e_2_e_encrypted_chat_app/notifications/firebase_api.dart';
-import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
-import 'package:e_2_e_encrypted_chat_app/ui/pages/home/home.dart';
-import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
+import 'package:secuchat/composition_root.dart';
+// import 'package:secuchat/ui/pages/authentication_pages/sign_up_page.dart';
+import 'package:secuchat/notifications/firebase_api.dart';
+// import 'package:secuchat/server_functions/add_new_user.dart';
+// import 'package:secuchat/ui/pages/home/home.dart';
+import 'package:secuchat/unit_components.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:e_2_e_encrypted_chat_app/ui/pages/chatPage/chat_page.dart';
+// import 'package:secuchat/ui/pages/chatPage/chat_page.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  FlutterLocalNotificationsPlugin localNotificationsPlugin =
-      await FlutterLocalNotificationsPlugin();
-  localNotificationsPlugin.cancelAll();
-  await Firebase.initializeApp();
+  // WidgetsFlutterBinding.ensureInitialized();
+  // FlutterLocalNotificationsPlugin localNotificationsPlugin =
+  //     await FlutterLocalNotificationsPlugin();
+  // localNotificationsPlugin.cancelAll();
+  // await Firebase.initializeApp();
   // if (user != null) {
   //   await FirebaseApi().initNotifications();
   // } //? initialize notification for them

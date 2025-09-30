@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:e_2_e_encrypted_chat_app/data/constants/table_names.dart';
+import 'package:secuchat/data/constants/table_names.dart';
 import 'package:chat/chat.dart';
 
 class LocalMessage {

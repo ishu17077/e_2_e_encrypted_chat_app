@@ -1,6 +1,6 @@
 import 'package:chat/chat.dart';
-import 'package:e_2_e_encrypted_chat_app/data/constants/table_names.dart';
-import 'package:e_2_e_encrypted_chat_app/models/local_message.dart';
+import 'package:secuchat/data/constants/table_names.dart';
+import 'package:secuchat/models/local_message.dart';
 
 class Chat {
   String get id => _id;

@@ -3,17 +3,17 @@
 
 // import 'package:animated_text_kit/animated_text_kit.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:e_2_e_encrypted_chat_app/ui/pages/authentication_pages/sign_up_page.dart';
-// import 'package:e_2_e_encrypted_chat_app/ui/pages/chatPage/add_new_chat/add_new_chat_page.dart';
+// import 'package:secuchat/ui/pages/authentication_pages/sign_up_page.dart';
+// import 'package:secuchat/ui/pages/chatPage/add_new_chat/add_new_chat_page.dart';
 
-// import 'package:e_2_e_encrypted_chat_app/ui/pages/chatPage/chat_with/chat_with_page.dart';
-// import 'package:e_2_e_encrypted_chat_app/databases/chat_database_helper.dart';
-// import 'package:e_2_e_encrypted_chat_app/databases/message_database_helper.dart';
-// import 'package:e_2_e_encrypted_chat_app/models/chat_store.dart';
-// import 'package:e_2_e_encrypted_chat_app/models/message_store.dart';
-// import 'package:e_2_e_encrypted_chat_app/server_functions/add_new_user.dart';
-// import 'package:e_2_e_encrypted_chat_app/server_functions/get_messages.dart';
-// import 'package:e_2_e_encrypted_chat_app/unit_components.dart';
+// import 'package:secuchat/ui/pages/chatPage/chat_with/chat_with_page.dart';
+// import 'package:secuchat/databases/chat_database_helper.dart';
+// import 'package:secuchat/databases/message_database_helper.dart';
+// import 'package:secuchat/models/chat_store.dart';
+// import 'package:secuchat/models/message_store.dart';
+// import 'package:secuchat/server_functions/add_new_user.dart';
+// import 'package:secuchat/server_functions/get_messages.dart';
+// import 'package:secuchat/unit_components.dart';
 // import 'package:flutter/material.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:sqflite/sqflite.dart';

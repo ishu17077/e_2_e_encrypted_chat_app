@@ -5,19 +5,21 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "e_2_e_encrypted_chat_app",
+      "name": "secuchat",
       "request": "launch",
       "type": "dart",
-      "args": ["-vv"]
+      "args": [
+        "-vv"
+      ]
     },
     {
-      "name": "e_2_e_encrypted_chat_app (profile mode)",
+      "name": "secuchat (profile mode)",
       "request": "launch",
       "type": "dart",
       "flutterMode": "profile"
     },
     {
-      "name": "e_2_e_encrypted_chat_app (release mode)",
+      "name": "secuchat (release mode)",
       "request": "launch",
       "type": "dart",
       "flutterMode": "release"

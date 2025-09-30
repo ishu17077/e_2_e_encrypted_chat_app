@@ -1,4 +1,4 @@
-package com.developerik.e_2_e_encrypted_chat_app
+package com.developerik.secuchat
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -1,6 +1,6 @@
 // This is a generated file; do not edit or check into version control.
 FLUTTER_ROOT=/home/ishukumar5663/flutter
-FLUTTER_APPLICATION_PATH=/home/ishukumar5663/AndroidStudioProjects/e_2_e_encrypted_chat_app/webcrypto-0.5.3/example
+FLUTTER_APPLICATION_PATH=/home/ishukumar5663/AndroidStudioProjects/secuchat/webcrypto-0.5.3/example
 COCOAPODS_PARALLEL_CODE_SIGN=true
 FLUTTER_TARGET=lib/main.dart
 FLUTTER_BUILD_DIR=build

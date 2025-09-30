@@ -1,10 +1,10 @@
-# e_2_e_encrypted_chat_app
+# secuchat
 
 SecuChat
 
 ## Getting Started
 
-The Project was made to improve the current privacy fiasco of chat apps. 
+The Project was made to improve the current privacy fiasco of chat apps.
 
 We opened the source code so that you can audit our app and request for merge while making you in control of what we store about you. While we are working on shifting our current operations from firebase to own cloud, rest assured it would be done by in future.
 

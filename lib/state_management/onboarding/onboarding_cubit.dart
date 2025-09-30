@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:chat/chat.dart';
-import 'package:e_2_e_encrypted_chat_app/cache/local_cache.dart';
-import 'package:e_2_e_encrypted_chat_app/state_management/onboarding/onboarding_state.dart';
+import 'package:secuchat/cache/local_cache.dart';
+import 'package:secuchat/state_management/onboarding/onboarding_state.dart';
 
 class OnboardingCubit extends Cubit<OnboardingState> {
   final IUserService _userService;
