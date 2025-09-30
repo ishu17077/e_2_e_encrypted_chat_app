@@ -32,7 +32,7 @@ migrate_working_dir/
 .pub/
 /build/
 /android/cache
-
+**/.cxx
 # Symbolication related
 app.*.symbols
 
