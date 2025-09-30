@@ -10,7 +10,7 @@ import 'package:secuchat/state_management/message/message_bloc.dart';
 import 'package:secuchat/state_management/typing/typing_notif_bloc.dart';
 import 'package:secuchat/ui/pages/home/home.dart';
 import 'package:secuchat/ui/pages/home/home_router.dart';
-import 'package:secuchat/viewmodels/chats_view_model.dart';
+import 'package:secuchat/viewmodels/chats/chats_view_model.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart' hide Key;
@@ -37,7 +37,8 @@ class CompositionRoot {
     _firebaseFirestore = FirebaseFirestore.instance;
     _userService = UserService(_firebaseFirestore);
     _db = await LocalDatabaseFactory().getDatabase();
-    _encryption = await EncryptionService(Encrypter(AES(Key.fromLength(32))));
+    _encryption =
+        await EncryptionService(Encrypter(AES(Key.allZerosOfLength(32))));
     _messageService =
         MessageService(_firebaseFirestore, encryption: _encryption);
     _typingNotification = TypingNotification(_firebaseFirestore);

@@ -18,9 +18,13 @@ class User {
     required this.lastSeen,
     // required this.publicKey,
     this.active = false,
-  });
+    String? id,
+  }) {
+    this._id ??= id;
+  }
 
-  toJSON() => {
+  Map<String, dynamic> toJSON() => {
+    "id": id,
     "name": name,
     "username": username,
     "email": email,

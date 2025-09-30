@@ -10,6 +10,7 @@ class UserService implements IUserService {
 
   @override
   Future<User> connect(User user) async {
+    assert(user.id != null, "User id cannot be null");
     var userMap = user.toJSON();
     if (user.id == null) {
       return await _registerUserToDatabase(user);
@@ -25,6 +26,7 @@ class UserService implements IUserService {
 
   @override
   Future<void> disconnect(User user) async {
+    assert(user.id != null, "User id cannot be null");
     user.active = false;
     user.lastSeen = DateTime.now();
     Map<String, dynamic> userMap = user.toJSON();

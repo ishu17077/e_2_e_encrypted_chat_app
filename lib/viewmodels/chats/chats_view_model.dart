@@ -2,7 +2,7 @@ import 'package:chat/chat.dart';
 import 'package:secuchat/data/datasources/datasource_contract.dart';
 import 'package:secuchat/models/chat.dart';
 import 'package:secuchat/models/local_message.dart';
-import 'package:secuchat/viewmodels/base_view_model.dart';
+import 'package:secuchat/viewmodels/chats/base_view_model.dart';
 
 class ChatsViewModel extends BaseViewModel {
   IDataSource _dataSource;

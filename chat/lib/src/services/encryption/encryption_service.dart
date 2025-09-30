@@ -3,7 +3,7 @@ import 'package:encrypt/encrypt.dart';
 
 final class EncryptionService implements IEncryption {
   final Encrypter _encrypter;
-  final _iv = IV.fromLength(16);
+  final _iv = IV.allZerosOfLength(16);
 
   EncryptionService(this._encrypter);
 

@@ -1,21 +1,18 @@
-// ignore_for_file: use_build_context_synchronously
-
-import 'package:secuchat/ui/pages/chatPage/chat_page.dart';
-import 'package:secuchat/encryption/encryption.dart';
-import 'package:secuchat/unit_components.dart';
-import 'package:secuchat/server_functions/add_new_user.dart';
-import 'package:secuchat/ui/pages/authentication_pages/email_and_password_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:secuchat/ui/pages/onboarding/onboarding_router.dart';
+import 'package:secuchat/unit_components.dart';
 
-class SignUpPage extends StatefulWidget {
-  SignUpPage({super.key});
+class Onboarding extends StatefulWidget {
+  final IOnboardingRouter router;
+  const Onboarding(this.router, {super.key});
 
   @override
-  State<SignUpPage> createState() => _SignUpPageState();
+  State<Onboarding> createState() => _OnboardingState();
 }
 
-class _SignUpPageState extends State<SignUpPage> {
+class _OnboardingState extends State<Onboarding> {
+  @override
   bool isLoadingWithGoogle = false;
   bool isLoadingWithFacebook = false;
   @override
@@ -189,4 +186,48 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
- 
+  Widget signInButton(BuildContext context,
+      {String? text,
+      Color? color,
+      Color? textColor,
+      String? imagePath,
+      double? spaceBetween,
+      double? heightImage,
+      double? widthImage,
+      VoidCallback? onPressed}) {
+    return Align(
+      alignment: Alignment.center,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          shape: const StadiumBorder(),
+          backgroundColor: color,
+          minimumSize: Size(MediaQuery.of(context).size.width * 0.8,
+              MediaQuery.of(context).size.height * 0.05),
+          maximumSize: Size(MediaQuery.of(context).size.width * 0.80,
+              MediaQuery.of(context).size.height * 0.055),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            imagePath != null
+                ? Image.asset(imagePath,
+                    height: heightImage ?? 38.0, width: widthImage ?? 38.0)
+                : const SizedBox(),
+            SizedBox(width: spaceBetween ?? 5.0),
+            Align(
+              alignment: Alignment.center,
+              child: Text(
+                text ?? 'How about continuing with some brain ;D',
+                style: TextStyle(
+                  color: textColor,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
