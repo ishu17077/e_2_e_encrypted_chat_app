@@ -18,7 +18,7 @@ class UserService implements IUserService {
       return await _registerUserToDatabase(user);
     }
 
-    var userMap = userPresent!.toJSON();
+    var userMap = userPresent.toJSON();
 
     final DocumentReference docRef = _firebaseFirestore
         .collection("users")

@@ -1,5 +1,7 @@
 import 'package:chat/chat.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide User;
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:secuchat/cache/local_cache.dart';
 import 'package:secuchat/data/datasources/datasource_contract.dart';
 import 'package:secuchat/data/datasources/sqflite_datasource_impl.dart';
@@ -7,9 +9,15 @@ import 'package:secuchat/data/factories/db_factory_impl.dart';
 import 'package:secuchat/state_management/home/chats_cubit.dart';
 import 'package:secuchat/state_management/home/home_cubit.dart';
 import 'package:secuchat/state_management/message/message_bloc.dart';
+import 'package:secuchat/state_management/onboarding/onboarding_cubit.dart';
 import 'package:secuchat/state_management/typing/typing_notif_bloc.dart';
 import 'package:secuchat/ui/pages/home/home.dart';
 import 'package:secuchat/ui/pages/home/home_router.dart';
+import 'package:secuchat/ui/pages/onboarding/onboarding.dart';
+import 'package:secuchat/ui/pages/onboarding/onboarding_router.dart';
+import 'package:secuchat/viewmodels/auth/auth_view_model.dart';
+import 'package:secuchat/viewmodels/auth/email_sign_in_view_model.dart';
+import 'package:secuchat/viewmodels/auth/google_sign_in_view_model.dart';
 import 'package:secuchat/viewmodels/chats/chats_view_model.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -20,6 +28,8 @@ import 'package:sqflite/sqflite.dart';
 
 class CompositionRoot {
   static late FirebaseFirestore _firebaseFirestore;
+  static late FirebaseAuth _firebaseAuth;
+  static late GoogleSignIn _googleSignIn;
   static late IUserService _userService;
   static late Database _db;
   static late IMessageService _messageService;
@@ -31,10 +41,15 @@ class CompositionRoot {
   static late TypingNotifBloc _typingNotifBloc;
   static late ChatsCubit _chatsCubit;
   static late HomeCubit _homeCubit;
+  static late AuthViewModel _authViewModel;
+  static late GoogleSignInViewModel _googleSignInViewModel;
+  static late EmailSignInViewModel _emailSignInViewModel;
 
   static Future<void> configure() async {
     await Firebase.initializeApp();
     _firebaseFirestore = FirebaseFirestore.instance;
+    _firebaseAuth = FirebaseAuth.instance;
+    _googleSignIn = GoogleSignIn.instance;
     _userService = UserService(_firebaseFirestore);
     _db = await LocalDatabaseFactory().getDatabase();
     _encryption =
@@ -50,10 +65,19 @@ class CompositionRoot {
     final viewModel = ChatsViewModel(_dataSource, userService: _userService);
     _chatsCubit = ChatsCubit(viewModel);
     _homeCubit = HomeCubit(_userService, _localCache);
+    _authViewModel = AuthViewModel(_firebaseAuth, _userService, _localCache);
+    _googleSignInViewModel = GoogleSignInViewModel(
+        _googleSignIn, _firebaseAuth, _userService, _localCache);
+    _emailSignInViewModel =
+        EmailSignInViewModel(_firebaseAuth, _userService, _localCache);
   }
 
   static Widget start() {
-    // final user = _localCache.fetch("USER");1
+    final user = _authViewModel.signedInUser;
+    return user != null ? composeHomeUi(user) : composeOnboardingUi();
+  }
+
+  static Widget composeHomeUi(User me) {
     final IHomeRouter homeRouter =
         HomeRouter((receiver, me, {chatId}) => SizedBox());
     //TODO: Final Impl
@@ -65,17 +89,20 @@ class CompositionRoot {
         //  BlocProvider(create: (context) => _cu,)
         BlocProvider(create: (context) => _homeCubit),
       ],
-      child: Home(
-          User(
-            email: "lalalab@gmdsd.com",
-            lastSeen: DateTime.now(),
-            name: "Lalala",
-            photoUrl:
-                "https://static.vecteezy.com/system/resources/previews/025/220/125/large_2x/picture-a-captivating-scene-of-a-tranquil-lake-at-sunset-ai-generative-photo.jpg",
-            username: "lolichan",
-            active: true,
-          ),
-          homeRouter),
+      child: Home(me, homeRouter),
     );
+  }
+
+  static Widget composeOnboardingUi() {
+    OnboardingCubit onboardingCubit = OnboardingCubit(_authViewModel);
+    final IOnboardingRouter onboardingRouter = OnboardingRouter(composeHomeUi);
+
+    return MultiBlocProvider(
+        providers: [
+          BlocProvider(create: (context) => onboardingCubit),
+          //TODO: Image Cubit
+        ],
+        child: Onboarding(
+            onboardingRouter, _googleSignInViewModel, _emailSignInViewModel));
   }
 }

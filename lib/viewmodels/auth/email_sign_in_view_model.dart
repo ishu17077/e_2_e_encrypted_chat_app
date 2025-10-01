@@ -45,6 +45,12 @@ class EmailSignInViewModel extends AuthViewModel {
         photoUrl: photoUrl,
         id: userCreds.user!.uid);
 
+    await super.connectUser(user) == false
+        ? () {
+            signOut();
+            throw Exception("Cannot connect user to Database!");
+          }
+        : null;
     super.connectUser(user);
   }
 }

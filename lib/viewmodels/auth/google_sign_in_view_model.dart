@@ -9,7 +9,7 @@ class GoogleSignInViewModel extends AuthViewModel {
   GoogleSignInViewModel(
       this._googleSignIn, super.auth, super.userService, super.localCache);
 
-  Future<void> signIn() async {
+  Future<chat.User?> signIn() async {
     //TODO: call initialize
     await _googleSignIn.initialize();
     if (!_googleSignIn.supportsAuthenticate()) {
@@ -17,7 +17,7 @@ class GoogleSignInViewModel extends AuthViewModel {
     }
     final googleUser = await _googleSignIn.attemptLightweightAuthentication();
     if (googleUser == null) {
-      return;
+      return null;
     }
     final googleClient =
         await googleUser.authorizationClient.authorizationForScopes([
@@ -36,7 +36,13 @@ class GoogleSignInViewModel extends AuthViewModel {
         photoUrl: userCreds.user!.photoURL,
         lastSeen: DateTime.now(),
         id: userCreds.user!.uid);
-    connectUser(user);
+    await connectUser(user) == false
+        ? () {
+            signOut();
+            throw Exception("Cannot connect user to Database!");
+          }
+        : null;
+    return user;
   }
 
   @override

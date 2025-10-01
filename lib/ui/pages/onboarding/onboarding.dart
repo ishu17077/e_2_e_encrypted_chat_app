@@ -1,11 +1,21 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:secuchat/state_management/onboarding/onboarding_cubit.dart';
+import 'package:secuchat/state_management/onboarding/onboarding_state.dart';
+import 'package:secuchat/ui/pages/authentication_pages/email_and_password_page.dart';
 import 'package:secuchat/ui/pages/onboarding/onboarding_router.dart';
 import 'package:secuchat/unit_components.dart';
+import 'package:secuchat/viewmodels/auth/email_sign_in_view_model.dart';
+import 'package:secuchat/viewmodels/auth/google_sign_in_view_model.dart';
 
 class Onboarding extends StatefulWidget {
   final IOnboardingRouter router;
-  const Onboarding(this.router, {super.key});
+  final GoogleSignInViewModel _googleSignInViewModel;
+  final EmailSignInViewModel _emailSignInViewModel;
+  const Onboarding(
+      this.router, this._googleSignInViewModel, this._emailSignInViewModel,
+      {super.key});
 
   @override
   State<Onboarding> createState() => _OnboardingState();
@@ -47,67 +57,76 @@ class _OnboardingState extends State<Onboarding> {
               ),
             ),
             SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-            Stack(
-              children: [
-                signInButton(
-                  context,
-                  text: "Continue with Google :)",
-                  spaceBetween: 0.0,
-                  color: const Color.fromARGB(220, 255, 255, 255),
-                  imagePath: 'assets/google_icon.png',
-                  heightImage: 38.0,
-                  widthImage: 38.0,
-                  onPressed: () async {
-                    if (!isLoadingWithFacebook || !isLoadingWithGoogle) {
-                      final user = AddNewUser.signedInUser;
-                      setState(() {
-                        isLoadingWithGoogle = true;
-                      });
-                      if (user == null) {
-                        UserCredential userCredential =
-                            await _addNewUser.signInWithGoogle.then((value) {
-                          Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ChatPage()),
-                              (route) => false);
-                          return value;
-                        }).onError((error, stackTrace) {
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                              content: Text(
-                                  'Issue connecting, please try again!')));
-                          FirebaseAuth.instance.signOut();
-                          setState(() {
-                            isLoadingWithGoogle = false;
-                          });
+            BlocConsumer<OnboardingCubit, OnboardingState>(
+                listener: (BuildContext context, OnboardingState state) {
+              if (state is OnboardingSuccess) {
+                widget.router.onSessionSuccess(context, state.user);
+              }
+            }, builder: (context, state) {
+              return Stack(
+                children: [
+                  signInButton(
+                    context,
+                    text: "Continue with Google :)",
+                    spaceBetween: 0.0,
+                    color: const Color.fromARGB(220, 255, 255, 255),
+                    imagePath: 'assets/google_icon.png',
+                    heightImage: 38.0,
+                    widthImage: 38.0,
+                    onPressed: () async {
+                      await _connectWithGoogle();
+                      // if (!isLoadingWithFacebook || !isLoadingWithGoogle) {
+                      //   final user = AddNewUser.signedInUser;
+                      //   setState(() {
+                      //     isLoadingWithGoogle = true;
+                      //   });
+                      //   if (user == null) {
+                      //     UserCredential userCredential =
+                      //         await _addNewUser.signInWithGoogle.then((value) {
+                      //       Navigator.pushAndRemoveUntil(
+                      //           context,
+                      //           MaterialPageRoute(
+                      //               builder: (context) => ChatPage()),
+                      //           (route) => false);
+                      //       return value;
+                      //     }).onError((error, stackTrace) {
+                      //       ScaffoldMessenger.of(context).showSnackBar(
+                      //           const SnackBar(
+                      //               content: Text(
+                      //                   'Issue connecting, please try again!')));
+                      //       FirebaseAuth.instance.signOut();
+                      //       setState(() {
+                      //         isLoadingWithGoogle = false;
+                      //       });
 
-                          throw Exception();
-                        });
-                        print(userCredential.user?.displayName);
-                        print(FirebaseAuth.instance.currentUser?.displayName);
-                      } else {
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ChatPage(),
-                            ));
-                        print("You are already logged in asshole!!");
-                        print(user.displayName);
-                        print(user.email);
-                        print(user.phoneNumber);
-                      }
-                      setState(() {
-                        isLoadingWithGoogle = false;
-                      });
-                    }
-                  },
-                ),
-                isLoadingWithGoogle
-                    ? const Center(
-                        heightFactor: 1.4, child: CircularProgressIndicator())
-                    : const SizedBox(height: 0.0, width: 0.0)
-              ],
-            ),
+                      //       throw Exception();
+                      //     });
+                      //     print(userCredential.user?.displayName);
+                      //     print(FirebaseAuth.instance.currentUser?.displayName);
+                      //   } else {
+                      //     Navigator.pushReplacement(
+                      //         context,
+                      //         MaterialPageRoute(
+                      //           builder: (context) => ChatPage(),
+                      //         ));
+                      //     print("You are already logged in asshole!!");
+                      //     print(user.displayName);
+                      //     print(user.email);
+                      //     print(user.phoneNumber);
+                      //   }
+                      //   setState(() {
+                      //     isLoadingWithGoogle = false;
+                      //   });
+                      // }
+                    },
+                  ),
+                  state is OnboardingLoading
+                      ? const Center(
+                          heightFactor: 1.4, child: CircularProgressIndicator())
+                      : const SizedBox(height: 0.0, width: 0.0)
+                ],
+              );
+            }),
             SizedBox(height: MediaQuery.of(context).size.height * 0.03),
             Stack(
               children: [
@@ -152,8 +171,8 @@ class _OnboardingState extends State<Onboarding> {
                   onPressed: () {
                     if (!isLoadingWithGoogle && !isLoadingWithFacebook) {
                       Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) =>
-                            const EmailAndPasswordAuthentication(),
+                        builder: (context) => EmailAndPasswordAuthentication(
+                            widget._emailSignInViewModel),
                       ));
                     }
                   },
@@ -229,5 +248,25 @@ class _OnboardingState extends State<Onboarding> {
         ),
       ),
     );
+  }
+
+  Future<void> _connectWithGoogle() async {
+    final onboardingCubit = context.read<OnboardingCubit>();
+    if (!isLoadingWithFacebook || !isLoadingWithGoogle) {
+      isLoadingWithGoogle = true;
+      try {
+        final user = await widget._googleSignInViewModel.signIn();
+        if (user == null) {
+          return;
+        }
+        widget._googleSignInViewModel.signOut();
+        onboardingCubit.connect(user);
+      } catch (e) {
+        widget._googleSignInViewModel.signOut();
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Something went wrong, please try again")));
+      }
+    }
+    isLoadingWithGoogle = false;
   }
 }
