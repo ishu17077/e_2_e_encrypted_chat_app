@@ -18,4 +18,7 @@ class OnboardingSuccess extends OnboardingState {
   List<Object?> get props => [user];
 }
 
-class OnboardingFailure extends OnboardingState {}
+class OnboardingFailure extends OnboardingState {
+  final String error;
+  const OnboardingFailure(this.error);
+}

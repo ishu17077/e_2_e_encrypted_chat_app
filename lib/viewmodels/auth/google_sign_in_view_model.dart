@@ -17,7 +17,7 @@ class GoogleSignInViewModel extends AuthViewModel {
     }
     final googleUser = await _googleSignIn.attemptLightweightAuthentication();
     if (googleUser == null) {
-      return null;
+      throw Exception("Login failed");
     }
     final googleClient =
         await googleUser.authorizationClient.authorizationForScopes([

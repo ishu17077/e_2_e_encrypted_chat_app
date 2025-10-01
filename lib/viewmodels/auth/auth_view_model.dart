@@ -38,15 +38,15 @@ class AuthViewModel {
     );
   }
 
-  Future<bool> connectUser(User user) async {
+  Future<User?> connectUser(User user) async {
     user.active = true;
     user.lastSeen = DateTime.now();
     try {
       final connectedUser = await _userService.connect(user);
       await _localCache.save("USER", data: connectedUser.toJSON());
-      return true;
+      return connectedUser;
     } catch (e) {
-      return false;
+      return null;
     }
   }
 
@@ -64,6 +64,7 @@ class AuthViewModel {
 
   Future<void> signOut() async {
     final user = User.fromJSON(_localCache.fetch("USER"));
+    _localCache.clear("USER");
     await disconnectUser(user);
     await auth.signOut();
   }

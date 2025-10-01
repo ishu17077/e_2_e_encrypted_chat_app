@@ -11,12 +11,15 @@ enum AuthType { google, email }
 
 class OnboardingCubit extends Cubit<OnboardingState> {
   final AuthViewModel _authViewModel;
-
+  final GoogleSignInViewModel _googleSignInViewModel;
+  final EmailSignInViewModel _emailSignInViewModel;
   //TODO: Impl Image uploader
 
-  OnboardingCubit(this._authViewModel) : super(OnboardingInitial());
-
-  Future<void> connect(User user, {AuthType authType = AuthType.email}) async {
+  OnboardingCubit(this._authViewModel, this._emailSignInViewModel,
+      this._googleSignInViewModel)
+      : super(OnboardingInitial());
+//TODO: Impl auth type
+  Future<void> connect(User user) async {
     emit(OnboardingLoading());
     //TODO: impl photo
     _authViewModel.isSignedIn.listen((isSignedIn) async => isSignedIn
@@ -24,29 +27,81 @@ class OnboardingCubit extends Cubit<OnboardingState> {
         : await _updateUserToOffline(user));
   }
 
-  Future<void> signUp(User user) async {}
+  Future<void> signInWithGoogle() async {
+    emit(OnboardingLoading());
+    try {
+      final user = await _googleSignInViewModel.signIn();
+      if (user == null) {
+        emit(OnboardingFailure("Authentication interrupted!"));
+        return;
+      }
+      emit(OnboardingSuccess(user));
+      return;
+    } catch (e) {
+      emit(OnboardingFailure(e.toString()));
+    }
+  }
 
-  Future<void> signIn() async {}
+  Future<void> signInWithEmail(
+      {required String email, required String password}) async {
+    emit(OnboardingLoading());
+    try {
+      final user =
+          await _emailSignInViewModel.signIn(email: email, password: password);
+      if (user == null) {
+        emit(OnboardingFailure("Invalid E-mail/password"));
+        return;
+      }
+      emit(OnboardingSuccess(user));
+      return;
+    } catch (e) {
+      emit(OnboardingFailure("Invalid E-mail/password"));
+    }
+  }
+
+  Future<void> signUpWithEmail(
+      {required String email,
+      required String name,
+      required String password,
+      required String username,
+      String? photoUrl}) async {
+    emit(OnboardingLoading());
+    try {
+      final user = await _emailSignInViewModel.signUp(
+          name: name, username: username, email: email, password: password);
+      if (user == null) {
+        emit(OnboardingFailure("Invalid Email/Password"));
+        return;
+      }
+      emit(OnboardingSuccess(user));
+      return;
+    } catch (e) {
+      emit(OnboardingFailure(e.toString()));
+      return;
+    }
+  }
 
   Future<void> _updateUserToOnline(User user) async {
-    emit(OnboardingLoading());
     user.active = true;
     user.lastSeen = DateTime.now();
     try {
       await _authViewModel.connectUser(user);
+      emit(OnboardingSuccess(user));
     } catch (e) {
-      emit(OnboardingFailure());
+      emit(OnboardingFailure(e.toString()));
+      return;
     }
   }
 
   Future<void> _updateUserToOffline(User user) async {
-    emit(OnboardingLoading());
     user.active = false;
     user.lastSeen = DateTime.now();
     try {
       await _authViewModel.disconnectUser(user);
+      emit(OnboardingSuccess(user));
     } catch (e) {
-      emit(OnboardingFailure());
+      emit(OnboardingFailure(e.toString()));
+      return;
     }
   }
 }

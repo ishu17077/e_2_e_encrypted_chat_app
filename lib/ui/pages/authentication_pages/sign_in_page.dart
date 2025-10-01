@@ -173,9 +173,9 @@ class _SignInPageState extends State<SignInPage> {
                                     builder: (context) => ChatPage()));
                           });
                         } catch (e) {
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(const SnackBar(content: Text("Ganda aadmi galtiyan karta ha")));
-
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text("Invalid Email/Password")));
                         }
                       }
                     })),

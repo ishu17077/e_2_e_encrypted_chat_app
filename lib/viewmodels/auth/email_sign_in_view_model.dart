@@ -4,7 +4,7 @@ import 'package:secuchat/viewmodels/auth/auth_view_model.dart';
 class EmailSignInViewModel extends AuthViewModel {
   EmailSignInViewModel(super.auth, super.userService, super.localCache);
 
-  Future<void> signIn({
+  Future<chat.User?> signIn({
     required String email,
     required String password,
   }) async {
@@ -21,10 +21,11 @@ class EmailSignInViewModel extends AuthViewModel {
         lastSeen: DateTime.now(),
         active: true,
         id: userCreds.user!.uid);
-    super.connectUser(user);
+    final actualUser = await super.connectUser(user);
+    return (actualUser);
   }
 
-  Future<void> signUp(
+  Future<chat.User?> signUp(
       {required String name,
       required String username,
       required String email,
@@ -51,6 +52,6 @@ class EmailSignInViewModel extends AuthViewModel {
             throw Exception("Cannot connect user to Database!");
           }
         : null;
-    super.connectUser(user);
+    return (await super.connectUser(user));
   }
 }
