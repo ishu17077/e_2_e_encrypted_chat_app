@@ -75,7 +75,7 @@ class _OnboardingState extends State<Onboarding> {
                         }).onError((error, stackTrace) {
                           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                               content: Text(
-                                  'Ya toh net kharab ha ya toh dimag ya toh Google ka server')));
+                                  'Issue connecting, please try again!')));
                           FirebaseAuth.instance.signOut();
                           setState(() {
                             isLoadingWithGoogle = false;

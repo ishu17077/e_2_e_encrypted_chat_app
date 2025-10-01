@@ -11,17 +11,20 @@ class UserService implements IUserService {
   @override
   Future<User> connect(User user) async {
     assert(user.id != null, "User id cannot be null");
-    var userMap = user.toJSON();
-    if (user.id == null) {
+    final userPresent = await fetch(user.id!);
+    user.active = true;
+    user.lastSeen = DateTime.now();
+    if (userPresent != null) {
       return await _registerUserToDatabase(user);
     }
+
+    var userMap = userPresent!.toJSON();
+
     final DocumentReference docRef = _firebaseFirestore
         .collection("users")
-        .doc(user.id);
-
+        .doc(userPresent.id!);
     await docRef.update(userMap);
-
-    return _mapIdToUser(docRef.id, userMap);
+    return userPresent;
   }
 
   @override
@@ -45,8 +48,9 @@ class UserService implements IUserService {
         .collection("users")
         .doc(id)
         .get();
-    if (doc.data() == null) {
+    if (!doc.exists || doc.data() == null) {
       debugPrint("Unable to find user");
+      return null;
     }
     if (doc.data() == null) return null;
     return _mapIdToUser(id, doc.data()!);

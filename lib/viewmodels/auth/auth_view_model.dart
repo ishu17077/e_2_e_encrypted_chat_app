@@ -11,8 +11,17 @@ abstract class AuthViewModel {
   const AuthViewModel(this.auth, this._userService, this._localCache);
 
   @protected
-  firebaseAuth.User? get signedInUser {
-    final user = auth.currentUser;
+  User? get signedInUser {
+    User? user;
+    if (auth.currentUser != null) {
+      return null;
+    }
+    try {
+      user = User.fromJSON(_localCache.fetch("USER"));
+    } catch (e) {
+      signOut();
+      return null;
+    }
     return user;
   }
 
@@ -21,8 +30,8 @@ abstract class AuthViewModel {
     user.active = true;
     user.lastSeen = DateTime.now();
     try {
-      await _userService.connect(user);
-      await _localCache.save("USER", data: user.toJSON());
+      final connectedUser = await _userService.connect(user);
+      await _localCache.save("USER", data: connectedUser.toJSON());
       return true;
     } catch (e) {
       return false;

@@ -14,10 +14,11 @@ class User {
     required this.name,
     required this.email,
     required this.username,
-    required this.photoUrl,
+
     required this.lastSeen,
     // required this.publicKey,
     this.active = false,
+    this.photoUrl,
     String? id,
   }) {
     this._id ??= id;
@@ -36,9 +37,9 @@ class User {
 
   factory User.fromJSON(Map<String, dynamic> map) {
     User user = User(
-      username: map["username"],
+      username: map["username"]!,
       name: map["name"] ?? "Anonymous",
-      email: map["email"],
+      email: map["email"]!,
       lastSeen: map["last_seen"] ?? DateTime(1997),
       photoUrl: map["photo_url"],
       active: map["active"] ?? false,
