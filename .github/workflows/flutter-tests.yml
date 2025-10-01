@@ -47,7 +47,7 @@ jobs:
       
       - name: Install dependencies
         run: flutter pub get
-     #   working-directory: ./chat
+        working-directory: ./chat
       - name: Run Chat Module Tests
         run: flutter test
-       # working-directory: ./chat
+        working-directory: ./chat
