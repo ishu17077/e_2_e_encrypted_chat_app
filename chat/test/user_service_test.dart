@@ -27,7 +27,10 @@ void main() {
     sut = UserService(firebaseFirestore);
     user = User.fromJSON(userMap);
     when(firebaseFirestore.collection("users")).thenReturn(collectionReference);
-
+    when(collectionReference.doc(any)).thenAnswer((_) => documentReference);
+    when(documentReference.get()).thenAnswer((_) async => documentSnapshot);
+    when(documentSnapshot.data()).thenReturn(userMap);
+    when(documentSnapshot.exists).thenReturn(true);
     when(query.get()).thenAnswer((_) async => querySnapshot);
     when(collectionReference.doc(any)).thenReturn(documentReference);
     when(documentReference.id).thenReturn(userMap["id"]);
@@ -36,7 +39,7 @@ void main() {
   group("Should connect and disconnect logged in user", () {
     test("Create or update logged in user", () async {
       final connectedUser = await sut.connect(user);
-      verify(collectionReference.doc(any)).called(1);
+      verify(collectionReference.doc(any)).called(2);
       verify(documentReference.update(any)).called(1);
       expect(connectedUser.id, user.id);
     });

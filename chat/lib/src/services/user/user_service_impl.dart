@@ -14,7 +14,7 @@ class UserService implements IUserService {
     final userPresent = await fetch(user.id!);
     user.active = true;
     user.lastSeen = DateTime.now();
-    if (userPresent != null) {
+    if (userPresent == null) {
       return await _registerUserToDatabase(user);
     }
 
