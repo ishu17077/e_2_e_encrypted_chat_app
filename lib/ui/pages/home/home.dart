@@ -125,18 +125,26 @@ class _HomeState extends State<Home>
   }
 
   Widget _buildHome() {
-    return NestedScrollView(
+    return CustomScrollView(
       physics: BouncingScrollPhysics(),
-      headerSliverBuilder: (context, innerBoxIsScrolled) => [_buildAppBar()],
-      body: Column(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          SizedBox(height: 10),
-          _buildSearchBar(),
-          SizedBox(height: 5),
-          _buildListView(),
-        ],
-      ),
+      slivers: [
+        _buildAppBar(),
+        SliverToBoxAdapter(child: SizedBox(height: 10)),
+        _buildSearchBar(),
+        SliverToBoxAdapter(child: SizedBox(height: 5)),
+        SliverList(
+            delegate: SliverChildBuilderDelegate(
+                (context, index) => chatTile(chats[index], context),
+                childCount: chats.length))
+      ],
+      // body: Column(
+      //   mainAxisSize: MainAxisSize.max,
+      //   children: [
+      //     _buildSearchBar(),
+      //     SizedBox(height: 5),
+      //     _buildListView(),
+      //   ],
+      // ),
     );
   }
 
@@ -204,23 +212,25 @@ class _HomeState extends State<Home>
   }
 
   Widget _buildSearchBar() {
-    return Padding(
-      padding: EdgeInsetsGeometry.symmetric(horizontal: 10.0),
-      child: TextField(
-        showCursor: true,
-        decoration: InputDecoration(
-          contentPadding: EdgeInsets.zero,
-          fillColor: kTextFieldColor,
-          filled: true,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(40),
-            borderSide: BorderSide.none,
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: EdgeInsetsGeometry.symmetric(horizontal: 10.0),
+        child: TextField(
+          showCursor: true,
+          decoration: InputDecoration(
+            contentPadding: EdgeInsets.zero,
+            fillColor: kTextFieldColor,
+            filled: true,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(40),
+              borderSide: BorderSide.none,
+            ),
+            prefixIcon: Icon(Icons.search_rounded, color: Colors.teal),
+            labelStyle: TextStyle(color: Colors.white),
           ),
-          prefixIcon: Icon(Icons.search_rounded, color: Colors.teal),
-          labelStyle: TextStyle(color: Colors.white),
+          cursorColor: Colors.teal,
+          style: TextStyle(color: Colors.white),
         ),
-        cursorColor: Colors.teal,
-        style: TextStyle(color: Colors.white),
       ),
     );
   }
@@ -239,7 +249,7 @@ class _HomeState extends State<Home>
   Widget chatTile(Chat chat, BuildContext context) {
     return ListTile(
       tileColor: kBackgroundColor,
-      splashColor: kSexyTealColor.withOpacity(0.2),
+      splashColor: kSexyTealColor.withValues(alpha: 0.2),
       leading: Hero(
         tag: chat.id ?? '_',
         child: CircleAvatar(

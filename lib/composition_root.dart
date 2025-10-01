@@ -94,15 +94,13 @@ class CompositionRoot {
   }
 
   static Widget composeOnboardingUi() {
-    OnboardingCubit onboardingCubit = OnboardingCubit(_authViewModel);
+    _googleSignIn.initialize();
+    OnboardingCubit onboardingCubit = OnboardingCubit(
+        _authViewModel, _emailSignInViewModel, _googleSignInViewModel);
     final IOnboardingRouter onboardingRouter = OnboardingRouter(composeHomeUi);
-
-    return MultiBlocProvider(
-        providers: [
-          BlocProvider(create: (context) => onboardingCubit),
-          //TODO: Image Cubit
-        ],
-        child: Onboarding(
-            onboardingRouter, _googleSignInViewModel, _emailSignInViewModel));
+    return MultiBlocProvider(providers: [
+      BlocProvider(create: (context) => onboardingCubit),
+      //TODO: Image Cubit
+    ], child: Onboarding(onboardingRouter));
   }
 }

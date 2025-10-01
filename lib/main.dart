@@ -19,6 +19,8 @@ void main() async {
   // if (user != null) {
   //   await FirebaseApi().initNotifications();
   // } //? initialize notification for them
+  await SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   await CompositionRoot.configure();
   runApp(const MyApp());
 }
@@ -41,9 +43,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations(
-        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-    return MaterialApp(
+    return    MaterialApp(
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       title: 'SecuChat',

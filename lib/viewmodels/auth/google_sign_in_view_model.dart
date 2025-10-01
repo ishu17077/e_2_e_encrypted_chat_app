@@ -11,11 +11,11 @@ class GoogleSignInViewModel extends AuthViewModel {
 
   Future<chat.User?> signIn() async {
     //TODO: call initialize
-    await _googleSignIn.initialize();
+
     if (!_googleSignIn.supportsAuthenticate()) {
       throw Exception("Platform Incompatible");
     }
-    final googleUser = await _googleSignIn.attemptLightweightAuthentication();
+    final googleUser = await _googleSignIn.authenticate();
     if (googleUser == null) {
       throw Exception("Login failed");
     }
@@ -36,7 +36,7 @@ class GoogleSignInViewModel extends AuthViewModel {
         photoUrl: userCreds.user!.photoURL,
         lastSeen: DateTime.now(),
         id: userCreds.user!.uid);
-    await connectUser(user) == false
+    await connectUser(user) == null
         ? () {
             signOut();
             throw Exception("Cannot connect user to Database!");

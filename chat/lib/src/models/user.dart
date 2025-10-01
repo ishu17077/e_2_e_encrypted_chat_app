@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class User {
   String? get id => _id;
   final String name;
@@ -40,7 +42,7 @@ class User {
       username: map["username"]!,
       name: map["name"] ?? "Anonymous",
       email: map["email"]!,
-      lastSeen: map["last_seen"] ?? DateTime(1997),
+      lastSeen: ((map["last_seen"] ?? Timestamp.now()) as Timestamp).toDate(),
       photoUrl: map["photo_url"],
       active: map["active"] ?? false,
     );

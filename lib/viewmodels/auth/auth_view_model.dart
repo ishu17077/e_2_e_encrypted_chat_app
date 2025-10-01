@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:chat/chat.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebaseAuth;
-import 'package:flutter/widgets.dart';
+import 'package:flutter/foundation.dart';
 import 'package:secuchat/cache/local_cache.dart';
 
 class AuthViewModel {
@@ -13,13 +13,16 @@ class AuthViewModel {
   const AuthViewModel(this.auth, this._userService, this._localCache);
 
   User? get signedInUser {
-    User? user;
-    if (auth.currentUser != null) {
+    User user;
+    if (auth.currentUser == null) {
+      signOut();
       return null;
     }
     try {
       final map = _localCache.fetch("USER");
-      if (map.isEmpty) {
+      final res = map.isEmpty;
+      if (res) {
+        signOut();
         return null;
       }
       user = User.fromJSON(map);
@@ -46,6 +49,7 @@ class AuthViewModel {
       await _localCache.save("USER", data: connectedUser.toJSON());
       return connectedUser;
     } catch (e) {
+      debugPrint(e.toString());
       return null;
     }
   }
@@ -63,9 +67,7 @@ class AuthViewModel {
   }
 
   Future<void> signOut() async {
-    final user = User.fromJSON(_localCache.fetch("USER"));
     _localCache.clear("USER");
-    await disconnectUser(user);
     await auth.signOut();
   }
 }

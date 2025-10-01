@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 enum ReceiptStatus { sent, delivered, seen }
 
 extension ReceiptStatusParsing on ReceiptStatus {
@@ -38,7 +40,7 @@ class Receipt {
       messageId: map["message_id"]!,
       recipientId: map["recipient_id"],
       status: ReceiptStatusParsing.fromString(map["status"] ?? "sent"),
-      time: map["time"],
+      time: ((map["time"] ?? Timestamp.now()) as Timestamp).toDate(),
     );
     receipt._id = map["id"];
     return receipt;
