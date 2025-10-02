@@ -3,7 +3,7 @@ import 'package:secuchat/data/constants/table_names.dart';
 import 'package:chat/chat.dart';
 
 class LocalMessage {
-  String? chatId;
+  int? chatId;
   String? userId;
   String get id => _id!;
   String? _id;
@@ -19,7 +19,7 @@ class LocalMessage {
         MessageTable.colSender: message.from,
         MessageTable.colRecipient: message.to,
         MessageTable.colContents: message.contents,
-        MessageTable.colExecutedAt: Timestamp.fromDate(receipt.time),
+        MessageTable.colExecutedAt: receipt.time.toString(),
         MessageTable.colReceipt: receipt.status.value(),
         MessageTable.colCreatedAt: message.time.toString(),
       };
@@ -29,12 +29,22 @@ class LocalMessage {
       from: messageMap[MessageTable.colSender] ?? '',
       to: messageMap[MessageTable.colReceipt] ?? '',
       contents: messageMap[MessageTable.colContents] ?? '',
-      time: DateTime.fromMillisecondsSinceEpoch(
-          (messageMap[MessageTable.colExecutedAt])),
+      time: messageMap["created_at"] != null
+          ? DateTime.parse(messageMap["created_at"])
+          : DateTime.now(),
     );
     final LocalMessage localMessage = LocalMessage(
       message,
-      ReceiptStatusParsing.fromString(messageMap["receipt"]),
+      //TODO receipt time
+      Receipt(
+        messageId: message.id,
+        recipientId: message.to,
+        //TODO: Impl
+        time: DateTime.tryParse(messageMap[MessageTable.colExecutedAt] ?? '') ??
+            DateTime.now(),
+        status:
+            ReceiptStatusParsing.fromString(messageMap["receipt"] ?? 'sent'),
+      ),
       chatId: messageMap["chat_id"]!,
     );
     localMessage._id = messageMap["id"];

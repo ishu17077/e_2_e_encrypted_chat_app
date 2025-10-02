@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-enum ReceiptStatus { sent, delivered, seen }
+enum ReceiptStatus { sent, delivered, read }
 
 extension ReceiptStatusParsing on ReceiptStatus {
   String value() => this.name;

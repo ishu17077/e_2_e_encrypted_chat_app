@@ -70,6 +70,7 @@ class LocalDatabaseFactory {
     await db.execute("""CREATE TABLE ${UserTable.tableName}(
       ${UserTable.colId} TEXT PRIMARY KEY NOT NULL,
       ${UserTable.colEmail} VARCHAR(255) NOT NULL,
+      ${UserTable.colName} VARCHAR(255) NOT NULL,
       ${UserTable.colUsername} VARCHAR(255) NOT NULL,
       ${UserTable.photoUrl} TEXT NOT NULL
     )""").then((_) {

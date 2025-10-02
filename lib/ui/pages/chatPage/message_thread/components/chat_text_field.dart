@@ -4,14 +4,19 @@ import 'package:flutter/material.dart';
 // ignore: must_be_immutable
 class ChatTextField extends StatefulWidget {
   final Function onSendButtonPressed;
-  ChatTextField({super.key, required this.onSendButtonPressed});
+  final TextEditingController textEditingController;
+  ChatTextField(
+      {super.key,
+      required this.onSendButtonPressed,
+      required this.textEditingController});
 
   @override
   State<ChatTextField> createState() => _ChatTextFieldState();
 }
 
 class _ChatTextFieldState extends State<ChatTextField> {
-  final TextEditingController _textEditingController = TextEditingController();
+  late final TextEditingController _textEditingController =
+      widget.textEditingController;
   bool shouldKeyBoardAppear = false;
   String? contents;
   @override

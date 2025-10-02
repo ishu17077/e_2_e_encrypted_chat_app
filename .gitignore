@@ -44,8 +44,10 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 /android/app/google-services.json
+**/google-services.json
 /android/caches/
 /android/wrapper/
+**/node_modules/
 
 /cloud_messaging/
 /local.properties

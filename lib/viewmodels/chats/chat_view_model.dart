@@ -4,7 +4,7 @@ import 'package:secuchat/models/local_message.dart';
 import 'package:secuchat/viewmodels/chats/base_view_model.dart';
 
 class ChatViewModel extends BaseViewModel {
-  String? _chatId;
+  int? chatId;
   final IDataSource _dataSource;
   final IUserService _userService;
   int otherMessages = 0;
@@ -14,7 +14,7 @@ class ChatViewModel extends BaseViewModel {
 
   Future<List<LocalMessage>> getMessages(String chatId) async {
     final messages = await _dataSource.findMessages(chatId);
-    if (messages.isNotEmpty) _chatId = chatId;
+    if (messages.isNotEmpty) chatId = chatId;
     return messages;
   }
 
@@ -28,7 +28,7 @@ class ChatViewModel extends BaseViewModel {
           time: DateTime.now(),
         ),
         userId: message.from);
-    if (_chatId != null) return await _dataSource.addMessage(localMessage);
+    if (chatId != null) return await _dataSource.addMessage(localMessage);
     //TODO: Transition from chat_id to user_id
     await addMessage(localMessage);
   }
@@ -45,8 +45,8 @@ class ChatViewModel extends BaseViewModel {
       userId: message.from,
     );
     //! CAUTION: Rare conflict if chatId is null, but shouldn't be the case
-    _chatId ??= localMessage.chatId;
-    if (localMessage.chatId != _chatId) {
+    chatId ??= localMessage.chatId;
+    if (localMessage.chatId != chatId) {
       otherMessages++;
     }
     await addMessage(localMessage);

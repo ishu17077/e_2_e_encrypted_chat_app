@@ -34,14 +34,17 @@ class _HomeState extends State<Home>
   @override
   void initState() {
     super.initState();
+    context.read<HomeCubit>().connect();
+    context.read<ChatsCubit>().chats();
     WidgetsBinding.instance.addObserver(this);
     _user = widget.me;
     _initialSetup();
   }
 
   void _initialSetup() async {
-    // final user =
-    //     (!_user.active) ? await context.read<HomeCubit>().connect() : _user;
+    final user =
+        (!_user.active) ? await context.read<HomeCubit>().connect() : _user;
+    await context.read<ChatsCubit>().chats();
     context.read<ChatsCubit>().chats();
     context.read<HomeCubit>().activeUsers(widget.me);
     //! me should be user from above comment
@@ -103,6 +106,7 @@ class _HomeState extends State<Home>
   // List<Message> messages = [];
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
         resizeToAvoidBottomInset: true,
         backgroundColor: kBackgroundColor,
@@ -235,17 +239,6 @@ class _HomeState extends State<Home>
     );
   }
 
-  Widget _buildListView() {
-    return Expanded(
-        child: ListView.builder(
-      addAutomaticKeepAlives: true,
-      itemBuilder: (context, index) {
-        return chatTile(chats[index], context);
-      },
-      itemCount: chats.length,
-    ));
-  }
-
   Widget chatTile(Chat chat, BuildContext context) {
     return ListTile(
       tileColor: kBackgroundColor,
@@ -313,8 +306,6 @@ class _HomeState extends State<Home>
         await this.widget.router.onShowMessageThread(
             context, chat.from, widget.me,
             chatId: chat.id);
-        //TODO: Implement caching algo, refer to Notekeeper for that
-        await context.read<ChatsCubit>().chats();
       },
       enabled: true,
       enableFeedback: true,

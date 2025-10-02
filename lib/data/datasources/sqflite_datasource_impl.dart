@@ -19,8 +19,11 @@ class SqfliteDatasource implements IDataSource {
 
   @override
   Future<void> addMessage(LocalMessage message) async {
+    assert(message.chatId != null,
+        "Chat Id cannot be null while inserting messages");
     await _db.transaction((txn) async {
-      await txn.insert(MessageTable.tableName, message.toJSON(),
+      final messageMap = message.toJSON();
+      await txn.insert(MessageTable.tableName, messageMap,
           conflictAlgorithm: ConflictAlgorithm.rollback);
     });
   }
@@ -38,8 +41,8 @@ class SqfliteDatasource implements IDataSource {
   @override
   Future<List<Chat>> findAllChats() {
     return _db.transaction((txn) async {
-      final chatsWithLatestMessage =
-          await txn.rawQuery("""SELECT ${MessageTable.tableName}.* FROM 
+      final chatsWithLatestMessage = await txn.rawQuery(
+          """SELECT ${MessageTable.tableName}.*,${UserTable.tableName}.* FROM
       (SELECT ${MessageTable.colChatId},
       ${MessageTable.colExecutedAt}, 
       MAX(created_at) AS created_at
@@ -68,9 +71,12 @@ class SqfliteDatasource implements IDataSource {
           (ele) => element["chat_id"] == ele["chat_id"],
           orElse: () => {"unread": 0},
         )["unread"] as int;
-
-        final Chat chat = Chat.fromJSON(element);
         final User user = User.fromJSON(element);
+        final Chat chat = Chat.fromJSON({
+          ...element,
+          "user_id": user.id!,
+        });
+
         chat.unread = unread;
         chat.from = user;
         chat.mostRecent = LocalMessage.fromJSON(element);
@@ -80,7 +86,7 @@ class SqfliteDatasource implements IDataSource {
   }
 
   @override
-  Future<Chat?> findChat({String? chatId, String? userId}) {
+  Future<Chat?> findChat({int? chatId, String? userId}) {
     assert(chatId != null || userId != null,
         "Either chatId of userId must be present");
     return _db.transaction((txn) async {
@@ -96,6 +102,8 @@ class SqfliteDatasource implements IDataSource {
       if (listOfChatMaps.isEmpty) {
         return null;
       }
+
+      chatId ??= listOfChatMaps.first["id"] as int;
       final unread = Sqflite.firstIntValue(await txn.rawQuery(
         "SELECT COUNT(*) FROM ${MessageTable.tableName} WHERE ${MessageTable.colChatId} = ? AND ${MessageTable.colReceipt} = ?",
         [chatId, ReceiptStatus.delivered.value()],
@@ -110,7 +118,7 @@ class SqfliteDatasource implements IDataSource {
       final chat = Chat.fromJSON(listOfChatMaps.first);
       final userMap = (await txn.query(
         UserTable.tableName,
-        where: "user_id = ?",
+        where: "${UserTable.colId} = ?",
         whereArgs: [listOfChatMaps.first["user_id"]],
         limit: 1,
       ))
@@ -119,7 +127,9 @@ class SqfliteDatasource implements IDataSource {
       User user = User.fromJSON(userMap);
       chat.from = user;
       chat.unread = unread ?? 0;
-      chat.mostRecent = LocalMessage.fromJSON(mostRecentMessage.first);
+      chat.mostRecent = mostRecentMessage.isNotEmpty
+          ? LocalMessage.fromJSON(mostRecentMessage.first)
+          : null;
       return chat;
     });
   }
@@ -159,7 +169,10 @@ class SqfliteDatasource implements IDataSource {
   Future<void> addUser(User user) async {
     await _db.transaction((txn) async {
       //! ERROR PRONE due to extra columns, if that happens, please rectify broooooo!
-      await txn.insert(UserTable.tableName, user.toJSON(),
+      Map<String, dynamic> userMap = user.toJSON();
+      userMap.remove("last_seen");
+      userMap.remove("active");
+      await txn.insert(UserTable.tableName, userMap,
           conflictAlgorithm: ConflictAlgorithm.replace);
     });
   }

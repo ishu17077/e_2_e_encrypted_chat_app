@@ -12,11 +12,17 @@ class ChatsViewModel extends BaseViewModel {
       : super(_dataSource, userService);
   Future<List<Chat>> getChats() async {
     final chats = await _dataSource.findAllChats();
-    await Future.forEach(chats, (Chat chat) async {
-      final user = await userService.fetch(chat.userId);
-      if (user != null) {
-        chat.from = user;
+    chats.forEach((Chat chat) {
+      if (chat.from.id == null) {
+        throw Exception("User id cannot be null in database");
       }
+      userService.fetch(chat.from.id!).then((user) {
+        if (user == null) {
+          throw Exception(
+              "User not found, the user might have deleted its account");
+        }
+        _dataSource.updateUser(user);
+      });
     });
     return chats;
   }

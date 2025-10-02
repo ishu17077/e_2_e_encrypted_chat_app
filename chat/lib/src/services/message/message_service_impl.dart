@@ -33,11 +33,12 @@ class MessageService implements IMessageService {
     //TODO: Impl
     // assert(message.iv != null, "IV cannot be null");
     late final Message messageReturn;
-    message.contents = _encryption.encrypt(message.contents);
+    //TODO: Impl
+    // message.contents = _encryption.encrypt(message.contents);
     DocumentReference<Map<String, dynamic>> docRef = await _firestore
         .collection("messages")
         .add(message.toJSON());
-    messageReturn = _mapIdToMessage(docRef.id, message);
+    messageReturn = _mapIdToMessage(docRef.id, message.toJSON());
     return messageReturn;
   }
 
@@ -53,7 +54,10 @@ class MessageService implements IMessageService {
                 if (element.doc.data() == null) {
                   return;
                 }
-                final Message message = _messageFromFeed(element.doc.data()!);
+                Message message = _mapIdToMessage(
+                  element.doc.id,
+                  element.doc.data()!,
+                );
                 _controller.sink.add(message);
                 _removeDeliveredMessage(message);
               default:
@@ -69,7 +73,7 @@ class MessageService implements IMessageService {
 
   Message _messageFromFeed(Map<String, dynamic> messageMap) {
     //TODO: impl of asymmetric encryption
-    messageMap["contents"] = _encryption.decrypt((messageMap["contents"]));
+    // messageMap["contents"] = _encryption.decrypt((messageMap["contents"]));
 
     final Message message = Message.fromJSON(messageMap);
     return message;
@@ -79,7 +83,7 @@ class MessageService implements IMessageService {
     _firestore.collection("messages").doc(message.id).delete();
   }
 
-  Message _mapIdToMessage(String id, Message message) {
-    return Message.fromJSON({"id": id, ...(message.toJSON())});
+  Message _mapIdToMessage(String id, Map<String, dynamic> messageMap) {
+    return Message.fromJSON({"id": id, ...messageMap});
   }
 }

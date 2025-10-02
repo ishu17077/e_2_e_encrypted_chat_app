@@ -1,10 +1,11 @@
+import 'package:chat/chat.dart';
 import 'package:secuchat/unit_components.dart';
 import 'package:flutter/material.dart';
 
 class ChatPill extends StatelessWidget {
   final String? text;
 
-  final bool isSeen;
+  final ReceiptStatus receiptStatus;
   final bool isMe;
   final bool noMaginRequired;
   final bool isLastMessage;
@@ -12,7 +13,7 @@ class ChatPill extends StatelessWidget {
   const ChatPill({
     super.key,
     required this.text,
-    this.isSeen = false,
+    this.receiptStatus = ReceiptStatus.sent,
     this.noMaginRequired = false,
     this.isLastMessage = false,
     required this.isMe,
@@ -62,7 +63,7 @@ class ChatPill extends StatelessWidget {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: isMe ?? false
-                      ? isSeen
+                      ? receiptStatus == ReceiptStatus.read
                           ? const Icon(
                               Icons.done_all,
                               color: Colors.blue,
