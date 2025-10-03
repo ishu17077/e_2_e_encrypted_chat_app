@@ -40,7 +40,9 @@ class Receipt {
       messageId: map["message_id"]!,
       recipientId: map["recipient_id"],
       status: ReceiptStatusParsing.fromString(map["status"] ?? "sent"),
-      time: ((map["time"] ?? Timestamp.now()) as Timestamp).toDate(),
+      time: (map["time"] is DateTime
+          ? map["time"]
+          : DateTime.parse(map["time"]!)),
     );
     receipt._id = map["id"];
     return receipt;

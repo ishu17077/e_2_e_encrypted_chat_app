@@ -32,7 +32,9 @@ class Message {
       from: map["from"]!,
       to: map["to"]!,
       contents: map["contents"],
-      time: ((map["time"] ?? Timestamp.now()) as Timestamp).toDate(),
+      time: (map["time"] is DateTime
+          ? map["time"]
+          : DateTime.parse(map["time"]!)),
     );
     message._id = map["id"];
 
