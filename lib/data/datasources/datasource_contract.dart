@@ -5,7 +5,7 @@ import 'package:secuchat/models/local_message.dart';
 abstract class IDataSource {
   Future<void> addChat(Chat chat);
   Future<void> addMessage(LocalMessage message);
-  Future<Chat?> findChat({int? chatId, String? userId});
+  Future<Chat?> findChat({String? chatId, String? userId});
   Future<List<Chat>> findAllChats();
   Future<void> updateMessage(LocalMessage message);
   Future<List<LocalMessage>> findMessages(String chatId);

@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:chat/chat.dart';
 import 'package:secuchat/data/datasources/datasource_contract.dart';
 import 'package:secuchat/models/chat.dart';
@@ -33,7 +31,7 @@ abstract class BaseViewModel {
 
   Future<Chat?> _isExistingChat(
       //TODO: Future impl groups
-      int? chatId,
+      String? chatId,
       String? userId,
       String? groupId) async {
     assert(chatId != null || userId != null || groupId != null,

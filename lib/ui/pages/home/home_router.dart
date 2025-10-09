@@ -3,18 +3,18 @@ import 'package:flutter/material.dart';
 
 abstract class IHomeRouter {
   Future<void> onShowMessageThread(BuildContext context, User receiver, User me,
-      {int? chatId});
+      {String? chatId});
 }
 
 class HomeRouter implements IHomeRouter {
-  final Widget Function(User receiver, User me, {int? chatId})
+  final Widget Function(User receiver, User me, {String? chatId})
       showMessageThread;
 
   HomeRouter(this.showMessageThread);
 
   @override
   Future<void> onShowMessageThread(BuildContext context, User receiver, User me,
-      {int? chatId}) {
+      {String? chatId}) {
     return Navigator.push(
         context,
         MaterialPageRoute(

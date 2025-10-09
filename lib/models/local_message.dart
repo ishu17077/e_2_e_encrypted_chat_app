@@ -1,9 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:secuchat/data/constants/table_names.dart';
 import 'package:chat/chat.dart';
 
 class LocalMessage {
-  int? chatId;
+  String? chatId;
   String? userId;
   String get id => _id!;
   String? _id;
@@ -37,7 +36,7 @@ class LocalMessage {
       message,
       //TODO receipt time
       Receipt(
-        messageId: message.id,
+        messageId: message.id ?? '',
         recipientId: message.to,
         //TODO: Impl
         time: DateTime.tryParse(messageMap[MessageTable.colExecutedAt] ?? '') ??

@@ -2,13 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:encrypt/encrypt.dart';
 
 class Message {
-  String get id => _id;
+  String? get id => _id;
   final String from;
   final String to;
   String contents;
   final DateTime time;
   final IV? iv;
-  late String _id;
+  String? _id;
 
   Message({
     required this.from,
@@ -33,8 +33,10 @@ class Message {
       to: map["to"]!,
       contents: map["contents"],
       time: (map["time"] is DateTime
-          ? map["time"]
-          : DateTime.parse(map["time"]!)),
+          ? map["time"] is Timestamp
+                ? (map["time"] as Timestamp).toDate()
+                : DateTime.parse(map["time"]!)
+          : DateTime.now()),
     );
     message._id = map["id"];
 

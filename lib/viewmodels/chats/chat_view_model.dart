@@ -4,7 +4,7 @@ import 'package:secuchat/models/local_message.dart';
 import 'package:secuchat/viewmodels/chats/base_view_model.dart';
 
 class ChatViewModel extends BaseViewModel {
-  int? chatId;
+  String? chatId;
   final IDataSource _dataSource;
   final IUserService _userService;
   int otherMessages = 0;
@@ -22,7 +22,7 @@ class ChatViewModel extends BaseViewModel {
     LocalMessage localMessage = LocalMessage(
         message,
         Receipt(
-          messageId: message.id,
+          messageId: message.id!,
           recipientId: message.to,
           status: ReceiptStatus.sent,
           time: DateTime.now(),
@@ -37,7 +37,7 @@ class ChatViewModel extends BaseViewModel {
     LocalMessage localMessage = LocalMessage(
       message,
       Receipt(
-        messageId: message.id,
+        messageId: message.id!,
         recipientId: message.to,
         status: ReceiptStatus.sent,
         time: DateTime.now(),

@@ -7,24 +7,13 @@ import 'package:secuchat/models/local_message.dart';
 import 'package:secuchat/state_management/home/chats_cubit.dart';
 import 'package:secuchat/state_management/message/message_bloc.dart';
 import 'package:secuchat/state_management/message_thread/message_thread_cubit.dart';
-import 'package:secuchat/state_management/onboarding/onboarding_cubit.dart';
 import 'package:secuchat/state_management/receipt/receipt_bloc.dart';
 import 'package:secuchat/state_management/typing/typing_notif_bloc.dart';
-import 'package:secuchat/ui/pages/authentication_pages/sign_up_page.dart';
 import 'package:secuchat/ui/pages/chatPage/message_thread/components/mesure_size.dart';
-
-import 'package:secuchat/encryption/encryption.dart';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:secuchat/ui/pages/chatPage/message_thread/components/chat_pill.dart';
 import 'package:secuchat/ui/pages/chatPage/message_thread/components/chat_text_field.dart';
-import 'package:secuchat/server_functions/add_new_chat.dart';
-import 'package:secuchat/server_functions/add_new_user.dart';
-import 'package:secuchat/server_functions/get_messages.dart';
 import 'package:secuchat/unit_components.dart';
-import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:flutter/material.dart';
-import 'package:sqflite/sqflite.dart';
 
 class MessageThread extends StatefulWidget {
   final User receiver;
@@ -295,7 +284,7 @@ class _MessageThreadState extends State<MessageThread>
       if (state is MessageReceivedSuccess) {
         await messageThreadCubit.chatViewModel.recieveMessage(state.message);
         final receipt = Receipt(
-            messageId: state.message.id,
+            messageId: state.message.id!,
             recipientId: state.message.from,
             status: ReceiptStatus.read,
             time: DateTime.now());

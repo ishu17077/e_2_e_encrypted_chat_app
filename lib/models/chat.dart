@@ -3,8 +3,8 @@ import 'package:secuchat/data/constants/table_names.dart';
 import 'package:secuchat/models/local_message.dart';
 
 class Chat {
-  int get id => _id;
-  late int _id;
+  String get id => _id;
+  late String _id;
   final String userId;
   int unread = 0;
   List<LocalMessage> messages = [];

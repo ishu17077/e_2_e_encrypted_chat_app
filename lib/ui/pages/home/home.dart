@@ -34,8 +34,6 @@ class _HomeState extends State<Home>
   @override
   void initState() {
     super.initState();
-    context.read<HomeCubit>().connect();
-    context.read<ChatsCubit>().chats();
     WidgetsBinding.instance.addObserver(this);
     _user = widget.me;
     _initialSetup();
@@ -45,7 +43,6 @@ class _HomeState extends State<Home>
     final user =
         (!_user.active) ? await context.read<HomeCubit>().connect() : _user;
     await context.read<ChatsCubit>().chats();
-    context.read<ChatsCubit>().chats();
     context.read<HomeCubit>().activeUsers(widget.me);
     //! me should be user from above comment
     context.read<MessageBloc>().add(MessageEvent.subscribed(widget.me));

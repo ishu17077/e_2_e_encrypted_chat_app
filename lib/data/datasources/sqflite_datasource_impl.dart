@@ -86,7 +86,7 @@ class SqfliteDatasource implements IDataSource {
   }
 
   @override
-  Future<Chat?> findChat({int? chatId, String? userId}) {
+  Future<Chat?> findChat({String? chatId, String? userId}) {
     assert(chatId != null || userId != null,
         "Either chatId of userId must be present");
     return _db.transaction((txn) async {
@@ -103,7 +103,7 @@ class SqfliteDatasource implements IDataSource {
         return null;
       }
 
-      chatId ??= listOfChatMaps.first["id"] as int;
+      chatId ??= (listOfChatMaps.first["id"] as int).toString();
       final unread = Sqflite.firstIntValue(await txn.rawQuery(
         "SELECT COUNT(*) FROM ${MessageTable.tableName} WHERE ${MessageTable.colChatId} = ? AND ${MessageTable.colReceipt} = ?",
         [chatId, ReceiptStatus.delivered.value()],
@@ -188,7 +188,10 @@ class SqfliteDatasource implements IDataSource {
 
   @override
   Future<void> updateUser(User user) async {
-    await _db.update(UserTable.tableName, user.toJSON(),
+    final userMap = user.toJSON();
+    userMap.remove('last_seen');
+    userMap.remove('active');
+    await _db.update(UserTable.tableName, userMap,
         where: "${UserTable.colId} = ?", whereArgs: [user.id]);
   }
 }
