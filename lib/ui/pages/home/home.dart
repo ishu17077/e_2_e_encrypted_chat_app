@@ -108,6 +108,7 @@ class _HomeState extends State<Home>
         resizeToAvoidBottomInset: true,
         backgroundColor: kBackgroundColor,
         body: SafeArea(
+          //TODO: Impl do not build app bar and searchbar as it is costly
           child: BlocBuilder<ChatsCubit, List<Chat>>(builder: (context, chats) {
             this.chats = chats;
             if (this.chats.isEmpty) return _buildHome();
@@ -309,12 +310,15 @@ class _HomeState extends State<Home>
     );
   }
 
-  void _updateChatsOnMessageReceived() {
+  void _updateChatsOnMessageReceived() async {
     final chatsCubit = context.read<ChatsCubit>();
     context.read<MessageBloc>().stream.listen((state) async {
       if (state is MessageReceivedSuccess) {
-        chatsCubit.viewModel.receivedMessage(state.message.from, state.message);
-        chatsCubit.chats();
+        await chatsCubit.viewModel
+            .receivedMessage(state.message.from, state.message)
+            .then(
+              (_) async => await chatsCubit.chats(),
+            );
       }
     });
   }

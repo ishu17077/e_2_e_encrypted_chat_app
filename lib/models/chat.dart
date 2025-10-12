@@ -25,7 +25,7 @@ class Chat {
     final chat = Chat(
       chatMap[ChatTable.colUserId],
     );
-    chat._id = chatMap["chat_id"];
+    chat._id = "${chatMap["id"]}";
     return chat;
   }
 }

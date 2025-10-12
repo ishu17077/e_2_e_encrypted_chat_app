@@ -9,8 +9,11 @@ import 'package:secuchat/data/factories/db_factory_impl.dart';
 import 'package:secuchat/state_management/home/chats_cubit.dart';
 import 'package:secuchat/state_management/home/home_cubit.dart';
 import 'package:secuchat/state_management/message/message_bloc.dart';
+import 'package:secuchat/state_management/message_thread/message_thread_cubit.dart';
 import 'package:secuchat/state_management/onboarding/onboarding_cubit.dart';
+import 'package:secuchat/state_management/receipt/receipt_bloc.dart';
 import 'package:secuchat/state_management/typing/typing_notif_bloc.dart';
+import 'package:secuchat/ui/pages/chatPage/message_thread/message_thread.dart';
 import 'package:secuchat/ui/pages/home/home.dart';
 import 'package:secuchat/ui/pages/home/home_router.dart';
 import 'package:secuchat/ui/pages/onboarding/onboarding.dart';
@@ -18,6 +21,7 @@ import 'package:secuchat/ui/pages/onboarding/onboarding_router.dart';
 import 'package:secuchat/viewmodels/auth/auth_view_model.dart';
 import 'package:secuchat/viewmodels/auth/email_sign_in_view_model.dart';
 import 'package:secuchat/viewmodels/auth/google_sign_in_view_model.dart';
+import 'package:secuchat/viewmodels/chats/chat_view_model.dart';
 import 'package:secuchat/viewmodels/chats/chats_view_model.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -34,10 +38,12 @@ class CompositionRoot {
   static late Database _db;
   static late IMessageService _messageService;
   static late ITypingNotification _typingNotification;
+  static late IReceiptService _receiptService;
   static late IDataSource _dataSource;
   static late ILocalCache _localCache;
   static late IEncryption _encryption;
   static late MessageBloc _messageBloc;
+  static late ReceiptBloc _receiptBloc;
   static late TypingNotifBloc _typingNotifBloc;
   static late ChatsCubit _chatsCubit;
   static late HomeCubit _homeCubit;
@@ -57,11 +63,13 @@ class CompositionRoot {
     _messageService =
         MessageService(_firebaseFirestore, encryption: _encryption);
     _typingNotification = TypingNotification(_firebaseFirestore);
+    _receiptService = ReceiptService(_firebaseFirestore);
     _dataSource = SqfliteDatasource(_db);
     final sp = await SharedPreferences.getInstance();
     _localCache = LocalCache(sp);
     _messageBloc = MessageBloc(_messageService);
     _typingNotifBloc = TypingNotifBloc(_typingNotification);
+    _receiptBloc = ReceiptBloc(_receiptService);
     final viewModel = ChatsViewModel(_dataSource, userService: _userService);
     _chatsCubit = ChatsCubit(viewModel);
     _homeCubit = HomeCubit(_userService, _localCache);
@@ -78,18 +86,36 @@ class CompositionRoot {
   }
 
   static Widget composeHomeUi(User me) {
-    final IHomeRouter homeRouter =
-        HomeRouter((receiver, me, {chatId}) => SizedBox());
+    final IHomeRouter homeRouter = HomeRouter(composeMessageThreadUi);
     //TODO: Final Impl
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => _chatsCubit),
         BlocProvider(create: (context) => _messageBloc),
         BlocProvider(create: (context) => _typingNotifBloc),
+
         //  BlocProvider(create: (context) => _cu,)
         BlocProvider(create: (context) => _homeCubit),
       ],
       child: Home(me, homeRouter),
+    );
+  }
+
+  static Widget composeMessageThreadUi(User receiver, User me,
+      {String? chatId}) {
+    final ChatViewModel chatViewModel =
+        ChatViewModel(_dataSource, _userService);
+    final MessageThreadCubit messageThreadCubit =
+        MessageThreadCubit(chatViewModel);
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => _typingNotifBloc),
+        BlocProvider(create: (context) => messageThreadCubit),
+        BlocProvider(create: (context) => _receiptBloc),
+      ],
+      child: MessageThread(
+          receiver, me, _messageBloc, _chatsCubit, _typingNotifBloc,
+          chatId: chatId ?? ''),
     );
   }
 

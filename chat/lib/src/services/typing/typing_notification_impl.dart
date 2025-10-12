@@ -7,7 +7,7 @@ class TypingNotification implements ITypingNotification {
   final FirebaseFirestore _firebaseFirestore;
   final StreamController<TypingEvent> _controller =
       StreamController<TypingEvent>.broadcast();
-  late final StreamSubscription? _changeFeed;
+  late StreamSubscription? _changeFeed;
 
   TypingNotification(this._firebaseFirestore);
 

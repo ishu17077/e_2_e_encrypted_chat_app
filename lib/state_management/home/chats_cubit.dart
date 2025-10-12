@@ -7,6 +7,6 @@ class ChatsCubit extends Cubit<List<Chat>> {
   ChatsCubit(this.viewModel) : super([]);
   Future<void> chats() async {
     final chats = await viewModel.getChats();
-    emit(chats);
+    emit([...chats]);
   }
 }

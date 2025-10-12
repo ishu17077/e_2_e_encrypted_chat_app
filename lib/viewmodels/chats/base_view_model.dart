@@ -7,25 +7,41 @@ import 'package:flutter/material.dart';
 abstract class BaseViewModel {
   final IDataSource _dataSource;
   final IUserService _userService;
-  const BaseViewModel(this._dataSource, this._userService);
+  List<Chat> chats = List.empty(growable: true);
+  BaseViewModel(this._dataSource, this._userService);
 
   @protected
-  Future<void> addMessage(LocalMessage message) async {
+  Future<void> addMessage(LocalMessage  message) async {
     assert(message.chatId != null || message.userId != null,
         "Both user_id and chat_id cannot be null");
+    //? Caching technique not accessing db
+    for (var chat in chats) {
+      if (chat.userId == message.message.from) {
+        message.chatId = chat.id;
+        chat.mostRecent = message;
+        await _dataSource.addMessage(message);
+        return;
+      }
+    }
     var chat =
         await _isExistingChat(message.chatId, message.message.from, null);
+
     if (chat == null) {
       final User? user = await _userService.fetch(message.message.from);
       if (user == null) {
         debugPrint("Cannot find user for id ${message.message.from}");
         return;
       }
+      final chat = Chat(user.id!);
+      chat.from = user;
+      chat.mostRecent = message;
+      chats.add(chat);
       //TODO: Return chat id on successful chat creation in database
       await _createNewUser(user);
       await _createNewChat(message.message.from, user);
     }
     message.chatId = chat!.id;
+
     await _dataSource.addMessage(message);
   }
 

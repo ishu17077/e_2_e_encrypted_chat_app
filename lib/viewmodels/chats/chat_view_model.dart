@@ -7,13 +7,17 @@ class ChatViewModel extends BaseViewModel {
   String? chatId;
   final IDataSource _dataSource;
   final IUserService _userService;
+  List<LocalMessage> messages = List.empty(growable: true);
   int otherMessages = 0;
 
   ChatViewModel(this._dataSource, this._userService)
       : super(_dataSource, _userService);
 
   Future<List<LocalMessage>> getMessages(String chatId) async {
-    final messages = await _dataSource.findMessages(chatId);
+    if (messages.isNotEmpty) {
+      return messages;
+    }
+    messages = await _dataSource.findMessages(chatId);
     if (messages.isNotEmpty) chatId = chatId;
     return messages;
   }
@@ -28,8 +32,14 @@ class ChatViewModel extends BaseViewModel {
           time: DateTime.now(),
         ),
         userId: message.from);
-    if (chatId != null) return await _dataSource.addMessage(localMessage);
+    if (chatId != null) {
+      int id = await _dataSource.addMessage(localMessage);
+      //TODO: map id to local message
+      this.messages.add(localMessage);
+      return;
+    }
     //TODO: Transition from chat_id to user_id
+    messages.insert(0, localMessage);
     await addMessage(localMessage);
   }
 
@@ -49,10 +59,12 @@ class ChatViewModel extends BaseViewModel {
     if (localMessage.chatId != chatId) {
       otherMessages++;
     }
+    messages.insert(0, localMessage);
     await addMessage(localMessage);
   }
 
   Future<void> updateMessageReceipt(Receipt receipt) async {
+    //TODO: Impl receipts
     await _dataSource.updateMessageReceipt(receipt.messageId, receipt.status);
   }
 }

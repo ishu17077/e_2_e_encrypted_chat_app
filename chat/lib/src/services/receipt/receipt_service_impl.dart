@@ -10,7 +10,7 @@ class ReceiptService implements IReceiptService {
   final FirebaseFirestore _firebaseFirestore;
   final StreamController<Receipt> _controller =
       StreamController<Receipt>.broadcast();
-  late final StreamSubscription? _changeFeed;
+  StreamSubscription? _changeFeed;
 
   ReceiptService(this._firebaseFirestore);
 

@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:math';
-import 'dart:typed_data';
 import 'package:chat/chat.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:secuchat/models/local_message.dart';
@@ -24,7 +22,7 @@ class MessageThread extends StatefulWidget {
   final ChatsCubit chatsCubit;
   static final GlobalKey<_MessageThreadState> globalKey = GlobalKey();
 
-  MessageThread(this.receiver, this.me, this.messageBloc, this.chatsCubit,
+  const MessageThread(this.receiver, this.me, this.messageBloc, this.chatsCubit,
       this.typingNotifBloc,
       {super.key, this.chatId = ''});
 
@@ -80,10 +78,10 @@ class _MessageThreadState extends State<MessageThread>
     // TODO: implement dispose
     // sticky?.remove();
     // stickeyKey.currentState?.dispose();
-    _textEditingController.dispose();
     subscription.cancel();
     _startTypingTimer?.cancel();
     _stopTypingTimer?.cancel();
+    _textEditingController.dispose();
     super.dispose();
   }
 
@@ -111,7 +109,7 @@ class _MessageThreadState extends State<MessageThread>
           children: [
             // ignore: prefer_const_constructors
             Hero(
-              tag: chatId ?? '_',
+              tag: chatId.isEmpty ? '_' : chatId,
               child: CircleAvatar(
                 backgroundColor: kSexyTealColor,
                 backgroundImage: NetworkImage(widget.receiver.photoUrl ??
@@ -274,7 +272,7 @@ class _MessageThreadState extends State<MessageThread>
     return isMe;
   }
 
-  void _updateOnReceiptReceived() {
+  void _updateOnReceiptReceived() async {
     final messageThreadCubit = context.read<MessageThreadCubit>();
     if (chatId.isNotEmpty) {
       messageThreadCubit.messages(chatId);
@@ -297,8 +295,8 @@ class _MessageThreadState extends State<MessageThread>
       if (chatId.isEmpty) {
         chatId = "${messageThreadCubit.chatViewModel.chatId!}";
       }
-      messageThreadCubit.messages(chatId);
-      widget.chatsCubit.chats();
+      await messageThreadCubit.messages(chatId);
+      await widget.chatsCubit.chats();
     });
   }
 

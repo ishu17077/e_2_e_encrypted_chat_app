@@ -46,7 +46,7 @@ class LocalMessage {
       ),
       chatId: messageMap["chat_id"]!,
     );
-    localMessage._id = messageMap["id"];
+    localMessage._id = "${messageMap["id"]}";
     return localMessage;
   }
 }
