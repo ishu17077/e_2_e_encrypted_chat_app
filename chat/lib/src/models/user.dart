@@ -42,7 +42,13 @@ class User {
       username: map["username"]!,
       name: map["name"] ?? "Anonymous",
       email: map["email"]!,
-      lastSeen: ((map["last_seen"] ?? Timestamp.now()) as Timestamp).toDate(),
+      lastSeen: (map["last_seen"] is DateTime
+          ? map["last_seen"]
+          : map["last_seen"] is Timestamp
+          ? (map["last_seen"] as Timestamp).toDate()
+          : DateTime.parse(
+              map["last_seen"] ?? DateTime.now().toIso8601String(),
+            )),
       photoUrl: map["photo_url"],
       active: map["active"] ?? false,
     );
