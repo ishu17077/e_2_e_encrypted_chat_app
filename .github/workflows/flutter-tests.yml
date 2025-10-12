@@ -8,9 +8,9 @@ name: Flutter
 
 on:
   push:
-    branches: [stable, master]
+    branches: [master]
   pull_request:
-    branches: [stable, master]
+    branches: [master]
 
 jobs:
   build-and-test:
