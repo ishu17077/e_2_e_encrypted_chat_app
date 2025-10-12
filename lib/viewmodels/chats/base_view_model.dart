@@ -11,20 +11,19 @@ abstract class BaseViewModel {
   BaseViewModel(this._dataSource, this._userService);
 
   @protected
-  Future<void> addMessage(LocalMessage  message) async {
+  Future<void> addMessage(LocalMessage message) async {
     assert(message.chatId != null || message.userId != null,
         "Both user_id and chat_id cannot be null");
     //? Caching technique not accessing db
     for (var chat in chats) {
-      if (chat.userId == message.message.from) {
+      if (chat.userId == message.userId) {
         message.chatId = chat.id;
         chat.mostRecent = message;
         await _dataSource.addMessage(message);
         return;
       }
     }
-    var chat =
-        await _isExistingChat(message.chatId, message.message.from, null);
+    var chat = await _getChat(message.chatId, message.userId!, null);
 
     if (chat == null) {
       final User? user = await _userService.fetch(message.message.from);
@@ -32,20 +31,22 @@ abstract class BaseViewModel {
         debugPrint("Cannot find user for id ${message.message.from}");
         return;
       }
-      final chat = Chat(user.id!);
+
+      //TODO: Return chat id on successful chat creation in database
+      await _createNewUser(user);
+      int chatId = await _createNewChat(message.message.from, user);
+      chat = Chat.fromJSON({"id": chatId, "user_id": message.userId});
       chat.from = user;
       chat.mostRecent = message;
       chats.add(chat);
-      //TODO: Return chat id on successful chat creation in database
-      await _createNewUser(user);
-      await _createNewChat(message.message.from, user);
+    } else {
+      chats.add(chat);
     }
-    message.chatId = chat!.id;
-
+    message.chatId = chat.id;
     await _dataSource.addMessage(message);
   }
 
-  Future<Chat?> _isExistingChat(
+  Future<Chat?> _getChat(
       //TODO: Future impl groups
       String? chatId,
       String? userId,
@@ -55,9 +56,9 @@ abstract class BaseViewModel {
     return await _dataSource.findChat(chatId: chatId, userId: userId);
   }
 
-  Future<void> _createNewChat(String userId, User from) async {
+  Future<int> _createNewChat(String userId, User from) async {
     Chat chat = Chat(userId);
-    await _dataSource.addChat(chat);
+    return await _dataSource.addChat(chat);
   }
 
   Future<void> _createNewUser(User user) async {

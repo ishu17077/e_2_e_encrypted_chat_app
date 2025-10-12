@@ -93,7 +93,7 @@ class CompositionRoot {
         BlocProvider(create: (context) => _chatsCubit),
         BlocProvider(create: (context) => _messageBloc),
         BlocProvider(create: (context) => _typingNotifBloc),
-
+        BlocProvider(create: (context) => _receiptBloc),
         //  BlocProvider(create: (context) => _cu,)
         BlocProvider(create: (context) => _homeCubit),
       ],
@@ -103,15 +103,14 @@ class CompositionRoot {
 
   static Widget composeMessageThreadUi(User receiver, User me,
       {String? chatId}) {
-    final ChatViewModel chatViewModel =
-        ChatViewModel(_dataSource, _userService);
-    final MessageThreadCubit messageThreadCubit =
-        MessageThreadCubit(chatViewModel);
+    final viewModel = ChatViewModel(_dataSource, _userService);
+    final messageThreadCubit = MessageThreadCubit(viewModel);
+
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => _typingNotifBloc),
         BlocProvider(create: (context) => messageThreadCubit),
-        BlocProvider(create: (context) => _receiptBloc),
+        BlocProvider.value(value: _receiptBloc),
+        BlocProvider.value(value: _typingNotifBloc),
       ],
       child: MessageThread(
           receiver, me, _messageBloc, _chatsCubit, _typingNotifBloc,

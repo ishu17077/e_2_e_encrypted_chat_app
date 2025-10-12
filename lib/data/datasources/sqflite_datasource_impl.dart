@@ -72,7 +72,7 @@ class SqfliteDatasource implements IDataSource {
         )["unread"] as int;
         final User user = User.fromJSON(element);
         final Chat chat = Chat.fromJSON({
-          ...element,
+          "id": element["chat_id"],
           "user_id": user.id!,
         });
 

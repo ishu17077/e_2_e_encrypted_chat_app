@@ -41,8 +41,7 @@ class MessageThread extends StatefulWidget {
   State<MessageThread> createState() => _MessageThreadState();
 }
 
-class _MessageThreadState extends State<MessageThread>
-    with WidgetsBindingObserver {
+class _MessageThreadState extends State<MessageThread> {
   late User? signedInUser;
   final TextEditingController _textEditingController = TextEditingController();
   double heightOfTextField = 0;
@@ -60,7 +59,7 @@ class _MessageThreadState extends State<MessageThread>
   // final GlobalKey stickeyKey = GlobalKey();
   @override
   void initState() {
-    WidgetsBinding.instance.addObserver(this);
+    // WidgetsBinding.instance.addObserver(this);
     context.read<ReceiptBloc>().add(ReceiptEvent.onSubscribed(widget.me));
     receiver.id != null
         ? context.read<TypingNotifBloc>().add(TypingNotifEvent.subscribed(
@@ -81,7 +80,8 @@ class _MessageThreadState extends State<MessageThread>
     subscription.cancel();
     _startTypingTimer?.cancel();
     _stopTypingTimer?.cancel();
-    _textEditingController.dispose();
+    _textEditingController
+        .removeListener(() => _textEditingController.dispose());
     super.dispose();
   }
 
@@ -127,58 +127,26 @@ class _MessageThreadState extends State<MessageThread>
       ),
       body: Padding(
         padding: const EdgeInsets.only(top: 0.0, bottom: 7.0),
-        child: Stack(
-          children: [
-            heightOfTextField != 0
-                ? BlocBuilder<MessageThreadCubit, List<LocalMessage>>(
-                    builder: (context, messages) {
-                    this.messages = messages;
-                    if (messages.isEmpty) return SizedBox();
-                    return Positioned(
-                      bottom: heightOfTextField == 0 ? 26 : heightOfTextField,
-                      top: MediaQuery.of(context).size.height * 0.010,
-                      child: SizedBox(
-                        height: MediaQuery.of(context).size.height,
-                        width: MediaQuery.of(context).size.width,
-                        child: _buildListOfMessages(),
-                      ),
-                    );
-                  })
-                // })
-                : const Center(
-                    child: CircularProgressIndicator(),
+        child: SafeArea(
+          child: Column(
+            children: [
+              Expanded(child:
+                  BlocBuilder<MessageThreadCubit, List<LocalMessage>>(
+                      builder: (context, messages) {
+                this.messages = messages;
+                if (messages.isEmpty) return SizedBox();
+                return Positioned(
+                  bottom: heightOfTextField == 0 ? 26 : heightOfTextField,
+                  top: MediaQuery.of(context).size.height * 0.010,
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height,
+                    width: MediaQuery.of(context).size.width,
+                    child: _buildListOfMessages(),
                   ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: MeasureSize(
-                onChange: (size) {
-                  // double? screenHeight =
-                  //     MediaQuery.of(context).size.height;
-                  double widgetHeight = size.height;
-                  if (widgetHeight <= 55) {
-                    setState(() {
-                      heightOfTextField = widgetHeight / 2;
-                    });
-                  } else if (widgetHeight > 55 && widgetHeight < 67) {
-                    setState(() {
-                      heightOfTextField = widgetHeight / 1.55;
-                    });
-                  } else if (widgetHeight >= 67 && widgetHeight < 95) {
-                    setState(() {
-                      heightOfTextField = widgetHeight / 1.425;
-                    });
-                  } else if (widgetHeight >= 100 && widgetHeight < 115) {
-                    setState(() {
-                      heightOfTextField = widgetHeight / 1.30;
-                    });
-                  } else {
-                    setState(() {
-                      heightOfTextField = widgetHeight / 1.25;
-                    });
-                  }
-
-                  print(size.height);
-                },
+                );
+              })),
+              Align(
+                alignment: Alignment.bottomCenter,
                 child: ChatTextField(
                   key: _textBoxChangeKey,
                   textEditingController: _textEditingController,
@@ -187,8 +155,8 @@ class _MessageThreadState extends State<MessageThread>
                   },
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
 
         // }),
@@ -217,7 +185,7 @@ class _MessageThreadState extends State<MessageThread>
 
   void _sendMessage() {
     final text = _textEditingController.text.trim();
-    if (text.isEmpty) {
+    if (text.isNotEmpty) {
       final Message message = Message(
           from: widget.me.id!,
           to: widget.receiver.id!,

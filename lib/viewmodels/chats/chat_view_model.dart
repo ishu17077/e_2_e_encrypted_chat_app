@@ -31,7 +31,7 @@ class ChatViewModel extends BaseViewModel {
           status: ReceiptStatus.sent,
           time: DateTime.now(),
         ),
-        userId: message.from);
+        userId: message.to);
     if (chatId != null) {
       int id = await _dataSource.addMessage(localMessage);
       //TODO: map id to local message
@@ -64,7 +64,8 @@ class ChatViewModel extends BaseViewModel {
   }
 
   Future<void> updateMessageReceipt(Receipt receipt) async {
-    //TODO: Impl receipts
+    //TODO: Impl receipts wrong Impl
+    //receipt.messageId is serverId
     await _dataSource.updateMessageReceipt(receipt.messageId, receipt.status);
   }
 }

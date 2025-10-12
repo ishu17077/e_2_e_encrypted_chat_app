@@ -1,14 +1,8 @@
+import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:secuchat/composition_root.dart';
-// import 'package:secuchat/ui/pages/authentication_pages/sign_up_page.dart';
-import 'package:secuchat/notifications/firebase_api.dart';
-// import 'package:secuchat/server_functions/add_new_user.dart';
-// import 'package:secuchat/ui/pages/home/home.dart';
 import 'package:secuchat/unit_components.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-// import 'package:secuchat/ui/pages/chatPage/chat_page.dart';
 import 'package:flutter/services.dart';
-// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,6 +13,12 @@ void main() async {
   // if (user != null) {
   //   await FirebaseApi().initNotifications();
   // } //? initialize notification for them
+  try {
+    FlutterDisplayMode.setHighRefreshRate();
+  } catch (e) {
+    debugPrint(e.toString());
+  }
+
   await SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   await CompositionRoot.configure();
@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return    MaterialApp(
+    return MaterialApp(
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       title: 'SecuChat',
