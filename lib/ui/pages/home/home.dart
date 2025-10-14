@@ -12,12 +12,10 @@ import 'package:secuchat/unit_components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-final _firestore = FirebaseFirestore.instance;
-
 class Home extends StatefulWidget {
   final User me;
   final IHomeRouter router;
-  const Home(this.me, this.router);
+  const Home(this.me, this.router, {super.key});
   @override
   State<Home> createState() => _HomeState();
 }
