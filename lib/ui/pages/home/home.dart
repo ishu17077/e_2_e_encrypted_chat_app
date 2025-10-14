@@ -201,7 +201,8 @@ class _HomeState extends State<Home>
                       ),
                     ],
                   ),
-                  onPressed: () {},
+                  onPressed: () =>
+                      widget.router.onShowNewChatUi(context, widget.me),
                 ),
               ],
             ),
@@ -278,26 +279,6 @@ class _HomeState extends State<Home>
           );
         },
       ),
-
-      // trailing: ,
-      //TODO: Impl Receipt
-      // trailing: Align(
-      //   alignment: Alignment.centerLeft,
-      //   child:
-      //       _isMe(chatStore.mostRecentMessage.senderEmail, signedInUser!.email!)
-      //           ? chatStore.mostRecentMessage.isSeen
-      //               ? const Icon(
-      //                   Icons.done_all,
-      //                   color: Colors.blue,
-      //                   size: 12,
-      //                 )
-      //               : const Icon(
-      //                   Icons.done,
-      //                   color: Colors.grey,
-      //                   size: 17,
-      //                 )
-      //           : const SizedBox(),
-      // ),
       onTap: () async {
         await this.widget.router.onShowMessageThread(
             context, chat.from, widget.me,

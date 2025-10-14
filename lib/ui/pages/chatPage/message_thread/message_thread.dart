@@ -126,7 +126,7 @@ class _MessageThreadState extends State<MessageThread> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.only(top: 0.0, bottom: 7.0),
+        padding: const EdgeInsets.only(top: 0.0, bottom: 15.0),
         child: SafeArea(
           child: Column(
             children: [
@@ -135,15 +135,7 @@ class _MessageThreadState extends State<MessageThread> {
                       builder: (context, messages) {
                 this.messages = messages;
                 if (messages.isEmpty) return SizedBox();
-                return Positioned(
-                  bottom: heightOfTextField == 0 ? 26 : heightOfTextField,
-                  top: MediaQuery.of(context).size.height * 0.010,
-                  child: SizedBox(
-                    height: MediaQuery.of(context).size.height,
-                    width: MediaQuery.of(context).size.width,
-                    child: _buildListOfMessages(),
-                  ),
-                );
+                return _buildListOfMessages();
               })),
               Align(
                 alignment: Alignment.bottomCenter,
@@ -242,6 +234,7 @@ class _MessageThreadState extends State<MessageThread> {
 
   void _updateOnReceiptReceived() async {
     final messageThreadCubit = context.read<MessageThreadCubit>();
+    final receiptBloc = context.read<ReceiptBloc>();
     if (chatId.isNotEmpty) {
       messageThreadCubit.messages(chatId);
     }
@@ -255,14 +248,19 @@ class _MessageThreadState extends State<MessageThread> {
             status: ReceiptStatus.read,
             time: DateTime.now());
 
-        context.read<ReceiptBloc>().add(ReceiptEvent.onMessageSent(receipt));
+        receiptBloc.add(ReceiptEvent.onMessageSent(receipt));
       }
       if (state is MessageSentSuccess) {
         await messageThreadCubit.chatViewModel.sentMessage(state.message);
+        if (chatId.isEmpty) {
+          chatId = messageThreadCubit.chatViewModel.chatId ??
+              messageThreadCubit.chatViewModel.chats
+                  .where((chat) => chat.userId == state.message.to)
+                  .first
+                  .id;
+        }
       }
-      if (chatId.isEmpty) {
-        chatId = "${messageThreadCubit.chatViewModel.chatId!}";
-      }
+
       await messageThreadCubit.messages(chatId);
       await widget.chatsCubit.chats();
     });

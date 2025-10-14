@@ -62,7 +62,7 @@ class ChatPill extends StatelessWidget {
                 const SizedBox(width: 5),
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: isMe ?? false
+                  child: isMe
                       ? receiptStatus == ReceiptStatus.read
                           ? const Icon(
                               Icons.done_all,
@@ -81,7 +81,7 @@ class ChatPill extends StatelessWidget {
           ),
         ),
         isLastMessage
-            ? SizedBox(height: MediaQuery.of(context).size.height * 0.038)
+            ? SizedBox(height: MediaQuery.of(context).size.height * 0.018)
             : const SizedBox(),
       ]),
     );

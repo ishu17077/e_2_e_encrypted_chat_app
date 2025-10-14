@@ -66,6 +66,12 @@ class ChatViewModel extends BaseViewModel {
   Future<void> updateMessageReceipt(Receipt receipt) async {
     //TODO: Impl receipts wrong Impl
     //receipt.messageId is serverId
+    for (LocalMessage message in messages) {
+      if (message.message.id == receipt.messageId) {
+        message.receipt = receipt;
+        break;
+      }
+    }
     await _dataSource.updateMessageReceipt(receipt.messageId, receipt.status);
   }
 }

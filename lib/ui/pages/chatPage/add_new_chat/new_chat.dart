@@ -1,5 +1,3 @@
-// ignore_for_file: must_be_immutable
-
 import 'package:chat/chat.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,26 +9,21 @@ import 'package:secuchat/ui/pages/home/home_router.dart';
 import 'package:secuchat/ui/widgets/app_back_button.dart';
 import 'package:secuchat/unit_components.dart';
 
-// ignore: camel_case_types
-class ChatAdd extends StatefulWidget {
+class NewChat extends StatefulWidget {
   final User me;
   final IHomeRouter homeRouter;
-  const ChatAdd(this.me, this.homeRouter, {super.key});
+  const NewChat(this.me, this.homeRouter, {super.key});
 
   @override
-  State<ChatAdd> createState() => _ChatAddState();
+  State<NewChat> createState() => _NewChatState();
 }
 
-class _ChatAddState extends State<ChatAdd> {
+class _NewChatState extends State<NewChat> {
   late final ChatsCubit chatsCubit;
 
   @override
   void initState() {
     chatsCubit = context.read<ChatsCubit>();
-    // if (widget.me == null) {
-    //   Navigator.pushReplacement(
-    //       context, MaterialPageRoute(builder: (context) => SignUpPage()));
-    // }
     context.read<HomeCubit>().activeUsers(widget.me);
     super.initState();
   }
@@ -68,7 +61,7 @@ class _ChatAddState extends State<ChatAdd> {
   Widget chatTile(User user) {
     return ListTile(
       tileColor: kBackgroundColor,
-      splashColor: kSexyTealColor.withOpacity(0.2),
+      splashColor: kSexyTealColor.withValues(alpha: 0.2),
       leading: CircleAvatar(
         backgroundColor: kSexyTealColor,
         backgroundImage: NetworkImage(user.photoUrl ??
@@ -82,22 +75,22 @@ class _ChatAddState extends State<ChatAdd> {
         user.email ?? '**No Email**',
         style: const TextStyle(color: Colors.white70),
       ),
-      onTap: () {
-        widget.homeRouter.onShowMessageThread(context, user, widget.me,
-            chatId: _chatChatExists(user.id!));
-      },
+      onTap: () => widget.homeRouter.onShowMessageThread(
+          context, user, widget.me,
+          chatId: _chatChatExists(user.id!)),
       enabled: true,
       enableFeedback: true,
     );
   }
 
   String? _chatChatExists(String userId) {
-    final chats = chatsCubit.viewModel.chats;
+    var chats = chatsCubit.viewModel.chats;
     for (Chat chat in chats) {
       if (chat.userId == userId) {
         return chat.id;
       }
     }
+
     return null;
   }
 }

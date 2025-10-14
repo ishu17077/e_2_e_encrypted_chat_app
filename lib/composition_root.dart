@@ -13,6 +13,7 @@ import 'package:secuchat/state_management/message_thread/message_thread_cubit.da
 import 'package:secuchat/state_management/onboarding/onboarding_cubit.dart';
 import 'package:secuchat/state_management/receipt/receipt_bloc.dart';
 import 'package:secuchat/state_management/typing/typing_notif_bloc.dart';
+import 'package:secuchat/ui/pages/chatPage/add_new_chat/new_chat.dart';
 import 'package:secuchat/ui/pages/chatPage/message_thread/message_thread.dart';
 import 'package:secuchat/ui/pages/home/home.dart';
 import 'package:secuchat/ui/pages/home/home_router.dart';
@@ -50,6 +51,7 @@ class CompositionRoot {
   static late AuthViewModel _authViewModel;
   static late GoogleSignInViewModel _googleSignInViewModel;
   static late EmailSignInViewModel _emailSignInViewModel;
+  static late HomeRouter _homeRouter;
 
   static Future<void> configure() async {
     await Firebase.initializeApp();
@@ -78,6 +80,7 @@ class CompositionRoot {
         _googleSignIn, _firebaseAuth, _userService, _localCache);
     _emailSignInViewModel =
         EmailSignInViewModel(_firebaseAuth, _userService, _localCache);
+    _homeRouter = HomeRouter(composeMessageThreadUi, composeNewChatUi);
   }
 
   static Widget start() {
@@ -86,7 +89,6 @@ class CompositionRoot {
   }
 
   static Widget composeHomeUi(User me) {
-    final IHomeRouter homeRouter = HomeRouter(composeMessageThreadUi);
     //TODO: Final Impl
     return MultiBlocProvider(
       providers: [
@@ -94,10 +96,9 @@ class CompositionRoot {
         BlocProvider(create: (context) => _messageBloc),
         BlocProvider(create: (context) => _typingNotifBloc),
         BlocProvider(create: (context) => _receiptBloc),
-        //  BlocProvider(create: (context) => _cu,)
         BlocProvider(create: (context) => _homeCubit),
       ],
-      child: Home(me, homeRouter),
+      child: Home(me, _homeRouter),
     );
   }
 
@@ -127,5 +128,12 @@ class CompositionRoot {
       BlocProvider(create: (context) => onboardingCubit),
       //TODO: Image Cubit
     ], child: Onboarding(onboardingRouter));
+  }
+
+  static Widget composeNewChatUi(User me) {
+    return MultiBlocProvider(providers: [
+      BlocProvider.value(value: _chatsCubit),
+      BlocProvider.value(value: _homeCubit)
+    ], child: NewChat(me, _homeRouter));
   }
 }
