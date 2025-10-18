@@ -1,8 +1,8 @@
-# secuchat
+### Secuchat
 
-SecuChat
+<h3>To be updated soon<h3>
 
-## Getting Started
+## Getting Started With Flutter Documentation
 
 The Project was made to improve the current privacy fiasco of chat apps.
 
